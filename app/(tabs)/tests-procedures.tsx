@@ -24,8 +24,17 @@ interface CardContent {
 
 const TestInfoCard = ({ card, colorScheme }: { card: CardContent; colorScheme: ColorSchemeName }) => {
   return (
-    <Link href={card.link} asChild>
-      <TouchableOpacity style={[styles.card, { backgroundColor: colorScheme === 'dark' ? '#333' : '#ffb1b1' }]}>
+    <Link
+      href={card.link}
+      style={[
+        styles.card,
+        {
+          backgroundColor: colorScheme === 'dark' ? '#111' : '#ffb1b1',
+        },
+      ]}
+      asChild
+    >
+      <TouchableOpacity>
         <View style={styles.cardContent}>
           <Text style={[styles.category, { color: colorScheme === 'dark' ? '#BBB' : '#666' }]}>{card.category}</Text>
           <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>{card.title}</Text>
@@ -90,9 +99,13 @@ export default function TestsProceduresScreen() {
   ]
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#222' : '#FFF' }]}>
+    <ScrollView style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#333' : '#FFF' }]}>
       <Text style={[styles.screenTitle, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
-        Tests and Procedures
+        Szeroki wybór testów i procedur.
+      </Text>
+      <Text style={[styles.testText, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
+        Wybieraj spośród ponad 500 testów obejmujących szeroką gamę odpowiednich tematów rozwoju zawodowego opiekunów
+        medycznych!
       </Text>
       {cards.map((card, index) => (
         <React.Fragment key={index}>
@@ -112,10 +125,16 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginVertical: 50,
     textAlign: 'center',
   },
+  testText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'left',
+  },
   card: {
+    flex: 1,
     height: 470,
     width: '100%',
     marginVertical: 20, // Add vertical margin
