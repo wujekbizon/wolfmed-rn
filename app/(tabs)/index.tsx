@@ -8,8 +8,8 @@ export default function HomeScreen() {
   const scrollY = new Animated.Value(0)
 
   const headerHeight = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [300, 200],
+    inputRange: [0, 200],
+    outputRange: [400, 300],
     extrapolate: 'clamp',
   })
 
@@ -33,8 +33,13 @@ export default function HomeScreen() {
               },
             ]}
           >
-            <Text style={styles.title}>Witamy w Wolfmed Edukacja</Text>
-            <Text style={styles.subtitle}>Edukacja medyczna może być jeszcze łatwiejsza.</Text>
+            <Text style={styles.title}>
+              Witamy w <Text style={{ fontWeight: 'bold' }}>Wolfmed Edukacja</Text>
+            </Text>
+            <Text style={styles.subtitle}>
+              Edukacja <Text style={{ color: '#FF69B4', fontWeight: 'bold' }}>medyczna</Text> może być jeszcze
+              łatwiejsza.
+            </Text>
           </Animated.View>
         </ImageBackground>
       </Animated.View>
@@ -44,15 +49,23 @@ export default function HomeScreen() {
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
         scrollEventThrottle={16}
       >
-        <View style={styles.content}>
+        <View style={[styles.content, { backgroundColor: colorScheme === 'dark' ? '#222' : '#ffecec' }]}>
           <Text style={[styles.description, { color: colorScheme === 'dark' ? '#DDD' : '#333' }]}>
             Odkryj nowe możliwości w edukacji medycznej z Wolfmed. Nasza platforma oferuje szeroki zakres testów i
             procedur, które pomogą Ci w rozwoju zawodowym.
           </Text>
-          <Link href={'/tests-procedures' as Href<string>} asChild>
-            <TouchableOpacity
-              style={[styles.ctaButton, { backgroundColor: colorScheme === 'dark' ? '#FF69B4' : '#FF1493' }]}
-            >
+
+          <Text style={[styles.description, { color: colorScheme === 'dark' ? '#DDD' : '#2e2d2d' }]}>
+            Ponadto oferujemy dostęp do bloga medycznego, gdzie można znależc wiele ciekawych artykułów i materiałów
+            edukacyjnych. W niedalekiej przyszłści planujemy dodać do naszej platformy kursy i szkolenia poszerzające
+            wiedzę medyczną.
+          </Text>
+          <Link
+            href={'/tests-procedures' as Href<string>}
+            style={[styles.ctaButton, { backgroundColor: colorScheme === 'dark' ? '#FF69B4' : '#FF1493' }]}
+            asChild
+          >
+            <TouchableOpacity>
               <Text style={styles.ctaButtonText}>Rozpocznij naukę</Text>
             </TouchableOpacity>
           </Link>
@@ -72,49 +85,55 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   heroContent: {
     padding: 20,
     alignItems: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFF',
+    fontSize: 34,
+    fontWeight: '400',
+    color: '#ffffff',
     textAlign: 'center',
     marginBottom: 10,
+    lineHeight: 40,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#FFF',
+    fontSize: 20,
+    color: '#d7d7d7',
     textAlign: 'center',
+    lineHeight: 28,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     alignItems: 'center',
   },
   description: {
     fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
+    textAlign: 'left',
+    lineHeight: 26,
   },
   ctaButton: {
     paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingHorizontal: 48,
     borderRadius: 25,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#FF69B4',
+    marginVertical: 20,
   },
   ctaButtonText: {
-    color: '#451818',
+    color: '#080808',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
 })

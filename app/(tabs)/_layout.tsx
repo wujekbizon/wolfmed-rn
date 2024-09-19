@@ -15,28 +15,28 @@ export default function TabLayout() {
         tabBarActiveTintColor: colorScheme === 'dark' ? '#FF69B4' : '#FF1493',
         tabBarInactiveTintColor: colorScheme === 'dark' ? '#888' : '#666',
         tabBarStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#222' : '#FFF',
+          backgroundColor: colorScheme === 'dark' ? '#222' : '#ffe7e7',
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Wolfmed Edukacja',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
         }}
       />
       <Tabs.Screen
         name="tests-procedures"
         options={{
-          title: 'Tests & Procedures',
+          title: 'Nauka',
           tabBarIcon: ({ color }) => <TabBarIcon name="stethoscope" color={color} />,
         }}
       />
       <Tabs.Screen
         name="about"
         options={{
-          title: 'About',
+          title: 'O nas',
           tabBarIcon: ({ color }) => <TabBarIcon name="info-circle" color={color} />,
         }}
       />
@@ -50,14 +50,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tests"
         options={{
-          title: 'Tests',
+          title: 'Testy',
           tabBarButton: () => null,
         }}
       />
       <Tabs.Screen
         name="procedures"
         options={{
-          title: 'Procedures',
+          title: 'Procedury',
           tabBarButton: () => null,
         }}
       />

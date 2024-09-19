@@ -29,7 +29,7 @@ const TestInfoCard = ({ card, colorScheme }: { card: CardContent; colorScheme: C
       style={[
         styles.card,
         {
-          backgroundColor: colorScheme === 'dark' ? '#111' : '#ffb1b1',
+          backgroundColor: colorScheme === 'dark' ? '#111' : '#fff1f1',
         },
       ]}
       asChild
@@ -192,6 +192,6 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     width: '100%',
-    marginVertical: 20, // Add vertical margin to the divider
+    marginVertical: 10,
   },
 })

@@ -22,7 +22,7 @@ interface Test {
   updatedAt?: Date | null
 }
 
-const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+const LETTERS = ['a', 'b', 'c', 'd']
 
 const LearningCard = ({ test, questionNumber }: { test: Test; questionNumber: string }) => {
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false)
@@ -93,7 +93,7 @@ export default function TestsScreen() {
 
   const renderItem = useCallback(
     ({ item, index }: { item: Test; index: number }) => (
-      <LearningCard test={item} questionNumber={`Question ${index + 1}`} />
+      <LearningCard test={item} questionNumber={`${index + 1}/${testsData.length}`} />
     ),
     []
   )
@@ -102,14 +102,16 @@ export default function TestsScreen() {
     if (!isLoading) return null
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#ff9be8" />
       </View>
     )
   }
 
   return (
     <View style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#222' : '#FFF' }]}>
-      <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>Medical Tests</Text>
+      <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
+        Pytania dla opiekunów medycznych
+      </Text>
       <FlatList
         data={displayedTests}
         renderItem={renderItem}
@@ -132,12 +134,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
   listContainer: {
     paddingBottom: 20,
   },
   card: {
-    minHeight: 340,
+    flexGrow: 1,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -164,7 +167,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   answerContainer: {
-    flex: 1,
+    flexGrow: 1,
     marginBottom: 16,
   },
   answerItem: {
