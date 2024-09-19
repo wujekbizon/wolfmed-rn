@@ -1,16 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { useColorScheme } from 'react-native'
 
-export default function HomeScreen() {
+export default function AboutScreen() {
   const colorScheme = useColorScheme()
 
   return (
     <View style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#222' : '#FFF' }]}>
-      <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
-        Welcome to Medical Education
-      </Text>
+      <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>About Us</Text>
       <Text style={[styles.subtitle, { color: colorScheme === 'dark' ? '#DDD' : '#333' }]}>
-        Your journey to medical knowledge starts here
+        Learn more about our medical education platform
       </Text>
     </View>
   )
