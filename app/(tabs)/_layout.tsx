@@ -24,6 +24,7 @@ export default function TabLayout() {
         options={{
           title: 'Wolfmed Edukacja',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -31,13 +32,23 @@ export default function TabLayout() {
         options={{
           title: 'Nauka',
           tabBarIcon: ({ color }) => <TabBarIcon name="stethoscope" color={color} />,
+          headerShown: false,
         }}
       />
+      <Tabs.Screen
+        name="tests"
+        options={{
+          title: 'Testy',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+
       <Tabs.Screen
         name="about"
         options={{
           title: 'O nas',
           tabBarIcon: ({ color }) => <TabBarIcon name="info-circle" color={color} />,
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -48,9 +59,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="tests"
+        name="learn"
         options={{
-          title: 'Testy',
+          title: 'Nauka',
           tabBarButton: () => null,
         }}
       />

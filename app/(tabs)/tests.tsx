@@ -1,126 +1,56 @@
-import React, { useState, useCallback } from 'react'
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native'
-import { useColorScheme } from 'react-native'
+import React, { useEffect } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
+import { useGenerateTestStore } from '../../store/useGenerateTestStore'
 import testsData from '../../data/tests.json'
+import { Test } from '@/types/dataTypes'
+import TestsLevelMenu from '@/components/TestsLevelMenu'
+import TestCard from '@/components/TestCard'
 
-// Define the types
-type Answer = {
-  option: string
-  isCorrect: boolean
-}
+export default function Testy() {
+  const { numberTests, isTest, setNumberTests, setIsTest, tests, setTests } = useGenerateTestStore()
 
-interface TestData {
-  question: string
-  answers: Answer[]
-}
+  useEffect(() => {
+    // Load tests from JSON file
+    setTests(testsData as Test[])
+  }, [])
 
-interface Test {
-  id?: string
-  data: TestData
-  category: string
-  createdAt?: Date
-  updatedAt?: Date | null
-}
+  const randomTest = tests.slice(0, numberTests || 0)
 
-const LETTERS = ['a', 'b', 'c', 'd']
+  const handleSubmit = () => {
+    // Implement submit logic here
+    setNumberTests(null)
+    setIsTest(false)
+  }
 
-const LearningCard = ({ test, questionNumber }: { test: Test; questionNumber: string }) => {
-  const [showCorrectAnswer, setShowCorrectAnswer] = useState(false)
-  const colorScheme = useColorScheme()
-  const { answers, question } = test.data
-
-  const handleCorrectAnswer = () => {
-    setShowCorrectAnswer(!showCorrectAnswer)
+  const handleReset = () => {
+    setNumberTests(null)
+    setIsTest(false)
   }
 
   return (
-    <View style={[styles.card, { backgroundColor: colorScheme === 'dark' ? '#333' : '#FFF' }]}>
-      <Text style={[styles.questionNumber, { color: colorScheme === 'dark' ? '#BBB' : '#666' }]}>{questionNumber}</Text>
-      <Text style={[styles.question, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>{question}</Text>
-      <ScrollView style={styles.answerContainer}>
-        {answers.map(({ option, isCorrect }, index) => (
-          <View key={option} style={styles.answerItem}>
-            <Text
-              style={[
-                styles.answerLetter,
-                {
-                  color: showCorrectAnswer && isCorrect ? '#ff6060' : '#ffabab',
-                  opacity: showCorrectAnswer && !isCorrect ? 0.25 : 1,
-                },
-              ]}
-            >
-              {LETTERS[index]})
-            </Text>
-            <Text
-              style={[
-                styles.answerText,
-                {
-                  color: colorScheme === 'dark' ? '#FFF' : '#000',
-                  opacity: showCorrectAnswer && !isCorrect ? 0.25 : 1,
-                  backgroundColor: showCorrectAnswer && isCorrect ? '#ffdcdc' : 'transparent',
-                },
-              ]}
-            >
-              {option}
-            </Text>
+    <View style={styles.container}>
+      {!isTest ? (
+        <TestsLevelMenu />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {randomTest.map((item, index) => (
+            <TestCard
+              formState={{ status: 'UNSET', message: '', fieldErrors: {}, timestamp: 0 }}
+              key={item.id}
+              test={item}
+              questionNumber={`${index + 1}/${randomTest.length}`}
+            />
+          ))}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText}>Prześlij Test</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleReset}>
+              <Text style={styles.buttonText}>Reset Test</Text>
+            </TouchableOpacity>
           </View>
-        ))}
-      </ScrollView>
-      <TouchableOpacity style={[styles.button, { backgroundColor: '#ffb1b1' }]} onPress={handleCorrectAnswer}>
-        <Text style={styles.buttonText}>{showCorrectAnswer ? 'Ukryj Odpowiedź' : 'Pokaż Odpowiedź'}</Text>
-      </TouchableOpacity>
-    </View>
-  )
-}
-
-const ITEMS_PER_PAGE = 25
-
-export default function TestsScreen() {
-  const colorScheme = useColorScheme()
-  const [displayedTests, setDisplayedTests] = useState<Test[]>(testsData.slice(0, ITEMS_PER_PAGE))
-  const [isLoading, setIsLoading] = useState(false)
-
-  const loadMoreTests = useCallback(() => {
-    if (isLoading || displayedTests.length >= testsData.length) return
-
-    setIsLoading(true)
-    setTimeout(() => {
-      const newTests = testsData.slice(displayedTests.length, displayedTests.length + ITEMS_PER_PAGE)
-      setDisplayedTests((prevTests) => [...prevTests, ...newTests])
-      setIsLoading(false)
-    }, 400) // Simulate network delay
-  }, [displayedTests, isLoading])
-
-  const renderItem = useCallback(
-    ({ item, index }: { item: Test; index: number }) => (
-      <LearningCard test={item} questionNumber={`${index + 1}/${testsData.length}`} />
-    ),
-    []
-  )
-
-  const renderFooter = () => {
-    if (!isLoading) return null
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#ff9be8" />
-      </View>
-    )
-  }
-
-  return (
-    <View style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#222' : '#FFF' }]}>
-      <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
-        Pytania dla opiekunów medycznych
-      </Text>
-      <FlatList
-        data={displayedTests}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => item.id || index.toString()}
-        contentContainerStyle={styles.listContainer}
-        onEndReached={loadMoreTests}
-        onEndReachedThreshold={0.1}
-        ListFooterComponent={renderFooter}
-      />
+        </ScrollView>
+      )}
     </View>
   )
 }
@@ -128,78 +58,50 @@ export default function TestsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  listContainer: {
-    paddingBottom: 20,
-  },
-  card: {
-    flexGrow: 1,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 0, 0, 0.1)',
     padding: 16,
-    marginBottom: 20,
+    justifyContent: 'center',
+  },
+  menuContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollContent: {
+    gap: 16,
+  },
+  testCard: {
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderRadius: 8,
+    backgroundColor: '#f8fafc',
   },
   questionNumber: {
-    position: 'absolute',
-    right: 8,
-    top: 4,
-    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
   question: {
     fontSize: 16,
-    fontWeight: 'bold',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
-    paddingBottom: 8,
-    marginBottom: 16,
   },
-  answerContainer: {
-    flexGrow: 1,
-    marginBottom: 16,
-  },
-  answerItem: {
+  buttonContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  answerLetter: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  answerText: {
-    fontSize: 14,
-    flex: 1,
-    paddingVertical: 2,
-    paddingHorizontal: 4,
+    justifyContent: 'center',
+    gap: 16,
+    marginTop: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#fecaca',
     borderRadius: 8,
+    backgroundColor: '#f1f5f9',
   },
   button: {
-    height: 36,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
+    backgroundColor: '#3b82f6',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 4,
   },
   buttonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#000',
-  },
-  loaderContainer: {
-    marginVertical: 16,
-    alignItems: 'center',
+    color: 'white',
+    fontWeight: 'bold',
   },
 })

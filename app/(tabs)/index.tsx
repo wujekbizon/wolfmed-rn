@@ -25,7 +25,7 @@ export default function HomeScreen() {
                 transform: [
                   {
                     translateY: scrollY.interpolate({
-                      inputRange: [-100, 0, 100],
+                      inputRange: [-100, 0, 40],
                       outputRange: [50, 0, -50],
                     }),
                   },
