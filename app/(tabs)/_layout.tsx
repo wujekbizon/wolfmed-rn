@@ -1,6 +1,8 @@
-import { Tabs } from 'expo-router'
+import { Tabs, Redirect, useRouter } from 'expo-router'
 import { useColorScheme } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
+import { useAuth } from '@clerk/clerk-expo'
+import { TouchableOpacity } from 'react-native'
 
 function TabBarIcon(props: { name: React.ComponentProps<typeof FontAwesome>['name']; color: string }) {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />
@@ -8,6 +10,25 @@ function TabBarIcon(props: { name: React.ComponentProps<typeof FontAwesome>['nam
 
 export default function TabLayout() {
   const colorScheme = useColorScheme()
+  const { isSignedIn, isLoaded, signOut } = useAuth()
+  const router = useRouter()
+
+  if (!isLoaded) {
+    return null
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href="/sign-in" />
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.replace('/sign-in')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
 
   return (
     <Tabs
@@ -24,7 +45,11 @@ export default function TabLayout() {
         options={{
           title: 'Wolfmed Edukacja',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          headerShown: false,
+          headerRight: () => (
+            <TouchableOpacity onPress={handleSignOut} style={{ marginRight: 15 }}>
+              <FontAwesome name="sign-out" size={24} color={colorScheme === 'dark' ? '#FF69B4' : '#FF1493'} />
+            </TouchableOpacity>
+          ),
         }}
       />
       <Tabs.Screen
