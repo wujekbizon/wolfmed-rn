@@ -15,6 +15,8 @@ import * as AuthSession from 'expo-auth-session'
 import { useSSO } from '@clerk/clerk-expo'
 import { cn } from '@/lib/utils'
 import { useAuthAnimations } from '@/hooks/useAuthAnimations'
+import { type SignInFormData } from '@/lib/validations/auth'
+import { validateSignInForm, handleAuthError } from '@/lib/helpers/auth-helpers'
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
@@ -41,6 +43,7 @@ export default function SignInScreen() {
   const [emailAddress, setEmailAddress] = useState('')
   const [password, setPassword] = useState('')
   const [isAuthenticating, setIsAuthenticating] = useState(false)
+  const [errors, setErrors] = useState<Partial<SignInFormData>>({})
   
   const {
     handleSignInPressIn,
@@ -57,6 +60,13 @@ export default function SignInScreen() {
 
   const onSignInPress = useCallback(async () => {
     if (!isLoaded || isAuthenticating) return
+    
+    const { isValid, errors } = validateSignInForm(emailAddress, password)
+    if (!isValid) {
+      setErrors(errors)
+      return
+    }
+    
     setIsAuthenticating(true)
     
     try {
@@ -73,6 +83,7 @@ export default function SignInScreen() {
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      setErrors(handleAuthError(err))
     } finally {
       setIsAuthenticating(false)
     }
@@ -129,50 +140,87 @@ export default function SignInScreen() {
           </Animated.Text>
           
           <View className="flex flex-col gap-4 mb-6">
-            <AnimatedTextInput
-              entering={FadeInDown.delay(400)}
-              className={cn(
-                "rounded-xl p-4 text-base border",
-                isDark ? "text-white" : "text-[#111]",
-                "backdrop-blur-md"
+            <View>
+              <AnimatedTextInput
+                entering={FadeInDown.delay(400)}
+                className={cn(
+                  "rounded-xl p-4 text-base border",
+                  isDark ? "text-white" : "text-[#111]",
+                  "backdrop-blur-md",
+                  errors.email && "border-red-500"
+                )}
+                style={[
+                  { 
+                    borderColor: errors.email 
+                      ? '#ef4444' 
+                      : isDark 
+                        ? 'rgba(255,255,255,0.15)' 
+                        : 'rgba(0,0,0,0.1)',
+                  },
+                  emailInputStyle
+                ]}
+                autoCapitalize="none"
+                value={emailAddress}
+                placeholder="Email"
+                placeholderTextColor={isDark ? '#999' : '#666'}
+                onChangeText={(text) => {
+                  setEmailAddress(text)
+                  if (errors.email) setErrors(prev => ({ ...prev, email: undefined }))
+                }}
+                onFocus={() => handleFocus('email')}
+                onBlur={() => handleBlur('email')}
+                editable={!isAuthenticating}
+              />
+              {errors.email && (
+                <Animated.Text 
+                  entering={FadeInDown}
+                  className="text-red-500 text-sm mt-1 ml-1"
+                >
+                  {errors.email}
+                </Animated.Text>
               )}
-              style={[
-                { 
-                  borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
-                },
-                emailInputStyle
-              ]}
-              autoCapitalize="none"
-              value={emailAddress}
-              placeholder="Email"
-              placeholderTextColor={isDark ? '#999' : '#666'}
-              onChangeText={setEmailAddress}
-              onFocus={() => handleFocus('email')}
-              onBlur={() => handleBlur('email')}
-              editable={!isAuthenticating}
-            />
-            <AnimatedTextInput
-              entering={FadeInDown.delay(600)}
-              className={cn(
-                "rounded-xl p-4 text-base border",
-                isDark ? "text-white" : "text-[#111]",
-                "backdrop-blur-md"
+            </View>
+            
+            <View>
+              <AnimatedTextInput
+                entering={FadeInDown.delay(600)}
+                className={cn(
+                  "rounded-xl p-4 text-base border",
+                  isDark ? "text-white" : "text-[#111]",
+                  "backdrop-blur-md",
+                  errors.password && "border-red-500"
+                )}
+                style={[
+                  { 
+                    borderColor: errors.password 
+                      ? '#ef4444' 
+                      : isDark 
+                        ? 'rgba(255,255,255,0.15)' 
+                        : 'rgba(0,0,0,0.1)',
+                  },
+                  passwordInputStyle
+                ]}
+                value={password}
+                placeholder="Password"
+                placeholderTextColor={isDark ? '#999' : '#666'}
+                secureTextEntry={true}
+                onChangeText={(text) => {
+                  setPassword(text)
+                  if (errors.password) setErrors(prev => ({ ...prev, password: undefined }))
+                }}
+                onFocus={() => handleFocus('password')}
+                onBlur={() => handleBlur('password')}
+                editable={!isAuthenticating}
+              />
+              {errors.password && (
+                <Animated.Text 
+                  entering={FadeInDown}
+                  className="text-red-500 text-sm mt-1 ml-1"
+                >
+                  {errors.password}
+                </Animated.Text>
               )}
-              style={[
-                { 
-                  borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
-                },
-                passwordInputStyle
-              ]}
-              value={password}
-              placeholder="Password"
-              placeholderTextColor={isDark ? '#999' : '#666'}
-              secureTextEntry={true}
-              onChangeText={setPassword}
-              onFocus={() => handleFocus('password')}
-              onBlur={() => handleBlur('password')}
-              editable={!isAuthenticating}
-            />
+            </View>
           </View>
 
           <View className="flex flex-col gap-6">
