@@ -50,6 +50,7 @@ export default function TabLayout() {
               <FontAwesome name="sign-out" size={24} color={colorScheme === 'dark' ? '#FF69B4' : '#FF1493'} />
             </TouchableOpacity>
           ),
+          // headerShown: false,
         }}
       />
       <Tabs.Screen
