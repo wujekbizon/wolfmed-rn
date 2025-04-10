@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { TextInput, TouchableOpacity, View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
-import { useSignUp } from '@clerk/clerk-expo'
+import { useSignUp, useUser } from '@clerk/clerk-expo'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { createUser } from '../api/users'
+import { UserData } from '@/types/dataTypes'
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
+  const { user } = useUser()
   const router = useRouter()
 
   const [emailAddress, setEmailAddress] = useState('')
@@ -44,6 +47,21 @@ export default function SignUpScreen() {
 
       if (completeSignUp.status === 'complete') {
         await setActive({ session: completeSignUp.createdSessionId })
+
+        // Set the default role in publicMetadata
+        await user?.update({
+          unsafeMetadata: { role: 'user' },
+        })
+
+        const newUser: UserData = {
+          userId: completeSignUp.createdUserId!,
+          role: 'user',
+          username: '',
+          motto: '',
+        }
+
+        await createUser(newUser)
+
         router.replace('/')
       } else {
         console.error(JSON.stringify(completeSignUp, null, 2))

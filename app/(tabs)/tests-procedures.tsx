@@ -1,28 +1,51 @@
-import React from 'react'
-import { StyleSheet, Text, ScrollView, ColorSchemeName, useColorScheme } from 'react-native'
+import React, { useCallback } from 'react'
+import { StyleSheet, Text, View, FlatList, useColorScheme } from 'react-native'
 import { cards } from '@/constants/cardContent'
 import { TestInfoCard } from '@/components/TestInfoCard'
 import { Divider } from '@/components/Divider'
+import { CardContent } from '@/types/dataTypes'
 
 export default function TestsProceduresScreen() {
   const colorScheme = useColorScheme()
 
+  const renderItem = useCallback(
+    ({ item, index }: { item: CardContent; index: number }) => (
+      <View>
+        <TestInfoCard card={item} colorScheme={colorScheme} />
+        {index < cards.length - 1 && <Divider colorScheme={colorScheme} />}
+      </View>
+    ),
+    [colorScheme]
+  )
+
+  const ListHeaderComponent = useCallback(
+    () => (
+      <>
+        <Text style={[styles.screenTitle, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
+          Szeroki wybór testów i procedur.
+        </Text>
+        <Text style={[styles.testText, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
+          Wybieraj spośród ponad 500 testów obejmujących szeroką gamę odpowiednich tematów rozwoju zawodowego opiekunów
+          medycznych!
+        </Text>
+      </>
+    ),
+    [colorScheme]
+  )
+
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#333' : '#FFF' }]}>
-      <Text style={[styles.screenTitle, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
-        Szeroki wybór testów i procedur.
-      </Text>
-      <Text style={[styles.testText, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
-        Wybieraj spośród ponad 500 testów obejmujących szeroką gamę odpowiednich tematów rozwoju zawodowego opiekunów
-        medycznych!
-      </Text>
-      {cards.map((card, index) => (
-        <React.Fragment key={index}>
-          <TestInfoCard card={card} colorScheme={colorScheme} />
-          {index < cards.length - 1 && <Divider colorScheme={colorScheme} />}
-        </React.Fragment>
-      ))}
-    </ScrollView>
+    <FlatList
+      style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#333' : '#FFF' }]}
+      data={cards}
+      renderItem={renderItem}
+      keyExtractor={(_, index) => index.toString()}
+      ListHeaderComponent={ListHeaderComponent}
+      showsVerticalScrollIndicator={false}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={5}
+      windowSize={5}
+      initialNumToRender={4}
+    />
   )
 }
 

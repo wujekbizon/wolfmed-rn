@@ -10,7 +10,7 @@ export const cards: CardContent[] = [
     testsLabel: 'testów',
     testsNumber: 587,
     image: require('../assets/images/heart.png'),
-    link: '/learn' as Href<string>,
+    link: '/learn' as Href,
   },
   {
     category: 'Procedury',
@@ -20,6 +20,6 @@ export const cards: CardContent[] = [
     testsLabel: 'procedur',
     testsNumber: 30,
     image: require('../assets/images/syringie.png'),
-    link: '/procedures' as Href<string>,
+    link: '/procedures' as Href,
   },
 ]

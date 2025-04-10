@@ -2,31 +2,25 @@ import { Test } from '@/types/dataTypes'
 import { shuffleArray } from './shuffleArray'
 
 export function generateRandomTests(testArray: Test[], numOfQuestions: number) {
-  // Handle empty test array
   if (!testArray.length) {
-    return [] // Or throw an error, display a message, etc.
+    return []
   }
 
-  // Limit numOfQuestions to available tests
+  // Ensure we don't try to select more questions than available
   numOfQuestions = Math.min(numOfQuestions, testArray.length)
 
-  let selectedTests = [] as Test[]
+  // Create a copy of the testArray and shuffle it
+  const shuffledTests = shuffleArray([...testArray])
 
-  while (selectedTests.length < numOfQuestions) {
-    const randomIndex = Math.floor(Math.random() * testArray.length)
-    const randomQuestion = testArray[randomIndex]
+  // Select the first numOfQuestions tests from the shuffled array
+  const selectedTests = shuffledTests.slice(0, numOfQuestions)
 
-    if (randomQuestion && !selectedTests.includes(randomQuestion)) {
-      const shuffleAnswers = shuffleArray(randomQuestion.data.answers)
-
-      selectedTests.push({
-        ...randomQuestion,
-        data: {
-          ...randomQuestion.data,
-          answers: shuffleAnswers,
-        },
-      })
-    }
-  }
-  return selectedTests
+  // Shuffle the answers for each selected test
+  return selectedTests.map((test) => ({
+    ...test,
+    data: {
+      ...test.data,
+      answers: shuffleArray(test.data.answers),
+    },
+  }))
 }

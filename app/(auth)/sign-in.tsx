@@ -3,6 +3,7 @@ import { useSignIn } from '@clerk/clerk-expo'
 import { Href, Link, useRouter } from 'expo-router'
 import { Text, TextInput, TouchableOpacity, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { signInUser } from '../api/users'
 
 export default function SignInScreen() {
   const { signIn, setActive, isLoaded } = useSignIn()
@@ -24,6 +25,10 @@ export default function SignInScreen() {
 
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
+
+        // Notify the server about the user sign-in
+        await signInUser(signInAttempt.id as string)
+
         router.replace('/')
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2))
@@ -59,7 +64,7 @@ export default function SignInScreen() {
           </TouchableOpacity>
           <View style={styles.linkContainer}>
             <Text style={styles.linkText}>Don't have an account?</Text>
-            <Link href={'/sign-up' as Href<string>} asChild>
+            <Link href={'/sign-up' as Href} asChild>
               <TouchableOpacity>
                 <Text style={styles.link}>Sign up</Text>
               </TouchableOpacity>

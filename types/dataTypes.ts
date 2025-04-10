@@ -1,7 +1,7 @@
 import { Href } from '@/.expo/types/router'
 
 // tests related types
-type Answer = {
+export type Answer = {
   option: string
   isCorrect: boolean
 }
@@ -58,9 +58,10 @@ export type ExtendedCompletedTest = Omit<CompletedTest, 'testResult'> & {
 
 export interface UserData {
   userId: string
-  imageUrl: string
+  role: string
+  username: string
+  motto: string
   createdAt?: Date
-  updatedAt: Date
 }
 
 export interface CardContent {
@@ -71,5 +72,5 @@ export interface CardContent {
   testsLabel: string
   testsNumber: number
   image: any // Use require('./path/to/image.png') when importing
-  link: Href<string | object>
+  link: Href
 }
