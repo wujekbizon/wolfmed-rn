@@ -29,7 +29,7 @@ const Shape = ({ index, type, color, left, top, size }: ShapeProps) => {
   const colorScheme = useColorScheme()
 
   React.useEffect(() => {
-    opacity.value = withDelay(index * 200, withTiming(colorScheme === 'dark' ? 0.25 : 0.35, { duration: 1000 }))
+    opacity.value = withDelay(index * 200, withTiming(colorScheme === 'dark' ? 0.35 : 0.45, { duration: 1000 }))
     rotation.value = withRepeat(
       withTiming(360, { 
         duration: 50000 + index * 5000,
@@ -54,11 +54,11 @@ const Shape = ({ index, type, color, left, top, size }: ShapeProps) => {
     )
     scale.value = withRepeat(
       withSequence(
-        withTiming(1.05, { 
+        withTiming(1.1, { 
           duration: 4000,
           easing: Easing.bezier(0.4, 0, 0.2, 1)
         }),
-        withTiming(1, { 
+        withTiming(0.95, { 
           duration: 4000,
           easing: Easing.bezier(0.4, 0, 0.2, 1)
         })
@@ -84,10 +84,10 @@ const Shape = ({ index, type, color, left, top, size }: ShapeProps) => {
           position: 'absolute',
           width: size,
           height: size,
-          backgroundColor: colorScheme === 'dark' ? `${color}10` : `${color}15`,
+          backgroundColor: colorScheme === 'dark' ? `${color}20` : `${color}25`,
           borderRadius: type === 'circle' ? size / 2 : size / 4,
           borderWidth: 1.5,
-          borderColor: colorScheme === 'dark' ? `${color}40` : `${color}35`,
+          borderColor: colorScheme === 'dark' ? `${color}50` : `${color}40`,
           left,
           top,
         },
@@ -101,7 +101,7 @@ export function FloatingShapes({ count = 4 }: { count?: number }) {
   const colorScheme = useColorScheme()
   
   const shapes = React.useMemo(() => {
-    const darkColors = ['#ff5b5b', '#9333ea']
+    const darkColors = ['#ff69b4', '#9333ea']
     const lightColors = ['#e11d48', '#6d28d9'] // More vibrant colors for light mode
     const colors = colorScheme === 'dark' ? darkColors : lightColors
 
