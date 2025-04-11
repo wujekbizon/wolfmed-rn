@@ -1,69 +1,72 @@
+import { useCallback } from 'react'
 import { useSharedValue, withSpring, useAnimatedStyle } from 'react-native-reanimated'
 
-export const useAuthAnimations = () => {
-  const signInButtonScale = useSharedValue(1)
-  const googleButtonScale = useSharedValue(1)
-  const emailBorderWidth = useSharedValue(1)
-  const passwordBorderWidth = useSharedValue(1)
+type InputType = 'email' | 'password' | 'code'
 
-  const handleSignInPressIn = () => {
-    signInButtonScale.value = withSpring(0.95)
-  }
+export function useAuthAnimations() {
+  const signInScale = useSharedValue(1)
+  const googleScale = useSharedValue(1)
+  const emailScale = useSharedValue(1)
+  const passwordScale = useSharedValue(1)
 
-  const handleSignInPressOut = () => {
-    signInButtonScale.value = withSpring(1)
-  }
+  const handleSignInPressIn = useCallback(() => {
+    signInScale.value = withSpring(0.95)
+  }, [])
 
-  const handleGooglePressIn = () => {
-    googleButtonScale.value = withSpring(0.95)
-  }
+  const handleSignInPressOut = useCallback(() => {
+    signInScale.value = withSpring(1)
+  }, [])
 
-  const handleGooglePressOut = () => {
-    googleButtonScale.value = withSpring(1)
-  }
+  const handleGooglePressIn = useCallback(() => {
+    googleScale.value = withSpring(0.95)
+  }, [])
+
+  const handleGooglePressOut = useCallback(() => {
+    googleScale.value = withSpring(1)
+  }, [])
+
+  const handleFocus = useCallback((type: InputType) => {
+    if (type === 'email') {
+      emailScale.value = withSpring(1.02)
+    } else {
+      passwordScale.value = withSpring(1.02)
+    }
+  }, [])
+
+  const handleBlur = useCallback((type: InputType) => {
+    if (type === 'email') {
+      emailScale.value = withSpring(1)
+    } else {
+      passwordScale.value = withSpring(1)
+    }
+  }, [])
 
   const signInButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: signInButtonScale.value }]
+    transform: [{ scale: signInScale.value }]
   }))
 
   const googleButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: googleButtonScale.value }]
+    transform: [{ scale: googleScale.value }]
   }))
 
   const emailInputStyle = useAnimatedStyle(() => ({
-    borderWidth: emailBorderWidth.value,
+    transform: [{ scale: emailScale.value }]
   }))
 
   const passwordInputStyle = useAnimatedStyle(() => ({
-    borderWidth: passwordBorderWidth.value,
+    transform: [{ scale: passwordScale.value }]
   }))
-
-  const handleFocus = (input: 'email' | 'password') => {
-    if (input === 'email') {
-      emailBorderWidth.value = withSpring(2)
-    } else {
-      passwordBorderWidth.value = withSpring(2)
-    }
-  }
-
-  const handleBlur = (input: 'email' | 'password') => {
-    if (input === 'email') {
-      emailBorderWidth.value = withSpring(1)
-    } else {
-      passwordBorderWidth.value = withSpring(1)
-    }
-  }
 
   return {
     handleSignInPressIn,
     handleSignInPressOut,
     handleGooglePressIn,
     handleGooglePressOut,
+    handleFocus,
+    handleBlur,
     signInButtonStyle,
     googleButtonStyle,
     emailInputStyle,
     passwordInputStyle,
-    handleFocus,
-    handleBlur,
   }
 } 
