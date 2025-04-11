@@ -1,7 +1,6 @@
-import { Href } from '@/.expo/types/router'
 
 // tests related types
-export type Answer = {
+type Answer = {
   option: string
   isCorrect: boolean
 }
@@ -12,10 +11,10 @@ export interface TestData {
 }
 
 export interface Test {
-  id?: string
+  id: string
   data: TestData
   category: string
-  createdAt?: Date
+  createdAt?: Date | null
   updatedAt?: Date | null
 }
 
@@ -36,17 +35,18 @@ interface ProcedureData {
 }
 
 export interface Procedure {
+  id: string
   data: ProcedureData
 }
 export type ExtendedProcedures = Omit<Procedure, 'data'> & { data: unknown }
 
-export type ServerData = Procedure[] | Test[]
+export type ServerData = Procedure[] | Test[] | Post[]
 export type QuestionAnswer = Record<string, string>
 export type FormattedAnswer = { questionId: string; answer: boolean }
 
 export interface CompletedTest {
   completedAt?: Date
-  id?: string
+  id: string
   userId: string
   score: number
   testResult: FormattedAnswer[]
@@ -58,19 +58,53 @@ export type ExtendedCompletedTest = Omit<CompletedTest, 'testResult'> & {
 
 export interface UserData {
   userId: string
-  role: string
-  username: string
-  motto: string
+  username?: string
+  motto?: string
   createdAt?: Date
 }
 
-export interface CardContent {
-  category: string
+export interface Post {
+  id: string
   title: string
-  content: string
   date: string
-  testsLabel: string
-  testsNumber: number
-  image: any // Use require('./path/to/image.png') when importing
-  link: Href
+  excerpt: string
+  content: string
+  createdAt?: Date | null
+  updatedAt?: Date | null
+}
+
+export type PostProps = {
+  params: { id: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export interface StepWithId extends Step {
+  id: string
+}
+
+// Add this to your existing types
+export interface User {
+  id: string
+  userId: string
+  testLimit: number
+  createdAt: string
+  updatedAt: string | null
+  motto: string
+  supporter: boolean
+  username: string
+  tests_attempted: number
+  total_score: number
+  total_questions: number
+}
+
+// Add this to your existing types
+export interface CompletedTestData {
+  id: string
+  userId: string
+  testResult: Array<{
+    answer: boolean
+    questionId: string
+  }>
+  score: number
+  completedAt: Date | null
 }

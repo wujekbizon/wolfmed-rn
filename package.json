@@ -8,7 +8,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "jest": {
     "preset": "jest-expo"
@@ -18,8 +20,12 @@
     "@clerk/localizations": "^3.13.8",
     "@expo/vector-icons": "^14.0.4",
     "@gorhom/bottom-sheet": "^5.0.6",
+    "@neondatabase/serverless": "^1.0.0",
     "@react-navigation/native": "^7.0.0",
     "ctx": "^0.3.0",
+    "dotenv": "^16.5.0",
+    "drizzle-kit": "^0.30.6",
+    "drizzle-orm": "^0.41.0",
     "expo": "^52.0.44",
     "expo-constants": "~17.0.3",
     "expo-font": "~13.0.1",
