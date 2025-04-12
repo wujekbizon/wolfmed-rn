@@ -66,13 +66,13 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}  localization={plPL}>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache} localization={plPL}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <ClerkLoaded>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            {/* <Stack.Screen name="+not-found" /> */}
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(welcome)" />
+            <Stack.Screen name="(drawer)" />
+            <Stack.Screen name="(auth)" />
           </Stack>
         </ClerkLoaded>
       </ThemeProvider>
