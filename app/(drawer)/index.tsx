@@ -1,86 +1,117 @@
 import React from 'react'
-import { Text, View, Pressable, useWindowDimensions } from 'react-native'
-import { useColorScheme } from 'react-native'
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withRepeat,
-  withSequence,
-  withTiming,
-  withDelay,
-  Easing,
+import { View, useWindowDimensions } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { StatusBar } from 'expo-status-bar'
+import QuickStats from '@/components/QuickStats'
+import QuickActions from '@/components/QuickActions'
+import ProfilePreview from '@/components/ProfilePreview'
+import { DashboardCircle } from '@/components/DashboardCircle'
+import { useDashboardStore } from '@/store/useDashboardStore'
+import Animated, { 
+  FadeIn, 
+  FadeOut,
+  SlideInRight,
+  SlideOutLeft 
 } from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { BlurView } from 'expo-blur'
 
 export default function DashboardScreen() {
-  const colorScheme = useColorScheme()
-  const insets = useSafeAreaInsets()
-  const buttonScale = useSharedValue(1)
-  const buttonGlow = useSharedValue(0)
-  const arrowX = useSharedValue(0)
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions()
+  const { 
+    isCircleExpanded, 
+    activeSection, 
+    getSectionConfig 
+  } = useDashboardStore()
 
-  // Subtle continuous button animation
-  React.useEffect(() => {
-    buttonGlow.value = withRepeat(
-      withSequence(
-        withTiming(1, { 
-          duration: 2000,
-          easing: Easing.bezier(0.4, 0, 0.2, 1)
-        }),
-        withTiming(0, { 
-          duration: 2000,
-          easing: Easing.bezier(0.4, 0, 0.2, 1)
-        })
-      ),
-      -1,
-      true
-    )
+  const renderActiveComponent = () => {
+    const activeColor = getSectionConfig(activeSection).color
+    const commonContainerStyle = {
+      position: 'absolute' as const,
+      left: 20,
+      right: 20,
+      top: 20,
+      bottom: 20,
+      overflow: 'hidden' as const,
+      borderRadius: 20,
+    }
 
-    // Subtle arrow movement
-    arrowX.value = withRepeat(
-      withSequence(
-        withTiming(4, {
-          duration: 1200,
-          easing: Easing.bezier(0.4, 0, 0.2, 1)
-        }),
-        withTiming(0, {
-          duration: 1200,
-          easing: Easing.bezier(0.4, 0, 0.2, 1)
-        })
-      ),
-      -1,
-      true
-    )
-  }, [])
+    const commonContentStyle = {
+      padding: 20,
+      backgroundColor: `${activeColor}10`,
+      borderColor: `${activeColor}30`,
+      borderWidth: 1,
+      flex: 1,
+    }
 
+    switch (activeSection) {
+      case 'stats':
+        return (
+          <Animated.View 
+            entering={SlideInRight} 
+            exiting={SlideOutLeft}
+            key="stats"
+            style={commonContainerStyle}
+          >
+            <BlurView intensity={20} tint="light" style={commonContentStyle}>
+              <QuickStats color={activeColor} />
+            </BlurView>
+          </Animated.View>
+        )
+      case 'actions':
+        return (
+          <Animated.View 
+            entering={SlideInRight} 
+            exiting={SlideOutLeft}
+            key="actions"
+            style={commonContainerStyle}
+          >
+            <BlurView intensity={20} tint="light" style={commonContentStyle}>
+              <QuickActions isExpanded={isCircleExpanded} color={activeColor} />
+            </BlurView>
+          </Animated.View>
+        )
+      case 'profile':
+        return (
+          <Animated.View 
+            entering={SlideInRight} 
+            exiting={SlideOutLeft}
+            key="profile"
+            style={commonContainerStyle}
+          >
+            <BlurView intensity={20} tint="light" style={commonContentStyle}>
+              <ProfilePreview color={activeColor} />
+            </BlurView>
+          </Animated.View>
+        )
+      default:
+        return null
+    }
+  }
 
   return (
-    <View 
-      className={`flex-1 ${colorScheme === 'dark' ? 'bg-[#111]' : 'bg-white'}`}
-      style={{ paddingTop: insets.top }}
-    >
-      <View className="p-6">
-        <Text 
-          className={`text-2xl font-semibold mb-2 ${
-            colorScheme === 'dark' ? 'text-white' : 'text-[#111]'
-          }`}
+    <SafeAreaView className="flex-1 bg-zinc-50 dark:bg-zinc-900">
+      <View className="flex-1">
+        <Animated.View 
+          entering={FadeIn}
+          exiting={FadeOut}
+          className="flex-1"
         >
-          Dashboard
-        </Text>
-        <Text
-          className={`text-base ${
-            colorScheme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-          }`}
-        >
-          Welcome to your medical education journey
-        </Text>
+          {renderActiveComponent()}
+        </Animated.View>
       </View>
-      
-      {/* Add your dashboard content here */}
-      <View className="flex-1 p-6">
-        {/* You can add quick stats, recent activities, progress cards etc. */}
+
+      {/* Circle Navigation */}
+      <View 
+        style={{
+          position: 'absolute',
+          top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.225,
+          left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.225,
+          zIndex: 100,
+        }}
+        pointerEvents="box-none"
+      >
+        <DashboardCircle />
       </View>
-    </View>
+    </SafeAreaView>
   )
 }

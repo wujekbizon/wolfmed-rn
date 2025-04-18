@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, View, Pressable, useWindowDimensions } from 'react-native'
+import { Text, View, Pressable, useWindowDimensions} from 'react-native'
 import { useColorScheme } from 'react-native'
 import { Link, useRouter } from 'expo-router'
 import Animated, {
@@ -13,7 +13,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import GradientOverlay from '@/components/GradientOverlay'
 import { FloatingShapes } from '@/components/FloatingShapes'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import { AntDesign } from '@expo/vector-icons'
 import { useAuth } from '@clerk/clerk-expo'
 
@@ -21,6 +21,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 export default function WelcomeScreen() {
   const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
   const { height } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   const router = useRouter()
@@ -99,11 +100,13 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <View 
+    <SafeAreaView 
       className={`flex-1 ${colorScheme === 'dark' ? 'bg-[#111]' : 'bg-white'}`}
-      style={{ paddingTop: insets.top }}
     >
-      {/* Temporary Logout Button - Development Only */}
+      <View className="flex-1 justify-center items-center">
+      <GradientOverlay />
+      <FloatingShapes count={6} />
+        
       <Pressable
         onPress={handleSignOut}
         className="absolute right-4 z-50 rounded-full p-2"
@@ -119,10 +122,6 @@ export default function WelcomeScreen() {
         />
       </Pressable>
 
-      <View className="flex-1 justify-center items-center px-6">
-        <GradientOverlay />
-        <FloatingShapes count={6} />
-        
         <View className="z-10 items-center w-full max-w-[320px] py-16">
           <View className="mb-4">
             <Text 
@@ -178,7 +177,7 @@ export default function WelcomeScreen() {
           <Pressable
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
-            onPress={() => router.push('/(tabs)')}
+            onPress={() => router.push('/(drawer)')}
             className="w-full active:opacity-90"
           >
             <Animated.View
@@ -250,6 +249,6 @@ export default function WelcomeScreen() {
           </Pressable>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   )
 } 

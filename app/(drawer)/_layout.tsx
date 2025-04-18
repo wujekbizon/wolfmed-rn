@@ -1,10 +1,11 @@
 import { Drawer } from 'expo-router/drawer'
 import { useColorScheme } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
-import { View, Text } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useRouter } from 'expo-router'
 
 function DrawerIcon(props: { name: React.ComponentProps<typeof FontAwesome>['name']; color: string; size: number }) {
   return (
@@ -17,6 +18,7 @@ function DrawerIcon(props: { name: React.ComponentProps<typeof FontAwesome>['nam
 function CustomDrawerContent(props: any) {
   const colorScheme = useColorScheme()
   const insets = useSafeAreaInsets()
+  const router = useRouter()
   const isDark = colorScheme === 'dark'
 
   return (
@@ -42,12 +44,14 @@ function CustomDrawerContent(props: any) {
             height: 200,
           }}
         />
-        <View 
-          style={{ 
+        <Pressable 
+          onPress={() => router.push('/(welcome)')}
+          style={({ pressed }) => [{ 
             padding: 24,
             borderBottomWidth: 1,
             borderBottomColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
-          }}
+            opacity: pressed ? 0.7 : 1,
+          }]}
         >
           <Text 
             style={{ 
@@ -70,7 +74,7 @@ function CustomDrawerContent(props: any) {
           >
             EDUKACJA
           </Text>
-        </View>
+        </Pressable>
       </View>
 
       {/* Custom Drawer Items Container */}
@@ -84,7 +88,7 @@ function CustomDrawerContent(props: any) {
   )
 }
 
-export default function AppLayout() {
+export default function DrawerLayout() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
 
