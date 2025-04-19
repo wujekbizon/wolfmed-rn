@@ -1,0 +1,11 @@
+import { Dimensions } from 'react-native';
+import type{ DashboardSection } from './dashboardSections';
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+export const SECTIONS = ['stats', 'actions', 'profile'] as DashboardSection[];
+export const CIRCLE_SIZE = SCREEN_WIDTH * 0.45;
+export const MINIMIZED_SIZE = CIRCLE_SIZE * 0.65;
+export const MINIMIZED_OUTER_SIZE = MINIMIZED_SIZE * 0.70;
+export const INNER_CIRCLE_SIZE = CIRCLE_SIZE * 0.4;
+export const MINIMIZED_INNER_SIZE = MINIMIZED_SIZE * 0.4;
+export const ICON_SIZE = 46;
+export const ICON_SPACING = CIRCLE_SIZE * 0.35;

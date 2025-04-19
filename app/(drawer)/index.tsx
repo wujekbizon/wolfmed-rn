@@ -1,7 +1,6 @@
 import React from 'react'
 import { View, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { StatusBar } from 'expo-status-bar'
 import QuickStats from '@/components/QuickStats'
 import QuickActions from '@/components/QuickActions'
 import ProfilePreview from '@/components/ProfilePreview'
@@ -99,8 +98,6 @@ export default function DashboardScreen() {
           {renderActiveComponent()}
         </Animated.View>
       </View>
-
-      {/* Circle Navigation */}
       <View 
         style={{
           position: 'absolute',
