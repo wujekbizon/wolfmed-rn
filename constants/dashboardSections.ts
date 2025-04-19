@@ -1,4 +1,4 @@
-export type DashboardSection = 'stats' | 'actions' | 'profile'
+export type DashboardSection = 'stats' | 'actions' | 'profile' | 'help' | 'news'
 
 export interface SectionConfig {
   id: DashboardSection
@@ -25,6 +25,18 @@ export const DASHBOARD_SECTIONS: Record<DashboardSection, SectionConfig> = {
       color: '#e11d48',
       icon: 'person',
       label: 'Profile',
+    },
+    help: {
+      id: 'help',
+      color: '#3b82f6',
+      icon: 'information-circle',
+      label: 'Help & Info',
+    },
+    news: {
+      id: 'news',
+      color: '#10b981',
+      icon: 'newspaper',
+      label: 'News Feed',
     },
   }
   

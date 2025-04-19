@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import QuickStats from '@/components/QuickStats'
 import QuickActions from '@/components/QuickActions'
 import ProfilePreview from '@/components/ProfilePreview'
+import HelpInfo from '@/components/HelpInfo'
+import NewsFeed from '@/components/NewsFeed'
 import { DashboardCircle } from '@/components/DashboardCircle'
 import { useDashboardStore } from '@/store/useDashboardStore'
 import Animated, { 
@@ -79,6 +81,32 @@ export default function DashboardScreen() {
           >
             <BlurView intensity={20} tint="light" style={commonContentStyle}>
               <ProfilePreview color={activeColor} />
+            </BlurView>
+          </Animated.View>
+        )
+      case 'help':
+        return (
+          <Animated.View 
+            entering={SlideInRight} 
+            exiting={SlideOutLeft}
+            key="help"
+            style={commonContainerStyle}
+          >
+            <BlurView intensity={20} tint="light" style={commonContentStyle}>
+              <HelpInfo color={activeColor} />
+            </BlurView>
+          </Animated.View>
+        )
+      case 'news':
+        return (
+          <Animated.View 
+            entering={SlideInRight} 
+            exiting={SlideOutLeft}
+            key="news"
+            style={commonContainerStyle}
+          >
+            <BlurView intensity={20} tint="light" style={commonContentStyle}>
+              <NewsFeed color={activeColor} />
             </BlurView>
           </Animated.View>
         )
