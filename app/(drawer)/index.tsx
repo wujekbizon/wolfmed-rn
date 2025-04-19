@@ -16,10 +16,18 @@ import Animated, {
 } from 'react-native-reanimated'
 import { BlurView } from 'expo-blur'
 
+// Component mapping object
+const SECTION_COMPONENTS = {
+  stats: QuickStats,
+  actions: QuickActions,
+  profile: ProfilePreview,
+  help: HelpInfo,
+  news: NewsFeed,
+} as const
+
 export default function DashboardScreen() {
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions()
   const { 
-    isCircleExpanded, 
     activeSection, 
     getSectionConfig 
   } = useDashboardStore()
@@ -44,75 +52,20 @@ export default function DashboardScreen() {
       flex: 1,
     }
 
-    switch (activeSection) {
-      case 'stats':
-        return (
-          <Animated.View 
-            entering={SlideInRight} 
-            exiting={SlideOutLeft}
-            key="stats"
-            style={commonContainerStyle}
-          >
-            <BlurView intensity={20} tint="light" style={commonContentStyle}>
-              <QuickStats color={activeColor} />
-            </BlurView>
-          </Animated.View>
-        )
-      case 'actions':
-        return (
-          <Animated.View 
-            entering={SlideInRight} 
-            exiting={SlideOutLeft}
-            key="actions"
-            style={commonContainerStyle}
-          >
-            <BlurView intensity={20} tint="light" style={commonContentStyle}>
-              <QuickActions isExpanded={isCircleExpanded} color={activeColor} />
-            </BlurView>
-          </Animated.View>
-        )
-      case 'profile':
-        return (
-          <Animated.View 
-            entering={SlideInRight} 
-            exiting={SlideOutLeft}
-            key="profile"
-            style={commonContainerStyle}
-          >
-            <BlurView intensity={20} tint="light" style={commonContentStyle}>
-              <ProfilePreview color={activeColor} />
-            </BlurView>
-          </Animated.View>
-        )
-      case 'help':
-        return (
-          <Animated.View 
-            entering={SlideInRight} 
-            exiting={SlideOutLeft}
-            key="help"
-            style={commonContainerStyle}
-          >
-            <BlurView intensity={20} tint="light" style={commonContentStyle}>
-              <HelpInfo color={activeColor} />
-            </BlurView>
-          </Animated.View>
-        )
-      case 'news':
-        return (
-          <Animated.View 
-            entering={SlideInRight} 
-            exiting={SlideOutLeft}
-            key="news"
-            style={commonContainerStyle}
-          >
-            <BlurView intensity={20} tint="light" style={commonContentStyle}>
-              <NewsFeed color={activeColor} />
-            </BlurView>
-          </Animated.View>
-        )
-      default:
-        return null
-    }
+    const Component = SECTION_COMPONENTS[activeSection]
+
+    return (
+      <Animated.View 
+        entering={SlideInRight} 
+        exiting={SlideOutLeft}
+        key={activeSection}
+        style={commonContainerStyle}
+      >
+        <BlurView intensity={20} tint="light" style={commonContentStyle}>
+          <Component color={activeColor} />
+        </BlurView>
+      </Animated.View>
+    )
   }
 
   return (
