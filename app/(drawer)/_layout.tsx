@@ -1,15 +1,55 @@
 import { Drawer } from 'expo-router/drawer'
-import { useColorScheme } from 'react-native'
+import { useColorScheme, Dimensions } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
-import { View, Text, Pressable } from 'react-native'
+import { View, Pressable } from 'react-native'
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
+import { cn } from '@/lib/utils'
+import LogoHeader from '@/components/LogoHeader'
 
-function DrawerIcon(props: { name: React.ComponentProps<typeof FontAwesome>['name']; color: string; size: number }) {
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
+const DRAWER_WIDTH = SCREEN_WIDTH * 0.85
+
+const COLORS = {
+  primary: '#18181B',
+  secondary: '#71717A',
+  accent: '#FF6B6B',
+  success: '#4CAF50',
+  neutral: '#6B7280',
+  light: {
+    background: '#FFFFFF',
+    surface: '#F8FAFC',
+    text: '#18181B',
+    border: 'rgba(0,0,0,0.08)'
+  },
+  dark: {
+    background: '#111827',
+    surface: '#1F2937',
+    text: '#F9FAFB',
+    border: 'rgba(255,255,255,0.08)'
+  }
+}
+
+function DrawerIcon(props: { 
+  name: React.ComponentProps<typeof FontAwesome>['name']
+  color: string
+  size: number 
+}) {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+
   return (
-    <View style={{ width: 32, alignItems: 'center', marginRight: 16 }}>
+    <View 
+      style={{ 
+        width: 40,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+        borderRadius: 12,
+        backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
+      }}
+    >
       <FontAwesome {...props} />
     </View>
   )
@@ -17,7 +57,6 @@ function DrawerIcon(props: { name: React.ComponentProps<typeof FontAwesome>['nam
 
 function CustomDrawerContent(props: any) {
   const colorScheme = useColorScheme()
-  const insets = useSafeAreaInsets()
   const router = useRouter()
   const isDark = colorScheme === 'dark'
 
@@ -26,62 +65,23 @@ function CustomDrawerContent(props: any) {
       {...props}
       contentContainerStyle={{
         flex: 1,
-        paddingTop: insets.top,
+        paddingTop: 0,
       }}
     >
-      {/* Header/Profile Section with Gradient */}
-      <View style={{ position: 'relative', marginBottom: 15 }}>
-        <LinearGradient
-          colors={isDark 
-            ? ['rgba(255,105,180,0.15)', 'rgba(255,105,180,0.05)', 'transparent']
-            : ['rgba(219,39,119,0.1)', 'rgba(219,39,119,0.03)', 'transparent']
-          }
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 200,
-          }}
-        />
-        <Pressable 
+      
+      <Pressable 
           onPress={() => router.push('/(welcome)')}
-          style={({ pressed }) => [{ 
-            padding: 24,
-            borderBottomWidth: 1,
-            borderBottomColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
-            opacity: pressed ? 0.7 : 1,
-          }]}
+          className="w-full px-2 pt-6 active:opacity-70"
         >
-          <Text 
-            style={{ 
-              fontSize: 28, 
-              fontWeight: '600',
-              color: isDark ? '#fff' : '#111',
-              marginBottom: 6,
-              letterSpacing: 0.5,
-            }}
-          >
-            WOLFMED
-          </Text>
-          <Text
-            style={{
-              fontSize: 18,
-              color: isDark ? '#FF69B4' : '#db2777',
-              letterSpacing: 1,
-              opacity: 0.9,
-            }}
-          >
-            EDUKACJA
-          </Text>
-        </Pressable>
-      </View>
+          <LogoHeader isDark={isDark} />
 
-      {/* Custom Drawer Items Container */}
-      <View style={{ 
-        flex: 1,
-        backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.7)',
-      }}>
+      </Pressable>
+      <View className={cn(
+        "flex-1 w-full border-t pt-2 pb-6 mt-4",
+        isDark 
+          ? "bg-black/30 border-white/10" 
+          : "bg-white/70 border-zinc-200"
+      )}>
         <DrawerItemList {...props} />
       </View>
     </DrawerContentScrollView>
@@ -96,30 +96,35 @@ export default function DrawerLayout() {
     <Drawer
       screenOptions={{
         headerStyle: {
-          backgroundColor: isDark ? '#111' : '#fff',
+          backgroundColor: isDark ? '#000' : '#fff',
           elevation: 0,
           shadowOpacity: 0,
         },
-        headerTintColor: isDark ? '#FF69B4' : '#db2777',
+        headerTintColor: isDark ? '#fff' : '#18181B',
         headerShadowVisible: false,
         drawerStyle: {
-          backgroundColor: isDark ? '#111' : '#fff',
-          width: 320,
-          borderRightWidth: 0,
+          backgroundColor: isDark ? '#000' : '#fff',
+          width: DRAWER_WIDTH,
+          borderRightWidth: 1,
+          borderRightColor: isDark ? 'rgba(255, 91, 91, 0.2)' : 'rgba(0,0,0,0.1)',
         },
-        drawerActiveTintColor: isDark ? '#FF69B4' : '#db2777',
-        drawerInactiveTintColor: isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)',
-        drawerActiveBackgroundColor: isDark ? 'rgba(255,105,180,0.15)' : 'rgba(219,39,119,0.08)',
+        drawerActiveTintColor: isDark ? '#fff' : '#18181B',
+        drawerInactiveTintColor: isDark 
+          ? 'rgba(255,255,255,0.5)' 
+          : 'rgba(0,0,0,0.5)',
+        drawerActiveBackgroundColor: isDark 
+          ? 'rgba(255,91,91,0.15)'
+          : 'rgba(0,0,0,0.05)',
         drawerItemStyle: {
-          borderRadius: 0,
-          marginVertical: 0,
-          paddingVertical: 0,
+          borderRadius: 6,
           marginHorizontal: 0,
+          marginVertical: 1,
+          paddingVertical: 1,
         },
         drawerLabelStyle: {
           marginLeft: -4,
           fontSize: 15,
-          fontWeight: '500',
+          fontWeight: '600',
           letterSpacing: 0.3,
         },
       }}
