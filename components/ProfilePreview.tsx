@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { ProfileHeader } from './ProfileHeader'
 import { UsernameForm } from './UsernameForm'
 import { MottoForm } from './MottoForm'
+import { BlurDivider } from './BlurDivider'
 
 export default function ProfilePreview() {
   const [user, setUser] = useState({
@@ -19,7 +20,7 @@ export default function ProfilePreview() {
   }
 
   return (
-    <View className="flex-1">
+    <View className="flex-1 py-4">
       <ImageBackground 
         source={require('../assets/images/profile-bg.jpg')} 
         className="absolute inset-0 w-full h-full"
@@ -27,17 +28,15 @@ export default function ProfilePreview() {
         resizeMode="cover"
       />
       
-      <View className="flex-1 justify-between">
-        {/* Header Section */}
+      <View className="flex-1 gap-4">
         <ProfileHeader 
           username={user.username}
           motto={user.motto}
         />
 
-        <View className="h-[24%]" />
+        <BlurDivider heightPercentage={17} />
 
-        {/* Forms Section */}
-        <View className="flex-1 flex-col gap-6">
+        <View className="flex flex-col gap-4">
           <UsernameForm
             username={user.username}
             onUpdateUsername={handleUpdateUsername}

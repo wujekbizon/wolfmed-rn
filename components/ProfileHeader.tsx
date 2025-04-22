@@ -15,9 +15,9 @@ export function ProfileHeader({ username, motto }: ProfileHeaderProps) {
     : ['#ff69b4', '#6d28d9']
 
   return (
-    <View className="w-full px-4 pt-8 pb-4">
+    <View className="w-full px-4">
       <BlurView intensity={80} tint={colorScheme === 'dark' ? 'dark' : 'light'} className="overflow-hidden rounded-2xl">
-          <View className="flex flex-col gap-20 p-4">
+          <View className="flex flex-col gap-24 p-4">
             {/* Username Section */}
             <View className="items-start">
               <View 
