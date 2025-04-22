@@ -151,7 +151,7 @@ export const DashboardCircle: React.FC = () => {
         >
           <Ionicons
             name={isMinimized ? "expand-outline" : isCircleExpanded ? "close-outline" : "menu-outline"}
-            size={isMinimized ? 30 : 34}
+            size={isMinimized ? 44 : 40}
             color={getSectionConfig(activeSection).color}
             style={{ opacity: 0.8 }}
           />

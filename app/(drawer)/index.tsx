@@ -35,21 +35,12 @@ export default function DashboardScreen() {
   const renderActiveComponent = () => {
     const activeColor = getSectionConfig(activeSection).color
     const commonContainerStyle = {
-      position: 'absolute' as const,
-      left: 20,
-      right: 20,
-      top: 20,
-      bottom: 20,
-      overflow: 'hidden' as const,
-      borderRadius: 20,
+      flex: 1,
     }
 
     const commonContentStyle = {
-      padding: 20,
       backgroundColor: `${activeColor}10`,
-      borderColor: `${activeColor}30`,
-      borderWidth: 1,
-      flex: 1,
+      flex: 1
     }
 
     const Component = SECTION_COMPONENTS[activeSection]
@@ -69,7 +60,7 @@ export default function DashboardScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-zinc-50 dark:bg-zinc-900">
+    <View className="flex-1 bg-zinc-50 dark:bg-zinc-900">
       <View className="flex-1">
         <Animated.View 
           entering={FadeIn}
@@ -90,6 +81,6 @@ export default function DashboardScreen() {
       >
         <DashboardCircle />
       </View>
-    </SafeAreaView>
+    </View>
   )
 }

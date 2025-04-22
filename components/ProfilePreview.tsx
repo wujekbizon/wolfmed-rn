@@ -1,54 +1,53 @@
-import { View, Text, Pressable } from 'react-native'
-import { Link } from 'expo-router'
-import { Ionicons } from '@expo/vector-icons'
+import { View, ImageBackground } from 'react-native'
+import { useState } from 'react'
+import { ProfileHeader } from './ProfileHeader'
+import { UsernameForm } from './UsernameForm'
+import { MottoForm } from './MottoForm'
 
-interface ProfilePreviewProps {
-  color?: string;
-}
-
-export default function ProfilePreview({ color = '#f58a8a' }: ProfilePreviewProps) {
-  // TODO: Replace with actual user data
-  const user = {
+export default function ProfilePreview() {
+  const [user, setUser] = useState({
     username: 'User123',
     motto: 'Learning every day',
+  })
+
+  const handleUpdateUsername = (newUsername: string) => {
+    setUser(prev => ({ ...prev, username: newUsername }))
+  }
+
+  const handleUpdateMotto = (newMotto: string) => {
+    setUser(prev => ({ ...prev, motto: newMotto }))
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        marginBottom: 8,
-      }}>
-        <Text style={{
-          fontSize: 18,
-          fontWeight: '600',
-          color,
-        }}>
-          {user.username}
-        </Text>
-        <Link href="/profile" asChild>
-          <Pressable style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ 
-              marginRight: 4,
-              fontSize: 14,
-              color,
-            }}>
-              Edytuj profil
-            </Text>
-            <Ionicons name="chevron-forward" size={16} color={color} />
-          </Pressable>
-        </Link>
-      </View>
+    <View className="flex-1">
+      <ImageBackground 
+        source={require('../assets/images/profile-bg.jpg')} 
+        className="absolute inset-0 w-full h-full"
+        imageStyle={{ opacity: 0.4 }}
+        resizeMode="cover"
+      />
       
-      <Text style={{
-        fontSize: 14,
-        color: `${color}99`,
-        fontStyle: 'italic',
-      }}>
-        "{user.motto}"
-      </Text>
+      <View className="flex-1 justify-between">
+        {/* Header Section */}
+        <ProfileHeader 
+          username={user.username}
+          motto={user.motto}
+        />
+
+        <View className="h-[24%]" />
+
+        {/* Forms Section */}
+        <View className="flex-1 flex-col gap-6">
+          <UsernameForm
+            username={user.username}
+            onUpdateUsername={handleUpdateUsername}
+          />
+          <MottoForm
+            motto={user.motto}
+            onUpdateMotto={handleUpdateMotto}
+          />
+        </View>
+      </View>
     </View>
   )
 } 

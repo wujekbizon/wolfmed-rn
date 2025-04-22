@@ -15,50 +15,34 @@ export default function QuickStats({ color = '#f58a8a' }: QuickStatsProps) {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <View style={{ alignItems: 'center' }}>
+    <View className="flex-1 p-4">
+      <View className="flex-row justify-between">
+        <View className="items-center">
           <CircularProgress 
             progress={stats.averageScore} 
             size={80} 
             color={color}
             strokeWidth={8}
           />
-          <Text style={{ 
-            marginTop: 8,
-            fontSize: 16,
-            fontWeight: '500',
-            color,
-          }}>
+          <Text className="mt-2 text-lg font-medium text-zinc-800 dark:text-zinc-100">
             {stats.averageScore}%
           </Text>
-          <Text style={{
-            fontSize: 14,
-            color: `${color}99`,
-          }}>
+          <Text className="text-sm text-zinc-600 dark:text-zinc-300">
             Średni wynik
           </Text>
         </View>
 
-        <View style={{ alignItems: 'center' }}>
+        <View className="items-center">
           <CircularProgress 
             progress={(stats.testsCompleted / stats.totalTests) * 100} 
             size={80} 
             color={color}
             strokeWidth={8}
           />
-          <Text style={{ 
-            marginTop: 8,
-            fontSize: 16,
-            fontWeight: '500',
-            color,
-          }}>
+          <Text className="mt-2 text-lg font-medium text-zinc-800 dark:text-zinc-100">
             {stats.testsCompleted}/{stats.totalTests}
           </Text>
-          <Text style={{
-            fontSize: 14,
-            color: `${color}99`,
-          }}>
+          <Text className="text-sm text-zinc-600 dark:text-zinc-300">
             Ukończone testy
           </Text>
         </View>
