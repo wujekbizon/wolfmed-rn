@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 import 'react-native-reanimated'
 import * as SecureStore from 'expo-secure-store'
 import { useColorScheme } from '@/hooks/useColorScheme'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 export interface TokenCache {
   getToken: (key: string) => Promise<string | undefined | null>
@@ -66,16 +67,18 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache} localization={plPL}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <ClerkLoaded>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(welcome)" />
-            <Stack.Screen name="(drawer)" />
-            <Stack.Screen name="(auth)" />
-          </Stack>
-        </ClerkLoaded>
-      </ThemeProvider>
-    </ClerkProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache} localization={plPL}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <ClerkLoaded>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(welcome)" />
+              <Stack.Screen name="(drawer)" />
+              <Stack.Screen name="(auth)" />
+            </Stack>
+          </ClerkLoaded>
+        </ThemeProvider>
+      </ClerkProvider>
+    </GestureHandlerRootView>
   )
 }

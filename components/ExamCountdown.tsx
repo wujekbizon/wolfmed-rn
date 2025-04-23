@@ -61,7 +61,7 @@ export function ExamCountdown({ examDate = new Date('2025-06-02'), className = '
   }, [examDate])
 
   return (
-    <View className={`px-4 py-6 ${className}`}>
+    <View className={`px-4  ${className}`}>
       <BlurView 
         intensity={colorScheme === 'dark' ? 40 : 60} 
         tint={colorScheme === 'dark' ? 'dark' : 'light'} 

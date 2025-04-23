@@ -10,8 +10,7 @@ import Animated, {
   withSequence,
   withTiming,
   useSharedValue,
-  runOnJS,
-  useAnimatedGestureHandler
+  runOnJS
 } from 'react-native-reanimated'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 
@@ -21,9 +20,10 @@ const AnimatedBlurView = Animated.createAnimatedComponent(BlurView)
 interface MottoFormProps {
   motto: string
   onUpdateMotto: (motto: string) => void
+  isDragging?: boolean
 }
 
-export function MottoForm({ motto, onUpdateMotto }: MottoFormProps) {
+export function MottoForm({ motto, onUpdateMotto, isDragging }: MottoFormProps) {
   const colorScheme = useColorScheme()
   const themeColor = '#6d28d9'
   const [value, setValue] = useState(motto)
@@ -85,6 +85,8 @@ export function MottoForm({ motto, onUpdateMotto }: MottoFormProps) {
   }
 
   const handlePress = () => {
+    if (isDragging) return
+    
     if (!isEditing) {
       setIsEditing(true)
       setShowIcon(false)
@@ -139,70 +141,77 @@ export function MottoForm({ motto, onUpdateMotto }: MottoFormProps) {
 
   const gestures = Gesture.Race(panGesture, tapOutside)
 
-  return (
-    <GestureDetector gesture={gestures}>
-      <View className="px-4">
-        <AnimatedBlurView 
-          intensity={80} 
-          tint={colorScheme === 'dark' ? 'dark' : 'light'} 
-          className="overflow-hidden rounded-2xl"
-        >
-          <View className="p-4">
-            <Pressable 
-              onPress={() => !isEditing && handlePress()}
-              className="flex-row items-center justify-between"
-            >
-              <Text className="text-base font-medium text-zinc-700 dark:text-zinc-400">
-                Zmiana motta
-              </Text>
-              {showIcon && (
-                <Ionicons 
-                  name="chevron-down" 
-                  size={20} 
-                  color={colorScheme === 'dark' ? '#a1a1aa' : '#71717a'} 
-                />
-              )}
-            </Pressable>
+  const FormContent = (
+    <View className="px-4" pointerEvents={isDragging ? "none" : "auto"}>
+      <AnimatedBlurView 
+        intensity={80} 
+        tint={colorScheme === 'dark' ? 'dark' : 'light'} 
+        className="overflow-hidden rounded-2xl"
+      >
+        <View className="p-4">
+          <Pressable 
+            onPress={() => !isEditing && !isDragging && handlePress()}
+            className="flex-row items-center justify-between"
+          >
+            <Text className="text-base font-medium text-zinc-700 dark:text-zinc-400">
+              Zmiana motta
+            </Text>
+            {showIcon && (
+              <Ionicons 
+                name="chevron-down" 
+                size={20} 
+                color={colorScheme === 'dark' ? '#a1a1aa' : '#71717a'} 
+              />
+            )}
+          </Pressable>
 
-            <Animated.View style={formStyle}>
-              <View className="mt-4">
-                <TextInput
-                  className="w-full pl-3 pr-12 py-3 rounded-xl font-semibold text-xl text-zinc-950 dark:text-zinc-100"
-                  style={{
-                    backgroundColor: `${themeColor}50`,
-                    borderWidth: 1,
-                    borderColor: error ? '#ef4444' : `${themeColor}70`,
-                  }}
-                  placeholder="Twoje motto"
-                  placeholderTextColor={colorScheme === 'dark' ? '#666' : '#999'}
-                  value={value}
-                  onChangeText={(text) => {
-                    setValue(text)
-                    setError(null)
-                  }}
+          <Animated.View style={formStyle}>
+            <View className="mt-4">
+              <TextInput
+                className="w-full pl-3 pr-12 py-3 rounded-xl font-semibold text-xl text-zinc-950 dark:text-zinc-100"
+                style={{
+                  backgroundColor: `${themeColor}50`,
+                  borderWidth: 1,
+                  borderColor: error ? '#ef4444' : `${themeColor}70`,
+                }}
+                placeholder="Twoje motto"
+                placeholderTextColor={colorScheme === 'dark' ? '#666' : '#999'}
+                value={value}
+                onChangeText={(text) => {
+                  setValue(text)
+                  setError(null)
+                }}
+                editable={!isDragging}
+              />
+              <AnimatedPressable 
+                onPress={handlePress}
+                onPressIn={pulseAnimation}
+                className="absolute right-2 top-2 w-10 h-10 rounded-lg items-center justify-center"
+                style={buttonStyle}
+                disabled={isDragging}
+              >
+                <Ionicons 
+                  name="arrow-forward" 
+                  size={24} 
+                  color="white"
                 />
-                <AnimatedPressable 
-                  onPress={handlePress}
-                  onPressIn={pulseAnimation}
-                  className="absolute right-2 top-2 w-10 h-10 rounded-lg items-center justify-center"
-                  style={buttonStyle}
-                >
-                  <Ionicons 
-                    name="arrow-forward" 
-                    size={24} 
-                    color="white"
-                  />
-                </AnimatedPressable>
-              </View>
-              {error && (
-                <Text className="text-sm text-red-500 mt-1">
-                  {error}
-                </Text>
-              )}
-            </Animated.View>
-          </View>
-        </AnimatedBlurView>
-      </View>
-    </GestureDetector>
+              </AnimatedPressable>
+            </View>
+            {error && (
+              <Text className="text-sm text-red-500 mt-1">
+                {error}
+              </Text>
+            )}
+          </Animated.View>
+        </View>
+      </AnimatedBlurView>
+    </View>
   )
+
+  // Only use GestureDetector when editing and not dragging
+  return isEditing && !isDragging ? (
+    <GestureDetector gesture={gestures}>
+      {FormContent}
+    </GestureDetector>
+  ) : FormContent
 } 
