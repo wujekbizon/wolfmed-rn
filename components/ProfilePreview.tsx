@@ -4,6 +4,7 @@ import { ProfileHeader } from './ProfileHeader'
 import { UsernameForm } from './UsernameForm'
 import { MottoForm } from './MottoForm'
 import { BlurDivider } from './BlurDivider'
+import { ExamCountdown } from './ExamCountdown'
 
 export default function ProfilePreview() {
   const [user, setUser] = useState({
@@ -34,7 +35,7 @@ export default function ProfilePreview() {
           motto={user.motto}
         />
 
-        <BlurDivider heightPercentage={17} />
+        <ExamCountdown />
 
         <View className="flex flex-col gap-4">
           <UsernameForm
