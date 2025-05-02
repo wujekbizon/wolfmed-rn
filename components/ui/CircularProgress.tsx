@@ -1,4 +1,4 @@
-import { View, Text, Animated, StyleSheet } from 'react-native'
+import { View, Text, Animated, StyleSheet, useColorScheme } from 'react-native'
 import { useEffect, useRef } from 'react'
 
 interface CircularProgressProps {
@@ -14,6 +14,8 @@ export default function CircularProgress({
   color,
   strokeWidth,
 }: CircularProgressProps) {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
   const animatedValue = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function CircularProgress({
     height: size,
     borderRadius: size / 2,
     borderWidth: strokeWidth,
-    borderColor: '#E4E4E7',
+    borderColor: isDark ? '#E4E4E7' : '#D4D4D8',
   }
 
   const progressStyle = {
@@ -44,7 +46,10 @@ export default function CircularProgress({
     transform: [{
       scale: animatedValue
     }],
-    opacity: animatedValue,
+    opacity: isDark ? animatedValue : animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 0.85]
+    }),
   }
 
   return (

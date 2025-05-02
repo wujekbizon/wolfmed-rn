@@ -11,7 +11,6 @@ import DraggableFlatList, {
   RenderItemParams
 } from 'react-native-draggable-flatlist'
 import { useState } from 'react'
-import { theme } from '@/theme'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 // Calculate card height based on screen height minus header and padding
@@ -78,10 +77,10 @@ const StatCard = ({
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   
-  // Adjust colors for dark mode and use theme colors
+  // Adjust colors for dark mode
   const cardColor = isDark 
     ? isActive ? '#ffffff' : '#94a3b8'
-    : color || theme.colors.primary
+    : color
 
   return (
     <TouchableOpacity
@@ -96,7 +95,7 @@ const StatCard = ({
       }}
     >
       <LinearGradient
-        colors={[`${cardColor}40`, `${cardColor}15`]}
+        colors={[`${cardColor}20`, `${cardColor}05`]}
         className="rounded-2xl p-[1px] flex-1"
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -112,7 +111,7 @@ const StatCard = ({
                 <View className="flex-row items-center mb-3">
                   <View 
                     className="w-10 h-10 rounded-full items-center justify-center mr-3"
-                    style={{ backgroundColor: `${cardColor}30` }}
+                    style={{ backgroundColor: `${cardColor}15` }}
                   >
                     <Ionicons name={icon} size={22} color={cardColor} />
                   </View>
@@ -163,7 +162,7 @@ const StatCard = ({
   )
 }
 
-export default function QuickStats({ color = theme.colors.primary }: QuickStatsProps) {
+export default function QuickStats({ color = '#ec4899' }: QuickStatsProps) {
   const [stats, setStats] = useState<StatItem[]>([
     {
       id: 'average',
