@@ -82,12 +82,6 @@ export const DashboardCircle: React.FC = () => {
     handleSectionRotation(section);
   }, [resetAnimationProgress, updateActiveColor, getSectionConfig, setActiveSection, handleSectionRotation]);
 
-  const handleLongPress = useCallback(() => {
-    if (!isCircleExpanded) {
-      toggleMinimized();
-    }
-  }, [isCircleExpanded, toggleMinimized]);
-
   const renderMenuItems = useCallback(() => {
     return SECTIONS.map((section, index) => {
       const sectionConfig = getSectionConfig(section);
@@ -141,8 +135,6 @@ export const DashboardCircle: React.FC = () => {
       
       <Pressable 
         onPress={handlePress}
-        onLongPress={handleLongPress}
-        delayLongPress={500}
       >
         <AnimatedBlurView
           intensity={25}

@@ -29,7 +29,10 @@ export default function DashboardScreen() {
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions()
   const { 
     activeSection, 
-    getSectionConfig 
+    getSectionConfig,
+    isCircleExpanded,
+    isMinimized,
+    toggleMinimized
   } = useDashboardStore()
 
   const renderActiveComponent = () => {
@@ -44,7 +47,7 @@ export default function DashboardScreen() {
     }
 
     const Component = SECTION_COMPONENTS[activeSection]
-
+    
     return (
       <Animated.View 
         entering={SlideInRight} 
@@ -70,6 +73,22 @@ export default function DashboardScreen() {
           {renderActiveComponent()}
         </Animated.View>
       </View>
+      {!isMinimized && (
+        <Animated.View 
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(200)}
+          onTouchEnd={() => toggleMinimized()}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 50
+          }}
+        />
+      )}
       <View 
         style={{
           position: 'absolute',
