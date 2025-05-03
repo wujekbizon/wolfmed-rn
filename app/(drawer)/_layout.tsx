@@ -11,26 +11,6 @@ import { useDashboardStore } from '@/store/useDashboardStore'
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.85
 
-const COLORS = {
-  primary: '#18181B',
-  secondary: '#71717A',
-  accent: '#FF6B6B',
-  success: '#4CAF50',
-  neutral: '#6B7280',
-  light: {
-    background: '#FFFFFF',
-    surface: '#F8FAFC',
-    text: '#18181B',
-    border: 'rgba(0,0,0,0.08)'
-  },
-  dark: {
-    background: '#111827',
-    surface: '#1F2937',
-    text: '#F9FAFB',
-    border: 'rgba(255,255,255,0.08)'
-  }
-}
-
 function DrawerIcon(props: { 
   name: React.ComponentProps<typeof FontAwesome>['name']
   color: string
@@ -142,7 +122,7 @@ export default function DrawerLayout() {
           headerStyle: {
             backgroundColor: isDark 
               ? `${activeColor}15` 
-              : `${activeColor}10`,
+              : `${activeColor}20`,
             elevation: 0,
             shadowOpacity: 0,
           },

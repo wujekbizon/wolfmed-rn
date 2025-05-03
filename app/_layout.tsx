@@ -4,11 +4,12 @@ import { plPL } from '@clerk/localizations'
 import { useFonts } from 'expo-font'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import 'react-native-reanimated'
 import * as SecureStore from 'expo-secure-store'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 export interface TokenCache {
   getToken: (key: string) => Promise<string | undefined | null>
@@ -20,6 +21,7 @@ export interface TokenCache {
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
+  const [client] = useState(new QueryClient())
   const tokenCache: TokenCache = {
     async getToken(key: string) {
       try {
@@ -69,15 +71,17 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache} localization={plPL}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <ClerkLoaded>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(welcome)" />
-              <Stack.Screen name="(drawer)" />
-              <Stack.Screen name="(auth)" />
-            </Stack>
-          </ClerkLoaded>
-        </ThemeProvider>
+        <QueryClientProvider client={client}>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <ClerkLoaded>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(welcome)" />
+                <Stack.Screen name="(drawer)" />
+                <Stack.Screen name="(auth)" />
+              </Stack>
+            </ClerkLoaded>
+          </ThemeProvider>
+        </QueryClientProvider>
       </ClerkProvider>
     </GestureHandlerRootView>
   )

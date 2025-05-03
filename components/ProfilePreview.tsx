@@ -136,7 +136,7 @@ export default function ProfilePreview() {
       <ImageBackground 
         source={require('../assets/images/profile-bg.jpg')} 
         className="absolute inset-0 w-full h-full"
-        imageStyle={{ opacity: 0.4 }}
+        imageStyle={{ opacity: 0.2 }}
         resizeMode="cover"
       />
       

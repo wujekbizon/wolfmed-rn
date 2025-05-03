@@ -40,7 +40,7 @@ export default function DashboardScreen() {
     }
 
     const commonContentStyle = {
-      backgroundColor: `${activeColor}10`,
+      backgroundColor: `${activeColor}15`,
       flex: 1
     }
 
@@ -82,7 +82,7 @@ export default function DashboardScreen() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
             zIndex: 50
           }}
         />

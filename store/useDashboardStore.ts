@@ -17,7 +17,7 @@ export const useDashboardStore = create<DashboardState>()((set, get) => ({
   section: DASHBOARD_SECTIONS,
   activeSection: 'stats',
   isCircleExpanded: false,
-  isMinimized: false,
+  isMinimized: true,
   setActiveSection: (section) => set({ activeSection: section }),
   toggleCircleExpand: () => set((state) => ({ isCircleExpanded: !state.isCircleExpanded })),
   toggleMinimized: () => set((state) => ({ isMinimized: !state.isMinimized, isCircleExpanded: false })),

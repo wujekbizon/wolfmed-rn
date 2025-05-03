@@ -1,7 +1,7 @@
 import { Href } from "expo-router"
 
 // tests related types
-type Answer = {
+export type Answer = {
   option: string
   isCorrect: boolean
 }
