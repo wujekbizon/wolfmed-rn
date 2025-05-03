@@ -1,3 +1,4 @@
+import { Href } from "expo-router"
 
 // tests related types
 type Answer = {
@@ -107,4 +108,15 @@ export interface CompletedTestData {
   }>
   score: number
   completedAt: Date | null
+}
+
+export interface TestCardContent {
+  category: string
+  title: string
+  content: string
+  date: string
+  testsNumber: number
+  testsLabel: string
+  image: string
+  link: Href
 }

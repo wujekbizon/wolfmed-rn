@@ -38,5 +38,5 @@ export const DASHBOARD_SECTIONS: Record<DashboardSection, SectionConfig> = {
       icon: 'newspaper',
       label: 'News Feed',
     },
-  }
+}
   

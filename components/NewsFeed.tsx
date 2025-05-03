@@ -10,76 +10,77 @@ interface NewsFeedProps {
 
 export default function NewsFeed({ color }: NewsFeedProps) {
   const renderHeader = () => (
-    <>
+    <View className="px-4 pt-4">
       <Text className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-4">
         Najnowsze Aktualizacje
       </Text>
-      <Text className="text-base text-zinc-600 dark:text-zinc-300 mb-6">
-        Bądź na bieżąco z nowymi funkcjami i aktualizacjami społeczności
-      </Text>
-    </>
+    </View>
   )
 
   const renderItem = ({ item }: { item: typeof newsItems[0] }) => {
     const typeColor = getTypeColor(item.type, color)
     
     return (
-      <Pressable 
-        className="p-4 rounded-xl bg-white dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700"
-        style={{ 
-          shadowColor: typeColor,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 2,
-          marginBottom: 16
-        }}
-      >
-        <View className="flex-row items-center mb-3">
-          <View 
-            className="w-8 h-8 rounded-full items-center justify-center mr-3"
-            style={{ backgroundColor: `${typeColor}15` }}
-          >
-            <Ionicons 
-              name={item.icon} 
-              size={16} 
-              color={typeColor}
-            />
-          </View>
-          <Text className="text-sm text-zinc-500 dark:text-zinc-400">
-            {item.date}
-          </Text>
-        </View>
-        
-        <Text 
-          className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-2"
-          style={{ color: typeColor }}
+      <View className="px-4">
+        <Pressable 
+          className="p-4 rounded-xl bg-white dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700"
+          style={{ 
+            shadowColor: typeColor,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 2,
+            marginBottom: 16
+          }}
         >
-          {item.title}
-        </Text>
-        <Text className="text-base text-zinc-600 dark:text-zinc-300">
-          {item.description}
-        </Text>
-        
-        <View className="flex-row mt-3">
-          <View 
-            className="px-3 py-1 rounded-full"
-            style={{ backgroundColor: `${typeColor}15` }}
-          >
-            <Text 
-              className="text-xs font-medium capitalize"
-              style={{ color: typeColor }}
+          <View className="flex-row items-center mb-3">
+            <View 
+              className="w-8 h-8 rounded-full items-center justify-center mr-3"
+              style={{ backgroundColor: `${typeColor}15` }}
             >
-              {getTypeLabel(item.type)}
+              <Ionicons 
+                name={item.icon} 
+                size={16} 
+                color={typeColor}
+              />
+            </View>
+            <Text className="text-sm text-zinc-500 dark:text-zinc-400">
+              {item.date}
             </Text>
           </View>
-        </View>
-      </Pressable>
+          
+          <Text 
+            className="text-lg font-semibold text-zinc-800 dark:text-zinc-100 mb-2"
+            style={{ color: typeColor }}
+          >
+            {item.title}
+          </Text>
+          <Text className="text-base text-zinc-600 dark:text-zinc-300">
+            {item.description}
+          </Text>
+          
+          <View className="flex-row mt-3">
+            <View 
+              className="px-3 py-1 rounded-full"
+              style={{ backgroundColor: `${typeColor}15` }}
+            >
+              <Text 
+                className="text-xs font-medium capitalize"
+                style={{ color: typeColor }}
+              >
+                {getTypeLabel(item.type)}
+              </Text>
+            </View>
+          </View>
+        </Pressable>
+      </View>
     )
   }
 
   return (
     <FlatList
+      className="flex-1"
+      contentContainerClassName="pb-4"
       data={newsItems}
       renderItem={renderItem}
       ListHeaderComponent={renderHeader}

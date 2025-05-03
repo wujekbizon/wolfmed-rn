@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, useWindowDimensions } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import QuickStats from '@/components/QuickStats'
 import QuickActions from '@/components/QuickActions'
 import ProfilePreview from '@/components/ProfilePreview'
@@ -30,7 +29,6 @@ export default function DashboardScreen() {
   const { 
     activeSection, 
     getSectionConfig,
-    isCircleExpanded,
     isMinimized,
     toggleMinimized
   } = useDashboardStore()

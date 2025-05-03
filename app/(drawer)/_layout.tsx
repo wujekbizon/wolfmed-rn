@@ -6,6 +6,7 @@ import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawe
 import { useRouter } from 'expo-router'
 import { cn } from '@/lib/utils'
 import LogoHeader from '@/components/LogoHeader'
+import { useDashboardStore } from '@/store/useDashboardStore'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.85
@@ -91,6 +92,8 @@ function CustomDrawerContent(props: any) {
 export default function DrawerLayout() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const { activeSection, getSectionConfig } = useDashboardStore()
+  const activeColor = getSectionConfig(activeSection).color
 
   return (
     <Drawer
@@ -136,6 +139,13 @@ export default function DrawerLayout() {
           drawerLabel: 'Panel główny',
           title: 'Panel główny',
           drawerIcon: ({ color, size }) => <DrawerIcon name="home" color={color} size={size} />,
+          headerStyle: {
+            backgroundColor: isDark 
+              ? `${activeColor}15` 
+              : `${activeColor}10`,
+            elevation: 0,
+            shadowOpacity: 0,
+          },
         }}
       />
       <Drawer.Screen

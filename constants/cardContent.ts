@@ -1,7 +1,7 @@
 import { Href } from '@/.expo/types/router'
-import { CardContent } from '@/types/dataTypes'
+import { TestCardContent } from '@/types/dataTypes'
 
-export const cards: CardContent[] = [
+export const cards: TestCardContent[] = [
   {
     category: 'Testy',
     title: 'Testy Medyczne',
