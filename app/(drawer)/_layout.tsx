@@ -129,7 +129,7 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="learn"
+        name="(learn)"
         options={{
           drawerLabel: 'Materiały do nauki',
           title: 'Materiały do nauki',

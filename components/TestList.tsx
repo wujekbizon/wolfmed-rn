@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react'
-import { StyleSheet, Dimensions } from 'react-native'
-import { FlashList } from '@shopify/flash-list'
+import { StyleSheet, FlatList, View, Text } from 'react-native'
 import type { Test } from '@/types/dataTypes'
 import { TestListItem } from './TestListItem'
 
@@ -8,27 +7,26 @@ interface TestListProps {
   tests: Test[]
 }
 
-const { width } = Dimensions.get('window')
-
-export function TestList({ tests }: TestListProps) {
-  // Memoize the renderItem function
-  const renderItem = useCallback(
-    ({ item, index }: { item: Test; index: number }) => (
-      <TestListItem
-        test={item}
-        questionNumber={`${index + 1}/${tests.length}`}
-      />
-    ),
-    [tests.length]
-  )
-
+export function TestList({ 
+  tests
+}: TestListProps) {
+  const renderItem = useCallback(({ item, index }: { item: Test; index: number }) => (
+    <TestListItem
+      test={item}
+      questionNumber={`${index + 1}/${tests.length}`}
+    />
+  ), [tests.length])
+ 
   return (
-    <FlashList
+    <FlatList
       data={tests}
       renderItem={renderItem}
-      estimatedItemSize={664}
+      keyExtractor={(item) => item.id}
       contentContainerStyle={styles.listContent}
       showsVerticalScrollIndicator={true}
+      initialNumToRender={10}
+      maxToRenderPerBatch={5}
+      windowSize={5}
     />
   )
 }

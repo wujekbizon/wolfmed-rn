@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { fileData } from '@/server/fetchData'
-import type { Test } from '@/types/dataTypes'
-
 export function useTests() {
   const { 
     data: tests = [], 

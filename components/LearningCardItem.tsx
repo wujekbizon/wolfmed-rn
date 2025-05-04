@@ -1,5 +1,5 @@
 import React from 'react'
-import { ColorSchemeName, Text, View } from 'react-native'
+import { ColorSchemeName, Text, View, StyleSheet } from 'react-native'
 import { Answer } from '@/types/dataTypes'
 import { LETTERS } from '@/constants/optionsLetters'
 
@@ -17,22 +17,61 @@ export const LearningCardItem = ({
   colorScheme,
 }: LearningCardItemProps) => {
   return (
-    <View className="flex-row items-center mb-2">
+    <View style={styles.answerContainer}>
       <Text
-        className={`text-sm mr-2 ${showCorrectAnswer && isCorrect ? 'text-[#ff6060]' : 'text-[#ffabab]'} ${
-          showCorrectAnswer && !isCorrect ? 'opacity-25' : 'opacity-100'
-        }`}
+        style={[
+          styles.optionPrefix,
+          showCorrectAnswer && isCorrect && styles.correctOption,
+          showCorrectAnswer && !isCorrect && styles.incorrectOption,
+        ]}
       >
         {LETTERS[index]})
       </Text>
       <Text
-        className={`text-sm flex-1 py-0.5 px-1 rounded-lg ${colorScheme === 'dark' ? 'text-white' : 'text-black'} ${
-          showCorrectAnswer && !isCorrect ? 'opacity-25' : 'opacity-100'
-        } ${showCorrectAnswer && isCorrect ? 'bg-[#ffdcdc]' : 'bg-transparent'}
-      `}
+        style={[
+          styles.optionText,
+          colorScheme === 'dark' ? styles.textDark : styles.textLight,
+          showCorrectAnswer && !isCorrect && styles.incorrectOption,
+          showCorrectAnswer && isCorrect && styles.correctHighlight,
+        ]}
       >
         {option}
       </Text>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  answerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  optionPrefix: {
+    fontSize: 14,
+    marginRight: 8,
+    fontWeight: '500',
+  },
+  optionText: {
+    fontSize: 14,
+    flex: 1,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+  correctOption: {
+    color: '#FF6B6B',
+  },
+  incorrectOption: {
+    opacity: 0.25,
+  },
+  correctHighlight: {
+    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+  },
+  textLight: {
+    color: '#000000',
+  },
+  textDark: {
+    color: '#FFFFFF',
+  },
+})

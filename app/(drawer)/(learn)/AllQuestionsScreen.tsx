@@ -1,30 +1,30 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { useColorScheme } from 'react-native'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
-import { TestList } from '@/components/TestList'
-import { useTests } from '@/hooks/useTests'
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { useColorScheme } from 'react-native';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { TestList } from '@/components/TestList';
+import { useTests } from '@/hooks/useTests';
 
-function TestsScreenContent() {
-  const colorScheme = useColorScheme()
-  const { tests, isLoading, error } = useTests()
+export default function AllQuestionsScreen () {
+  const colorScheme = useColorScheme();
+  const { tests, isLoading, error } = useTests();
 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <LoadingSpinner isLoading={true} />
       </View>
-    )
+    );
   }
 
   if (error) {
     return (
       <View style={styles.container}>
         <Text style={[styles.errorText, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
-          Error loading tests. Please try again later.
+         Blad wczytywania materialow.
         </Text>
       </View>
-    )
+    );
   }
 
   return (
@@ -34,12 +34,8 @@ function TestsScreenContent() {
       </Text>
       <TestList tests={tests} />
     </View>
-  )
-}
-
-export default function TestsScreen() {
-  return <TestsScreenContent />
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -61,4 +57,4 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
   },
-})
+});
