@@ -1,7 +1,6 @@
 import { Drawer } from 'expo-router/drawer'
-import { useColorScheme, Dimensions } from 'react-native'
+import { useColorScheme, Dimensions , View, Pressable } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
-import { View, Pressable } from 'react-native'
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer'
 import { useRouter } from 'expo-router'
 import { cn } from '@/lib/utils'

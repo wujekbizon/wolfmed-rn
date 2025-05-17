@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { StyleSheet, FlatList, View, Text } from 'react-native'
+import { StyleSheet, FlatList } from 'react-native'
 import type { Test } from '@/types/dataTypes'
 import { TestListItem } from './TestListItem'
 

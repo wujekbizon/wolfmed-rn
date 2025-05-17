@@ -1,4 +1,4 @@
-import { View } from 'react-native'
+import { View , useColorScheme } from 'react-native'
 import React from 'react'
 import { LinearGradient } from 'expo-linear-gradient'
 import Animated, { 
@@ -9,7 +9,7 @@ import Animated, {
   useSharedValue,
   withDelay
 } from 'react-native-reanimated'
-import { useColorScheme } from 'react-native'
+
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 
@@ -45,7 +45,7 @@ export default function GradientOverlay() {
       -1,
       true
     )
-  }, [])
+  }, [opacity,rotation,scale])
 
   const baseGradientStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

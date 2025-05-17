@@ -12,7 +12,7 @@ export default function Testy() {
   useEffect(() => {
     // Load tests from JSON file
     setTests(testsData as Test[])
-  }, [])
+  }, [setTests])
 
   const randomTest = tests.slice(0, numberTests || 0)
 

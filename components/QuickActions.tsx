@@ -2,9 +2,8 @@ import { View, Text, Switch, Pressable, useColorScheme, Dimensions, FlatList, Ac
 import { BlurView } from 'expo-blur'
 import { Link, RelativePathString } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import Animated, { FadeIn } from 'react-native-reanimated'
-import React from 'react'
 
 type ActionType = 'setting' | 'link' | 'toggle'
 

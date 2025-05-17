@@ -1,5 +1,5 @@
-import { View, Text, Animated } from 'react-native'
-import { useColorScheme } from 'react-native'
+import { View, Text, Animated , useColorScheme } from 'react-native'
+
 import { BlurView } from 'expo-blur'
 import { LinearGradient } from 'expo-linear-gradient'
 

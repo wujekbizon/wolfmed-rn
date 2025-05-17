@@ -1,6 +1,5 @@
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View, Text, TextInput, Pressable , useColorScheme } from 'react-native'
 import { BlurView } from 'expo-blur'
-import { useColorScheme } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useState, useCallback } from 'react'
 import { validateMotto } from '../lib/validations/profile'

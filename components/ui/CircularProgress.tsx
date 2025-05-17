@@ -26,7 +26,7 @@ export default function CircularProgress({
       mass: 1,
       stiffness: 100,
     }).start()
-  }, [progress])
+  }, [progress, animatedValue])
 
   const containerStyle = {
     width: size,

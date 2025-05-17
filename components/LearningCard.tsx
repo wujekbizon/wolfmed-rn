@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Text, View, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import { Answer, Test } from '@/types/dataTypes';
-import { useColorScheme } from 'react-native';
+import { Text, View, TouchableOpacity, FlatList, StyleSheet , useColorScheme } from 'react-native';
+import {Test } from '@/types/dataTypes';
+
 import { LearningCardItem } from './LearningCardItem';
 
 type LearningCardProps = {

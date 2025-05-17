@@ -1,5 +1,5 @@
 import { View, ImageBackground, TouchableOpacity, LayoutChangeEvent } from 'react-native'
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { ProfileHeader } from './ProfileHeader'
 import { UsernameForm } from './UsernameForm'
 import { MottoForm } from './MottoForm'

@@ -1,5 +1,5 @@
-import { View, ActivityIndicator } from 'react-native'
-import { useColorScheme } from 'react-native'
+import { View, ActivityIndicator , useColorScheme } from 'react-native'
+
 import { cn } from '@/lib/utils'
 
 export default function LoadingScreen() {

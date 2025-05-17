@@ -1,5 +1,5 @@
-import { View, Text, Animated } from 'react-native'
-import { useColorScheme } from 'react-native'
+import { View, Text, Animated , useColorScheme } from 'react-native'
+
 import { useState, useEffect, useRef } from 'react'
 import { BlurView } from 'expo-blur'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -58,7 +58,7 @@ export function ExamCountdown({ examDate = new Date('2025-06-02'), className = '
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [examDate])
+  }, [examDate, pulseAnim])
 
   return (
     <View className={`px-4  ${className}`}>

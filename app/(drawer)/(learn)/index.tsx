@@ -1,7 +1,6 @@
 import { ExternalPathString, Link, RelativePathString } from 'expo-router';
 import React from 'react'
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { useColorScheme } from 'react-native'
+import { Animated, StyleSheet, Text, TouchableOpacity, View , useColorScheme } from 'react-native'
 
 export default function LearningScreen() {
   const colorScheme = useColorScheme();

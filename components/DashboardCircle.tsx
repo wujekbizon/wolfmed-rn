@@ -3,7 +3,7 @@ import { StyleSheet, Pressable } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useDashboardStore } from '@/store/useDashboardStore';
-import Animated, { useAnimatedRef } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { theme } from '../theme';
 import { DashboardSection } from '@/constants/dashboardSections';
@@ -26,7 +26,6 @@ export const DashboardCircle: React.FC = () => {
   } = useDashboardStore();
 
   const {
-    rotation,
     pulseScale,
     elevation,
     gestureRotation,
@@ -73,7 +72,7 @@ export const DashboardCircle: React.FC = () => {
     } else {
       toggleMinimized();
     }
-  }, [isMinimized, isCircleExpanded, getSection, setActiveSection, toggleCircleExpand, toggleMinimized]);
+  }, [isMinimized, isCircleExpanded, getSection, setActiveSection, toggleCircleExpand, toggleMinimized, gestureRotation.value]);
 
   const handleSectionPress = useCallback((section: DashboardSection) => {
     resetAnimationProgress();

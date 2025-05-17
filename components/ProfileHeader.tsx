@@ -1,7 +1,7 @@
-import { View, Text } from 'react-native'
+import { View, Text , useColorScheme } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
-import { useColorScheme } from 'react-native'
+
 
 interface ProfileHeaderProps {
   username: string
@@ -57,7 +57,7 @@ export function ProfileHeader({ username, motto }: ProfileHeaderProps) {
                   </Text>
                 </View>
                 <Text className="text-3xl text-center text-zinc-950 dark:text-zinc-200 italic font-medium">
-                  "{motto.substring(0, 30)}"
+                &quot;{motto.substring(0, 30)}&quot;
                 </Text>
               </View>
             </View>

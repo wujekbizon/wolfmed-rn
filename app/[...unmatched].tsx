@@ -31,7 +31,7 @@ export default function UnmatchedRoute() {
             "text-xl text-center mb-8",
             isDark ? "text-white/80" : "text-[#111]/80"
           )}>
-            Oops! This page doesn't exist.
+            Oops! This page doesn&apos;t exist.
           </Text>
           
           <Pressable

@@ -42,6 +42,7 @@ export default function RootLayout() {
       try {
         return SecureStore.setItemAsync(key, value)
       } catch (err) {
+        console.log(err)
         return
       }
     },

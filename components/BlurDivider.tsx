@@ -1,6 +1,6 @@
-import { View } from 'react-native'
+import { View , useColorScheme } from 'react-native'
 import { BlurView } from 'expo-blur'
-import { useColorScheme } from 'react-native'
+
 
 interface BlurDividerProps {
   /**

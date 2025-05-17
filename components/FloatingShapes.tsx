@@ -66,7 +66,7 @@ const Shape = ({ index, type, color, left, top, size }: ShapeProps) => {
       -1,
       true
     )
-  }, [])
+  }, [index,colorScheme,opacity,rotation,scale,translateY])
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [

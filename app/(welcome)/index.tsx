@@ -1,7 +1,7 @@
 import React from 'react'
-import { Text, View, Pressable, useWindowDimensions} from 'react-native'
-import { useColorScheme } from 'react-native'
-import { Link, useRouter } from 'expo-router'
+import { Text, View, Pressable, useColorScheme } from 'react-native'
+
+import { useRouter } from 'expo-router'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -17,12 +17,9 @@ import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import { AntDesign } from '@expo/vector-icons'
 import { useAuth } from '@clerk/clerk-expo'
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 export default function WelcomeScreen() {
   const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
-  const { height } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   const router = useRouter()
   const { signOut } = useAuth()
@@ -62,7 +59,7 @@ export default function WelcomeScreen() {
       -1,
       true
     )
-  }, [])
+  }, [arrowX, buttonGlow])
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: buttonScale.value }],

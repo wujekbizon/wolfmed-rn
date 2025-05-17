@@ -12,7 +12,7 @@ import DraggableFlatList, {
 } from 'react-native-draggable-flatlist'
 import { useState } from 'react'
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
+const { height: SCREEN_HEIGHT } = Dimensions.get('window')
 // Calculate card height based on screen height minus header and padding
 const CARD_HEIGHT = (SCREEN_HEIGHT - 120) / 5 - 16 // 120px for header and padding, 16px for margin between cards
 
@@ -211,18 +211,6 @@ export default function QuickStats({ color = '#ec4899' }: QuickStatsProps) {
         type: 'up',
         value: '+2'
       }
-    },
-    {
-      id: 'accuracy',
-      title: "Dokładność",
-      value: "85%",
-      subtitle: "Poprawnych odpowiedzi",
-      icon: "checkmark-done",
-      progress: 85,
-      trend: {
-        type: 'down',
-        value: '3%'
-      }
     }
   ])
 
@@ -269,7 +257,7 @@ export default function QuickStats({ color = '#ec4899' }: QuickStatsProps) {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={{ 
-            paddingHorizontal: 16
+            paddingHorizontal: 8
           }}
           showsVerticalScrollIndicator={false}
           activationDistance={10}
