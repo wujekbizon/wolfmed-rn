@@ -53,15 +53,14 @@ export default function RootLayout() {
 
   const colorScheme = useColorScheme()
   return (
-    <GestureHandlerRootView style={{ flex: 1}} className='bg-background'>
+    <GestureHandlerRootView style={{ flex: 1}}>
       <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache} localization={plPL}>
         <QueryClientProvider client={client}>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <ClerkLoaded>
             {isSplashVisible ? <SplashScreen onReady={() => setIsSplashVisible(false)} /> : (
                 <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(welcome)" />
-                  <Stack.Screen name="(drawer)" />
+                  <Stack.Screen name="(tabs)" />
                   <Stack.Screen name="(auth)" />
                 </Stack>
               )}

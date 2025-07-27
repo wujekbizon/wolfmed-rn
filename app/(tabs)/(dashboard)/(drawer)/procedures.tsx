@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { StyleSheet, Text, View, FlatList, useColorScheme } from 'react-native'
-import proceduresData from '../../data/procedures.json'
+import proceduresData from '@/data/procedures.json'
 import { Procedure } from '@/types/dataTypes'
 import { ProcedureContent } from '@/components/ProcedureContent'
 import { LoadingSpinner } from '@/components/LoadingSpinner'

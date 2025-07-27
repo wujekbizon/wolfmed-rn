@@ -50,7 +50,7 @@ function CustomDrawerContent(props: any) {
     >
       
       <Pressable 
-          onPress={() => router.push('/(welcome)')}
+          onPress={() => router.push('/(tabs)')}
           className="w-full px-2 pt-6 active:opacity-70"
         >
           <LogoHeader isDark={isDark} />

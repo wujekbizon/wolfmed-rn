@@ -171,7 +171,7 @@ export default function WelcomeScreen() {
             </Text>
           </Text>
 
-          <Pressable
+          {/* <Pressable
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
             onPress={() => router.push('/(drawer)')}
@@ -243,7 +243,7 @@ export default function WelcomeScreen() {
                 />
               </Animated.View>
             </Animated.View>
-          </Pressable>
+          </Pressable> */}
         </View>
       </View>
     </SafeAreaView>
