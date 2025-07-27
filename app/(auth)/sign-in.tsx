@@ -27,7 +27,6 @@ export default function SignInScreen() {
     <SafeAreaView className={cn("flex-1", isDark ? "bg-[#111]" : "bg-white")}>
       <GradientOverlay />
       <FloatingShapes count={4} />
-      
       <View className="flex-1 justify-center px-5">
         <AuthForm
           type="sign-in"

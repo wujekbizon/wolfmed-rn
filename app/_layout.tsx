@@ -1,11 +1,9 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo'
 import { plPL } from '@clerk/localizations'
-import { useFonts } from 'expo-font'
-import { Stack } from 'expo-router'
-import * as SplashScreen from 'expo-splash-screen'
-import { useEffect, useState } from 'react'
-import 'react-native-reanimated'
+import { Stack} from 'expo-router'
+import { useState } from 'react'
+import SplashScreen from '@/components/SplashScreen'
 import * as SecureStore from 'expo-secure-store'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -17,11 +15,10 @@ export interface TokenCache {
   clearToken?: (key: string) => void
 }
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync()
-
 export default function RootLayout() {
   const [client] = useState(new QueryClient())
+  const [isSplashVisible, setIsSplashVisible] = useState(true)
+
   const tokenCache: TokenCache = {
     async getToken(key: string) {
       try {
@@ -55,31 +52,19 @@ export default function RootLayout() {
   }
 
   const colorScheme = useColorScheme()
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  })
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync()
-    }
-  }, [loaded])
-
-  if (!loaded) {
-    return null
-  }
-
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1}} className='bg-background'>
       <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache} localization={plPL}>
         <QueryClientProvider client={client}>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <ClerkLoaded>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(welcome)" />
-                <Stack.Screen name="(drawer)" />
-                <Stack.Screen name="(auth)" />
-              </Stack>
+            {isSplashVisible ? <SplashScreen onReady={() => setIsSplashVisible(false)} /> : (
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(welcome)" />
+                  <Stack.Screen name="(drawer)" />
+                  <Stack.Screen name="(auth)" />
+                </Stack>
+              )}
             </ClerkLoaded>
           </ThemeProvider>
         </QueryClientProvider>

@@ -15,7 +15,7 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated'
 import { FontAwesome } from '@expo/vector-icons'
 import { cn } from '@/lib/utils'
 import { useAuthAnimations } from '@/hooks/useAuthAnimations'
-import { AnimatedAuthInput } from './AnimatedAuthInput'
+import AnimatedAuthInput  from './AnimatedAuthInput'
 
 export type AuthFormErrors = {
   email?: string

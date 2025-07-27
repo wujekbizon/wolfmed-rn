@@ -75,7 +75,7 @@ export default function DashboardScreen() {
         <Animated.View 
           entering={FadeIn.duration(200)}
           exiting={FadeOut.duration(200)}
-          onTouchEnd={() => toggleMinimized()}
+          onTouchEnd={() => !isMinimized && toggleMinimized()}
           style={{
             position: 'absolute',
             top: 0,
@@ -90,11 +90,10 @@ export default function DashboardScreen() {
       <View 
         style={{
           position: 'absolute',
-          top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.225,
+          top: SCREEN_HEIGHT / 2.5 - SCREEN_WIDTH * 0.225,
           left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.225,
           zIndex: 100,
         }}
-        pointerEvents="box-none"
       >
         <DashboardCircle />
       </View>

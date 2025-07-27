@@ -72,7 +72,7 @@ export const DashboardCircle: React.FC = () => {
     } else {
       toggleMinimized();
     }
-  }, [isMinimized, isCircleExpanded, getSection, setActiveSection, toggleCircleExpand, toggleMinimized, gestureRotation.value]);
+  }, [isMinimized, isCircleExpanded, getSection, setActiveSection, toggleCircleExpand, toggleMinimized, gestureRotation]);
 
   const handleSectionPress = useCallback((section: DashboardSection) => {
     resetAnimationProgress();
