@@ -38,6 +38,7 @@ interface ProcedureData {
 export interface Procedure {
   id: string
   data: ProcedureData
+  image?: any;
 }
 export type ExtendedProcedures = Omit<Procedure, 'data'> & { data: unknown }
 

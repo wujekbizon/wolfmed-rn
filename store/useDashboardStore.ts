@@ -15,7 +15,7 @@ interface DashboardState {
 
 export const useDashboardStore = create<DashboardState>()((set, get) => ({
   section: DASHBOARD_SECTIONS,
-  activeSection: 'stats',
+  activeSection: 'profile',
   isCircleExpanded: false,
   isMinimized: true,
   setActiveSection: (section) => set({ activeSection: section }),

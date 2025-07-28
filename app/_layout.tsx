@@ -8,6 +8,16 @@ import * as SecureStore from 'expo-secure-store'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from 'react-native-reanimated';
+
+// This is the default configuration
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: true,
+});
 
 export interface TokenCache {
   getToken: (key: string) => Promise<string | undefined | null>

@@ -1,50 +1,31 @@
-import { ExternalPathString, Link, RelativePathString } from 'expo-router';
-import React from 'react'
-import { Animated, StyleSheet, Text, TouchableOpacity, View , useColorScheme } from 'react-native'
+import { learningMaterials } from '@/constants/learningMaterials'
+import { ExternalPathString, Link, RelativePathString } from 'expo-router'
+import {useEffect} from 'react'
+import { StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native'
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 
 export default function LearningScreen() {
-  const colorScheme = useColorScheme();
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const colorScheme = useColorScheme()
+  const fadeAnim = useSharedValue(0)
 
-  React.useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
+  useEffect(() => {
+    fadeAnim.value = withTiming(1, { duration: 1000 })
+  }, [fadeAnim])
 
-  const learningMaterials = [
-    {
-      id: '1',
-      title: 'Baza pytań',
-      description: 'Pełna lista wszystkich pytań edukacyjnych',
-      href: '/(drawer)/(learn)/AllQuestionsScreen',
-    },
-    {
-      id: '2',
-      title: 'Flashcards',
-      description: 'Interactive flashcards for quick learning',
-      href: '/(drawer)/(learn)/FlashcardsScreen',
-    },
-    {
-      id: '3',
-      title: 'Quizzes',
-      description: 'Test your knowledge with timed quizzes',
-      href: '/(drawer)/(learn)/QuizzesScreen',
-    },
-  ];
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: fadeAnim.value,
+  }))
 
   return (
-    <View style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#222' : '#FFF' }]}>
-      <View style={styles.briefcasesContainer}>
+    <View className={`flex-1 p-5 ${colorScheme === 'dark' ? 'bg-zinc-900' : 'bg-[#f4edff7f]/50' }`}>
+      <View className="flex-1 items-center">
         {learningMaterials.map((item) => (
           <Animated.View
             key={item.id}
             style={[
               styles.briefcase,
-              { opacity: fadeAnim },
-              { backgroundColor: colorScheme === 'dark' ? '#333' : '#F5F5F5' },
+              animatedStyle,
+              { backgroundColor: colorScheme === 'dark' ? '#333' : '#fff' },
             ]}
           >
             <Link href={item.href as RelativePathString | ExternalPathString} asChild>
@@ -61,14 +42,10 @@ export default function LearningScreen() {
         ))}
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -103,4 +80,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-});
+})

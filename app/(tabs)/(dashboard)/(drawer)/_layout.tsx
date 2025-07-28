@@ -144,14 +144,6 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="procedures"
-        options={{
-          drawerLabel: 'Procedury medyczne',
-          title: 'Procedury medyczne',
-          drawerIcon: ({ color, size }) => <DrawerIcon name="stethoscope" color={color} size={size} />,
-        }}
-      />
-      <Drawer.Screen
         name="tests-procedures"
         options={{
           drawerLabel: 'Materiały szkoleniowe',

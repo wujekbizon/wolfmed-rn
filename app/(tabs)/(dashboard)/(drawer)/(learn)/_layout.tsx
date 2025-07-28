@@ -36,9 +36,9 @@ export default function LearnLayout() {
         }}
       />
       <Stack.Screen
-        name="QuizzesScreen"
+        name="procedures"
         options={{
-          title: 'Quizzes',
+          title: 'Procedury',
           presentation: 'card',
         }}
       />

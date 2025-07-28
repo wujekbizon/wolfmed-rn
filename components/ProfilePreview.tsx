@@ -95,9 +95,9 @@ export default function ProfilePreview() {
           />
         )
         break
-      case 'exam':
-        content = <ExamCountdown />
-        break
+      // case 'exam':
+      //   content = <ExamCountdown />
+      //   break
     }
 
     return (
@@ -133,12 +133,12 @@ export default function ProfilePreview() {
 
   return (
     <View className="flex-1 py-4">
-      <ImageBackground 
+      {/* <ImageBackground 
         source={require('../assets/images/profile-bg.jpg')} 
         className="absolute inset-0 w-full h-full"
         imageStyle={{ opacity: 0.2 }}
         resizeMode="cover"
-      />
+      /> */}
       
       <DraggableFlatList
         data={components}
