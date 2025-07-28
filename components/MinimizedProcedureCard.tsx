@@ -24,16 +24,16 @@ export default function MinimizedProcedureCard({
 
 
   return (
-    <View className="w-[100%] h-[200px] mb-6 rounded-xl">
+    <View className="w-[100%] h-[250px] mb-6 rounded-xl">
       <Pressable
         className={`flex-1 rounded-xl shadow-md bg-[#A491BB] border border-slate-900/60`}
         style={({ pressed }) => [pressed && styles.pressed]}
         onPress={onPressCustomButtonHandler}
         android_ripple={{ color: WOLFMED_COLORS.background }}
       >
-        {image && <Image source={image} style={{position:'absolute', borderRadius: 12, objectFit:'cover', width: '100%', height:198}} />} 
-        <View className="flex-1 p-2 items-center justify-center rounded-sm ">
-          <Text className="text-2xl font-semibold text-center text-zinc-950">
+        <View className="flex-1 items-center justify-center rounded-sm ">
+        {image && <Image source={image} contentFit="contain" style={{position:'absolute', borderRadius: 12, width: '100%', height: '100%',}} />} 
+          <Text className="text-2xl bg-white/80 w-[90%] p-2 backdrop-blur-md shadow-sm rounded font-semibold text-center text-black">
             {truncatedName}
           </Text>
         </View>

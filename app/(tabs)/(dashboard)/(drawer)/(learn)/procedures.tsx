@@ -24,8 +24,6 @@ export default function ProceduresScreen() {
   );
   const [isLoading, setIsLoading] = useState(false);
 
-
-
   const loadMoreProcedures = useCallback(() => {
     if (isLoading || displayedProcedures.length >= proceduresWithImages.length)
       return;
