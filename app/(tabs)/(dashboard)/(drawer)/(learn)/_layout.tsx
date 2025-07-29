@@ -1,3 +1,4 @@
+import CustomHeader from '@/components/ui/CustomHeader'
 import { Stack } from 'expo-router'
 import { useColorScheme } from 'react-native'
 
@@ -38,7 +39,11 @@ export default function LearnLayout() {
       <Stack.Screen
         name="procedures"
         options={{
-          title: 'Procedury',
+          header:() => (
+            <CustomHeader
+              title='Procedury'
+            />
+          ),
           presentation: 'card',
         }}
       />

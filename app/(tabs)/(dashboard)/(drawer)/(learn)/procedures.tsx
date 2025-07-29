@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, FlatList, useColorScheme, Text } from "react-native";
+import { FlatList, useColorScheme } from "react-native";
 import proceduresData from "@/data/procedures.json";
 import { Procedure } from "@/types/dataTypes";
 import { useRouter } from "expo-router";
@@ -14,7 +14,7 @@ export default function ProceduresScreen() {
     const imageData = procedureImages.find((img) => img.name === procedure.data.name);
     return {
       ...procedure,
-      image: imageData ? imageData.image : null, // Use null or a default image if no match is found
+      image: imageData ? imageData.image : null,
     };
   });
   const colorScheme = useColorScheme();
@@ -58,16 +58,14 @@ export default function ProceduresScreen() {
   );
 
   return (
-    <View className="flex-1 p-5">
       <FlatList
         data={displayedProcedures}
         renderItem={renderItem}
         keyExtractor={(item, index) => item.data.name || index.toString()}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ padding: 20, width:"100%" }}
         onEndReached={loadMoreProcedures}
         onEndReachedThreshold={0.1}
         ListFooterComponent={<LoadingSpinner isLoading={isLoading} />} 
       />
-    </View>
   );
 }
