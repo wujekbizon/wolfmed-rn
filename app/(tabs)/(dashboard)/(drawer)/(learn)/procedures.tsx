@@ -9,9 +9,10 @@ import MinimizedProcedureCard from "@/components/MinimizedProcedureCard";
 import { procedureImages } from "@/constants/proceduresImages";
 
 export default function ProceduresScreen() {
-
   const proceduresWithImages = proceduresData.map((procedure) => {
-    const imageData = procedureImages.find((img) => img.name === procedure.data.name);
+    const imageData = procedureImages.find(
+      (img) => img.name === procedure.data.name
+    );
     return {
       ...procedure,
       image: imageData ? imageData.image : null,
@@ -42,30 +43,33 @@ export default function ProceduresScreen() {
     }, 400); // Simulate network delay
   }, [displayedProcedures, isLoading]);
 
-  const handleCardPress = useCallback((id: string) => {
-    router.push(`/procedury/${id}`);
+  const handleCardPress = useCallback((id: string, image: any) => {
+    router.push({
+      pathname: `/procedury/[id]` as const ,
+      params: { id, image },
+    });
   }, []);
 
   const renderItem = useCallback(
     ({ item, index }: { item: Procedure; index: number }) => (
       <MinimizedProcedureCard
         procedure={item}
-        image={item.image} // Pass the image to the card
-        onPress={() => handleCardPress(index.toString())}
+        image={item.image}
+        onPress={() => handleCardPress(index.toString(), item.image)}
       />
     ),
     []
   );
 
   return (
-      <FlatList
-        data={displayedProcedures}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => item.data.name || index.toString()}
-        contentContainerStyle={{ padding: 20, width:"100%" }}
-        onEndReached={loadMoreProcedures}
-        onEndReachedThreshold={0.1}
-        ListFooterComponent={<LoadingSpinner isLoading={isLoading} />} 
-      />
+    <FlatList
+      data={displayedProcedures}
+      renderItem={renderItem}
+      keyExtractor={(item, index) => item.data.name || index.toString()}
+      contentContainerStyle={{ padding: 20, width: "100%" }}
+      onEndReached={loadMoreProcedures}
+      onEndReachedThreshold={0.1}
+      ListFooterComponent={<LoadingSpinner isLoading={isLoading} />}
+    />
   );
 }

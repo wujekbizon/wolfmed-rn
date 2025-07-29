@@ -33,7 +33,7 @@ export default function SplashScreen({ onReady }: SplashScreenProps) {
 
   return (
     <>
-      <StatusBar backgroundColor={WOLFMED_COLORS.background} />
+      <StatusBar  backgroundColor={WOLFMED_COLORS.background} />
       <SafeAreaView style={{ flex: 1 }}>
         <View className="flex-1 bg-background items-center justify-center gap-3 p-spacer5">
           <Animated.View
