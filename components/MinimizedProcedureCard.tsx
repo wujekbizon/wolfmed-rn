@@ -36,7 +36,7 @@ export default function MinimizedProcedureCard({
   return (
     <View className="w-[100%] h-[250px] mb-6 rounded-xl">
       <Pressable
-        className={`flex-1 rounded-xl shadow-md bg-[#A491BB] border-2 border-slate-950`}
+        className={`flex-1 rounded-xl shadow-md bg-[#A491BB] border border-slate-900/50`}
         style={({ pressed }) => [pressed && styles.pressed]}
         onPress={onPressCustomButtonHandler}
         android_ripple={{ color: WOLFMED_COLORS.background }}

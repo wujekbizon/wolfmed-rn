@@ -4,7 +4,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { TestList } from '@/components/TestList';
 import { useTests } from '@/hooks/useTests';
 
-export default function AllQuestionsScreen () {
+export default function QuestionsScreen () {
   const colorScheme = useColorScheme();
   const { tests, isLoading, error } = useTests();
 
@@ -28,9 +28,6 @@ export default function AllQuestionsScreen () {
 
   return (
     <View style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#222' : '#FFF' }]}>
-      <Text style={[styles.title, { color: colorScheme === 'dark' ? '#FFF' : '#000' }]}>
-        Pytania dla opiekunów medycznych
-      </Text>
       <TestList tests={tests} />
     </View>
   );

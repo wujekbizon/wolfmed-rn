@@ -1,18 +1,18 @@
-import CustomHeader from '@/components/ui/CustomHeader'
-import { Stack } from 'expo-router'
-import { useColorScheme } from 'react-native'
+import CustomHeader from "@/components/ui/CustomHeader";
+import { Stack } from "expo-router";
+import { useColorScheme } from "react-native";
 
 export default function LearnLayout() {
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   return (
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: isDark ? '#000' : '#fff',
+          backgroundColor: isDark ? "#000" : "#fff",
         },
-        headerTintColor: isDark ? '#fff' : '#000',
+        headerTintColor: isDark ? "#fff" : "#000",
         headerShadowVisible: false,
       }}
     >
@@ -23,30 +23,26 @@ export default function LearnLayout() {
         }}
       />
       <Stack.Screen
-        name="AllQuestionsScreen"
+        name="questions"
         options={{
-          title: 'Baza pytań',
-          presentation: 'card',
+          header: () => <CustomHeader title="Baza pytań" />,
+          presentation: "card",
         }}
       />
       <Stack.Screen
-        name="FlashcardsScreen"
+        name="quizes"
         options={{
-          title: 'Flashcards',
-          presentation: 'card',
+          header: () => <CustomHeader title="Wyzwania" />,
+          presentation: "card",
         }}
       />
       <Stack.Screen
         name="procedures"
         options={{
-          header:() => (
-            <CustomHeader
-              title='Procedury'
-            />
-          ),
-          presentation: 'card',
+          header: () => <CustomHeader title="Procedury" />,
+          presentation: "card",
         }}
       />
     </Stack>
-  )
-} 
+  );
+}

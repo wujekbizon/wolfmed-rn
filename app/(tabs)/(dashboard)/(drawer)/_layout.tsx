@@ -75,11 +75,12 @@ export default function DrawerLayout() {
   const { activeSection, getSectionConfig } = useDashboardStore();
   const activeColor = getSectionConfig(activeSection).color;
   const pathname = usePathname();
-
+  const isHeaderShown = pathname.includes("/procedury/") || pathname.includes("/procedures") || pathname.includes("/quizes") || pathname.includes("/questions");
+  
   return (
     <Drawer
       screenOptions={{
-        headerShown: !pathname.includes("/procedury/") && !pathname.includes("/procedures"),
+        headerShown: !isHeaderShown,
         headerStyle: {
           backgroundColor: isDark ? "#000" : "#fff",
           elevation: 0,

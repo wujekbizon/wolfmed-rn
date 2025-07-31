@@ -66,7 +66,7 @@ export default function ProceduresScreen() {
       data={displayedProcedures}
       renderItem={renderItem}
       keyExtractor={(item, index) => item.data.name || index.toString()}
-      contentContainerStyle={{ padding: 20, width: "100%" }}
+      contentContainerStyle={{ padding: 20, width: "100%", backgroundColor: colorScheme === "dark" ? "#000" : "#fff" }}
       onEndReached={loadMoreProcedures}
       onEndReachedThreshold={0.1}
       ListFooterComponent={<LoadingSpinner isLoading={isLoading} />}

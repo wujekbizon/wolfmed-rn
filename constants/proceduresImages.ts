@@ -1,7 +1,7 @@
 export const procedureImages = [
   {
     name: "Zmiana worka stomijnego na kolostomii",
-    image: require("../assets/images/procedures/stoma-bag.png"),
+    image: require("../assets/images/procedures/stoma-bag2.png"),
   },
   {
     name: "Pielęgnacja gastrostomii po ponad 14 dniach od założenia",

@@ -16,7 +16,7 @@ export default function CustomHeader({
   return (
     <View style={styles.container} >
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back-circle-outline" size={35} color="#484c55" />
+        <Ionicons name="arrow-back-circle-outline" size={34}  />
       </TouchableOpacity>
       <Text className="flex-1 text-2xl font-medium text-slate-900 text-center">
         {title}
@@ -27,17 +27,12 @@ export default function CustomHeader({
 
 const styles = StyleSheet.create({
   container: {
-    width: 160,
-    height: 40,
+    height: 45,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 8,
-    marginTop: 8,
     marginLeft: 8,
     backgroundColor: "#fff",
-    borderColor: "#000",
-    borderWidth: 1,
-    borderRadius: 8,
   },
 });

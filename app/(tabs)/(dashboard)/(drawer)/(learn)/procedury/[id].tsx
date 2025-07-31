@@ -6,12 +6,10 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from 'expo-status-bar';
 import ProcedureContent from "@/components/ProcedureContent";
 import proceduresData from "@/data/procedures.json";
 import { Procedure } from "@/types/dataTypes";
-import CustomHeader from "@/components/ui/CustomHeader";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useAnimatedRef,
@@ -21,7 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
-const IMG_HEIGHT = 400;
+const IMG_HEIGHT = 500;
 
 export default function ProcedureDetailsScreen() {
   const { id, image } = useLocalSearchParams<{ id: string; image: any }>();
