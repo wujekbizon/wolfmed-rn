@@ -1,14 +1,10 @@
 import { Drawer } from "expo-router/drawer";
-import { useColorScheme, Dimensions, View, Pressable } from "react-native";
+import { Dimensions, useColorScheme,View} from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import {
-  DrawerContentScrollView,
-  DrawerItemList,
-} from "@react-navigation/drawer";
-import { usePathname, useRouter } from "expo-router";
-import { cn } from "@/lib/utils";
-import LogoHeader from "@/components/LogoHeader";
+import { usePathname } from "expo-router";
 import { useDashboardStore } from "@/store/useDashboardStore";
+import CustomDrawerContent from "@/components/ui/CustomDrawerContent";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.85;
@@ -38,37 +34,6 @@ function DrawerIcon(props: {
   );
 }
 
-function CustomDrawerContent(props: any) {
-  const colorScheme = useColorScheme();
-  const router = useRouter();
-  const isDark = colorScheme === "dark";
-
-  return (
-    <DrawerContentScrollView
-      {...props}
-      contentContainerStyle={{
-        flex: 1,
-        paddingTop: 0,
-      }}
-    >
-      <Pressable
-        onPress={() => router.push("/(tabs)")}
-        className="w-full px-2 pt-6 active:opacity-70"
-      >
-        <LogoHeader isDark={isDark} />
-      </Pressable>
-      <View
-        className={cn(
-          "flex-1 w-full border-t pt-2 pb-6 mt-4",
-          isDark ? "bg-black/30 border-white/10" : "bg-white/70 border-zinc-200"
-        )}
-      >
-        <DrawerItemList {...props} />
-      </View>
-    </DrawerContentScrollView>
-  );
-}
-
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -86,6 +51,7 @@ export default function DrawerLayout() {
           elevation: 0,
           shadowOpacity: 0,
         },
+       
         headerTintColor: isDark ? "#fff" : "#18181B",
         headerShadowVisible: false,
         drawerStyle: {
