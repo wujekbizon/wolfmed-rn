@@ -46,22 +46,22 @@ export default function DrawerLayout() {
     <Drawer
       screenOptions={{
         headerShown: !isHeaderShown,
-        headerStyle: {
-          backgroundColor: isDark ? "#000" : "#fff",
-          elevation: 0,
-          shadowOpacity: 0,
-        },
+        // headerStyle: {
+        //   backgroundColor: isDark ? "#000" : "#fff",
+        //   elevation: 0,
+        //   shadowOpacity: 0,
+        // },
        
-        headerTintColor: isDark ? "#fff" : "#18181B",
-        headerShadowVisible: false,
-        drawerStyle: {
-          backgroundColor: isDark ? "#000" : "#fff",
-          width: DRAWER_WIDTH,
-          borderRightWidth: 1,
-          borderRightColor: isDark
-            ? "rgba(255, 91, 91, 0.2)"
-            : "rgba(0,0,0,0.1)",
-        },
+        // headerTintColor: isDark ? "#fff" : "#18181B",
+        // headerShadowVisible: false,
+        // drawerStyle: {
+        //   backgroundColor: isDark ? "#000" : "#fff",
+        //   width: DRAWER_WIDTH,
+        //   borderRightWidth: 1,
+        //   borderRightColor: isDark
+        //     ? "rgba(255, 91, 91, 0.2)"
+        //     : "rgba(0,0,0,0.1)",
+        // },
         drawerActiveTintColor: isDark ? "#fff" : "#18181B",
         drawerInactiveTintColor: isDark
           ? "rgba(255,255,255,0.5)"
