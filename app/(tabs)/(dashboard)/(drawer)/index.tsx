@@ -45,7 +45,7 @@ export default function DashboardScreen() {
     }
 
     const Component = SECTION_COMPONENTS[activeSection]
-    
+  
     return (
       <Animated.View 
         entering={SlideInRight} 
