@@ -821,27 +821,39 @@ namespace WolfmedAPI.Middleware
 ### 5.1 — Feature folder structure (replicate for each entity)
 
 ```
-Features/
-├── Categories/
-│   ├── CategoryDto.cs
+Features/Categories/
+├── Handlers/
 │   ├── Commands/
-│   │   ├── CreateCategory/
-│   │   │   ├── CreateCategoryCommand.cs
-│   │   │   ├── CreateCategoryHandler.cs
-│   │   │   └── CreateCategoryValidator.cs
-│   │   ├── UpdateCategory/
-│   │   │   ├── UpdateCategoryCommand.cs
-│   │   │   └── UpdateCategoryHandler.cs
-│   │   └── DeleteCategory/
-│   │       ├── DeleteCategoryCommand.cs
-│   │       └── DeleteCategoryHandler.cs
+│   │   ├── CreateCategoryHandler.cs
+│   │   ├── DeleteCategoryHandler.cs
+│   │   └── UpdateCategoryHandler.cs
 │   └── Queries/
-│       ├── GetAllCategories/
-│       │   ├── GetAllCategoriesQuery.cs
-│       │   └── GetAllCategoriesHandler.cs
-│       └── GetCategoryById/
-│           ├── GetCategoryByIdQuery.cs
-│           └── GetCategoryByIdHandler.cs
+│       ├── GetAllCategoriesHandler.cs
+│       └── GetCategoryByIdHandler.cs
+├── Mappings/
+│   └── CategoryMappingConfig.cs
+├── Messages/
+│   ├── Commands/
+│   │   ├── CreateCategoryCommand.cs
+│   │   ├── DeleteCategoryCommand.cs
+│   │   └── UpdateCategoryCommand.cs
+│   ├── DTOs/
+│   │   └── CategoryDto.cs
+│   └── Queries/
+│       ├── GetAllCategoriesQuery.cs
+│       └── GetCategoryByIdQuery.cs
+├── Providers/
+│   ├── ICategoryProvider.cs
+│   └── CategoryProvider.cs
+├── Services/
+│   ├── ICategoryService.cs
+│   └── CategoryService.cs
+├── Validators/
+|   └── Commands/
+|        ├── CreateCategoryValidator.cs
+|        ├── DeleteCategoryValidator.cs
+|        └── UpdateCategoryValidator.cs
+|        
 ├── Tests/
 ├── Procedures/
 ├── Tags/
@@ -856,10 +868,10 @@ Features/
 
 > Categories is the reference feature. All other entities follow the same pattern.
 
-**`Features/Categories/CategoryDto.cs`:**
+**`Features/Categories/Messages/DTOs/CategoryDto.cs`:**
 
 ```csharp
-namespace WolfmedAPI.Features.Categories
+namespace WolfmedAPI.Features.Categories.Messages.DTOs
 {
     public class CategoryDto
     {
@@ -871,128 +883,12 @@ namespace WolfmedAPI.Features.Categories
     }
 }
 ```
-
-**`Features/Categories/Queries/GetAllCategories/GetAllCategoriesQuery.cs`:**
-
-```csharp
-using MediatR;
-
-namespace WolfmedAPI.Features.Categories.Queries.GetAllCategories
-{
-    public class GetAllCategoriesQuery : IRequest<List<CategoryDto>> { }
-}
-```
-
-**`Features/Categories/Queries/GetAllCategories/GetAllCategoriesHandler.cs`:**
-
-```csharp
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WolfmedAPI.Data;
-
-namespace WolfmedAPI.Features.Categories.Queries.GetAllCategories
-{
-    public class GetAllCategoriesHandler : IRequestHandler<GetAllCategoriesQuery, List<CategoryDto>>
-    {
-        private readonly AppDbContext _context;
-        private readonly ILogger<GetAllCategoriesHandler> _logger;
-
-        public GetAllCategoriesHandler(AppDbContext context, ILogger<GetAllCategoriesHandler> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
-
-        public async Task<List<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Pobieranie wszystkich kategorii");
-
-            var categories = await _context.Categories
-                .Where(c => c.IsActive)
-                .OrderBy(c => c.Name)
-                .Select(c => new CategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    IsActive = c.IsActive,
-                    TestCount = c.Tests.Count()
-                })
-                .ToListAsync(cancellationToken);
-
-            _logger.LogInformation("Pobrano {Count} kategorii", categories.Count);
-            return categories;
-        }
-    }
-}
-```
-
-**`Features/Categories/Queries/GetCategoryById/GetCategoryByIdQuery.cs`:**
+**`Features/Categories/Messages/Commands/CreateCategoryCommand.cs`:**
 
 ```csharp
 using MediatR;
 
-namespace WolfmedAPI.Features.Categories.Queries.GetCategoryById
-{
-    public class GetCategoryByIdQuery : IRequest<CategoryDto?>
-    {
-        public int Id { get; set; }
-        public GetCategoryByIdQuery(int id) => Id = id;
-    }
-}
-```
-
-**`Features/Categories/Queries/GetCategoryById/GetCategoryByIdHandler.cs`:**
-
-```csharp
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using WolfmedAPI.Data;
-
-namespace WolfmedAPI.Features.Categories.Queries.GetCategoryById
-{
-    public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, CategoryDto?>
-    {
-        private readonly AppDbContext _context;
-        private readonly ILogger<GetCategoryByIdHandler> _logger;
-
-        public GetCategoryByIdHandler(AppDbContext context, ILogger<GetCategoryByIdHandler> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
-
-        public async Task<CategoryDto?> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Pobieranie kategorii ID: {Id}", request.Id);
-
-            var category = await _context.Categories
-                .Where(c => c.Id == request.Id)
-                .Select(c => new CategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    IsActive = c.IsActive,
-                    TestCount = c.Tests.Count()
-                })
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (category == null)
-                _logger.LogWarning("Kategoria ID {Id} nie znaleziona", request.Id);
-
-            return category;
-        }
-    }
-}
-```
-
-**`Features/Categories/Commands/CreateCategory/CreateCategoryCommand.cs`:**
-
-```csharp
-using MediatR;
-
-namespace WolfmedAPI.Features.Categories.Commands.CreateCategory
+namespace WolfmedAPI.Features.Categories.Messages.Commands
 {
     public class CreateCategoryCommand : IRequest<int>
     {
@@ -1002,72 +898,12 @@ namespace WolfmedAPI.Features.Categories.Commands.CreateCategory
 }
 ```
 
-**`Features/Categories/Commands/CreateCategory/CreateCategoryHandler.cs`:**
-
-```csharp
-using MediatR;
-using WolfmedAPI.Data;
-using WolfmedAPI.Models;
-
-namespace WolfmedAPI.Features.Categories.Commands.CreateCategory
-{
-    public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, int>
-    {
-        private readonly AppDbContext _context;
-        private readonly ILogger<CreateCategoryHandler> _logger;
-
-        public CreateCategoryHandler(AppDbContext context, ILogger<CreateCategoryHandler> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
-
-        public async Task<int> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Tworzenie kategorii: {Name}", request.Name);
-
-            var category = new Category
-            {
-                Name = request.Name,
-                Description = request.Description,
-                IsActive = true
-            };
-
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            _logger.LogInformation("Utworzono kategorię ID: {Id}", category.Id);
-            return category.Id;
-        }
-    }
-}
-```
-
-**`Features/Categories/Commands/CreateCategory/CreateCategoryValidator.cs`:**
-
-```csharp
-using FluentValidation;
-
-namespace WolfmedAPI.Features.Categories.Commands.CreateCategory
-{
-    public class CreateCategoryValidator : AbstractValidator<CreateCategoryCommand>
-    {
-        public CreateCategoryValidator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Nazwa kategorii jest wymagana")
-                .MaximumLength(256).WithMessage("Nazwa może mieć max 256 znaków");
-        }
-    }
-}
-```
-
-**`Features/Categories/Commands/UpdateCategory/UpdateCategoryCommand.cs`:**
+**`Features/Categories/Messages/Commands/UpdateCategoryCommand.cs`:**
 
 ```csharp
 using MediatR;
 
-namespace WolfmedAPI.Features.Categories.Commands.UpdateCategory
+namespace WolfmedAPI.Features.Categories.Messages.Commands
 {
     public class UpdateCategoryCommand : IRequest<Unit>
     {
@@ -1079,14 +915,306 @@ namespace WolfmedAPI.Features.Categories.Commands.UpdateCategory
 }
 ```
 
-**`Features/Categories/Commands/UpdateCategory/UpdateCategoryHandler.cs`:**
+**`Features/Categories/Messages/Commands/DeleteCategoryCommand.cs`:**
 
 ```csharp
 using MediatR;
+
+namespace WolfmedAPI.Features.Categories.Messages.Commands
+{
+    public class DeleteCategoryCommand : IRequest<Unit>
+    {
+        public int Id { get; set; }
+        public DeleteCategoryCommand(int id) => Id = id;
+    }
+}
+```
+
+**`Features/Categories/Mappings/CategoryMappingConfig.cs`:**
+
+```csharp
+using Mapster;
+using WolfmedAPI.Features.Categories.Messages.Commands;
+using WolfmedAPI.Features.Categories.Messages.DTOs;
+using WolfmedAPI.Models;
+
+namespace WolfmedAPI.Features.Categories.Mappings
+{
+    public class CategoryMappingConfig : IRegister
+    {
+        public void Register(TypeAdapterConfig config)
+        {
+            config.NewConfig<Category, CategoryDto>()
+                .Map(dest => dest.TestCount, src => src.Tests.Count);
+
+            config.NewConfig<CreateCategoryCommand, Category>()
+                .Map(dest => dest.IsActive, _ => true)
+                .Ignore(dest => dest.Id)
+                .Ignore(dest => dest.Tests!);
+
+            config.NewConfig<UpdateCategoryCommand, Category>()
+                .Ignore(dest => dest.Id)
+                .Ignore(dest => dest.Tests!);
+        }
+    }
+}
+```
+
+**`Features/Categories/Providers/ICategoryProvider.cs`:**
+
+```csharp
+using WolfmedAPI.Models;
+
+namespace WolfmedAPI.Features.Categories.Providers
+{
+    public interface ICategoryProvider
+    {
+        /// <summary>
+        /// Gets all categories from the database.
+        /// </summary>
+        /// <param name="asNoTracking">Specifies whether the entities should be tracked by the context.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>A collection of categories.</returns>
+        Task<IEnumerable<Category>> GetAllCategoriesAsync(bool asNoTracking = true, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Retrieves a category by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the category.</param>
+        /// <param name="asNoTracking">Indicates whether change tracking should be disabled.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The category if found; otherwise throws KeyNotFoundException.</returns>
+        Task<Category> GetCategoryByIdAsync(int id, bool asNoTracking = true, CancellationToken cancellationToken = default);
+    }
+}
+```
+
+**`Features/Categories/Providers/CategoryProvider.cs`:**
+
+```csharp
 using Microsoft.EntityFrameworkCore;
 using WolfmedAPI.Data;
+using WolfmedAPI.Models;
 
-namespace WolfmedAPI.Features.Categories.Commands.UpdateCategory
+namespace WolfmedAPI.Features.Categories.Providers
+{
+    public class CategoryProvider : ICategoryProvider
+    {
+        private readonly AppDbContext _context;
+
+        public CategoryProvider(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<Category>> GetAllCategoriesAsync(bool asNoTracking = true, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Categories
+                .Include(c => c.Tests)
+                .Where(c => c.IsActive);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            return await query
+                .OrderBy(c => c.Name)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<Category> GetCategoryByIdAsync(int id, bool asNoTracking = true, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Categories
+                .Include(c => c.Tests)
+                .Where(c => c.IsActive);
+
+            if (asNoTracking)
+                query = query.AsNoTracking();
+
+            var category = await query
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+
+            return category ?? throw new KeyNotFoundException($"Kategoria o ID {id} nie istnieje");
+        }
+    }
+}
+```
+
+**`Features/Categories/Services/ICategoryService.cs`:**
+
+```csharp
+using WolfmedAPI.Models;
+
+namespace WolfmedAPI.Features.Categories.Services
+{
+    public interface ICategoryService
+    {
+        Task CreateCategory(Category category, CancellationToken cancellationToken);
+    }
+}
+```
+
+**`Features/Categories/Services/CategoryService.cs`:**
+
+```csharp
+using WolfmedAPI.Data;
+using WolfmedAPI.Models;
+
+namespace WolfmedAPI.Features.Categories.Services
+{
+    public class CategoryService(AppDbContext context) : ICategoryService
+    {
+        public async Task CreateCategory(Category category, CancellationToken cancellationToken)
+        {
+            context.Categories.Add(category);
+            await context.SaveChangesAsync(cancellationToken);
+        }
+    }
+}
+```
+
+**`Features/Categories/Messages/Queries/GetAllCategoriesQuery.cs`:**
+
+```csharp
+using MediatR;
+using WolfmedAPI.Features.Categories.Messages.DTOs;
+
+namespace WolfmedAPI.Features.Categories.Messages.Queries
+{
+    public class GetAllCategoriesQuery : IRequest<IEnumerable<CategoryDto>> { }
+}
+```
+
+**`Features/Categories/Handlers/Queries/GetAllCategoriesHandler.cs`:**
+
+```csharp
+using Mapster;
+using MediatR;
+using WolfmedAPI.Features.Categories.Messages.DTOs;
+using WolfmedAPI.Features.Categories.Messages.Queries;
+using WolfmedAPI.Features.Categories.Providers;
+
+namespace WolfmedAPI.Features.Categories.Handlers.Queries
+{
+    public class GetAllCategoriesHandler : IRequestHandler<GetAllCategoriesQuery, IEnumerable<CategoryDto>>
+    {
+        private readonly ICategoryProvider _provider;
+        private readonly ILogger<GetAllCategoriesHandler> _logger;
+
+        public GetAllCategoriesHandler(ICategoryProvider provider, ILogger<GetAllCategoriesHandler> logger)
+        {
+            _provider = provider;
+            _logger = logger;
+        }
+
+        public async Task<IEnumerable<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Pobieranie wszystkich kategorii");
+
+            var categories = await _provider.GetAllCategoriesAsync(cancellationToken: cancellationToken);
+            var result = categories.Adapt<IEnumerable<CategoryDto>>();
+
+            _logger.LogInformation("Pobrano {Count} kategorii", result.Count());
+            return result;
+        }
+    }
+}
+```
+
+**`Features/Categories/Messages/Queries/GetCategoryByIdQuery.cs`:**
+
+```csharp
+using MediatR;
+using WolfmedAPI.Features.Categories.Messages.DTOs;
+
+namespace WolfmedAPI.Features.Categories.Messages.Queries
+{
+    public class GetCategoryByIdQuery : IRequest<CategoryDto>
+    {
+        public int Id { get; set; }
+        public GetCategoryByIdQuery(int id) => Id = id;
+    }
+}
+```
+
+**`Features/Categories/Handlers/Queries/GetCategoryByIdHandler.cs`:**
+
+```csharp
+using Mapster;
+using MediatR;
+using WolfmedAPI.Features.Categories.Messages.DTOs;
+using WolfmedAPI.Features.Categories.Messages.Queries;
+using WolfmedAPI.Features.Categories.Providers;
+
+namespace WolfmedAPI.Features.Categories.Handlers.Queries
+{
+    public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, CategoryDto>
+    {
+        private readonly ICategoryProvider _provider;
+        private readonly ILogger<GetCategoryByIdHandler> _logger;
+
+        public GetCategoryByIdHandler(ICategoryProvider provider, ILogger<GetCategoryByIdHandler> logger)
+        {
+            _provider = provider;
+            _logger = logger;
+        }
+
+        public async Task<CategoryDto> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Pobieranie kategorii ID: {Id}", request.Id);
+
+            var category = await _provider.GetCategoryByIdAsync(request.Id, cancellationToken: cancellationToken);
+            return category.Adapt<CategoryDto>();
+        }
+    }
+}
+```
+
+**`Features/Categories/Handlers/Commands/CreateCategoryHandler.cs`:**
+
+```csharp
+using Mapster;
+using MediatR;
+using WolfmedAPI.Features.Categories.Messages.Commands;
+using WolfmedAPI.Features.Categories.Services;
+using WolfmedAPI.Models;
+
+namespace WolfmedAPI.Features.Categories.Handlers.Commands
+{
+    public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, int>
+    {
+        private readonly ICategoryService _service;
+        private readonly ILogger<CreateCategoryHandler> _logger;
+
+        public CreateCategoryHandler(ICategoryService service, ILogger<CreateCategoryHandler> logger)
+        {
+            _service = service;
+            _logger = logger;
+        }
+
+        public async Task<int> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Tworzenie kategorii: {Name}", request.Name);
+
+            var category = request.Adapt<Category>();
+            await _service.CreateCategory(category, cancellationToken);
+
+            _logger.LogInformation("Utworzono kategorię ID: {Id}", category.Id);
+            return category.Id;
+        }
+    }
+}
+```
+
+**`Features/Categories/Handlers/Commands/UpdateCategoryHandler.cs`:**
+
+```csharp
+using Mapster;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using WolfmedAPI.Data;
+using WolfmedAPI.Features.Categories.Messages.Commands;
+
+namespace WolfmedAPI.Features.Categories.Handlers.Commands
 {
     public class UpdateCategoryHandler : IRequestHandler<UpdateCategoryCommand, Unit>
     {
@@ -1105,13 +1233,11 @@ namespace WolfmedAPI.Features.Categories.Commands.UpdateCategory
                 .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
             if (category == null)
-                throw new KeyNotFoundException($"Kategoria ID {request.Id} nie istnieje");
+                throw new KeyNotFoundException($"Kategoria o ID {request.Id} nie istnieje");
 
             _logger.LogInformation("Aktualizacja kategorii ID: {Id}", request.Id);
 
-            category.Name = request.Name;
-            category.Description = request.Description;
-            category.IsActive = request.IsActive;
+            request.Adapt(category);
 
             await _context.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Zaktualizowano kategorię ID: {Id}", request.Id);
@@ -1122,29 +1248,15 @@ namespace WolfmedAPI.Features.Categories.Commands.UpdateCategory
 }
 ```
 
-**`Features/Categories/Commands/DeleteCategory/DeleteCategoryCommand.cs`:**
-
-```csharp
-using MediatR;
-
-namespace WolfmedAPI.Features.Categories.Commands.DeleteCategory
-{
-    public class DeleteCategoryCommand : IRequest<Unit>
-    {
-        public int Id { get; set; }
-        public DeleteCategoryCommand(int id) => Id = id;
-    }
-}
-```
-
-**`Features/Categories/Commands/DeleteCategory/DeleteCategoryHandler.cs`:**
+**`Features/Categories/Handlers/Commands/DeleteCategoryHandler.cs`:**
 
 ```csharp
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WolfmedAPI.Data;
+using WolfmedAPI.Features.Categories.Messages.Commands;
 
-namespace WolfmedAPI.Features.Categories.Commands.DeleteCategory
+namespace WolfmedAPI.Features.Categories.Handlers.Commands
 {
     public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, Unit>
     {
@@ -1163,13 +1275,72 @@ namespace WolfmedAPI.Features.Categories.Commands.DeleteCategory
                 .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
             if (category == null)
-                throw new KeyNotFoundException($"Kategoria ID {request.Id} nie istnieje");
+                throw new KeyNotFoundException($"Kategoria o ID {request.Id} nie istnieje");
 
             _logger.LogInformation("Soft-delete kategorii ID: {Id}", request.Id);
             category.IsActive = false;
             await _context.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
+        }
+    }
+}
+```
+
+**`Features/Categories/Validators/Commands/CreateCategoryValidator.cs`:**
+
+```csharp
+using FluentValidation;
+using WolfmedAPI.Features.Categories.Messages.Commands;
+
+namespace WolfmedAPI.Features.Categories.Validators.Commands
+{
+    public class CreateCategoryValidator : AbstractValidator<CreateCategoryCommand>
+    {
+        public CreateCategoryValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Nazwa kategorii jest wymagana")
+                .MaximumLength(256).WithMessage("Nazwa może mieć max 256 znaków");
+        }
+    }
+}
+```
+
+**`Features/Categories/Validators/Commands/UpdateCategoryValidator.cs`:**
+
+```csharp
+using FluentValidation;
+using WolfmedAPI.Features.Categories.Messages.Commands;
+
+namespace WolfmedAPI.Features.Categories.Validators.Commands
+{
+    public class UpdateCategoryValidator : AbstractValidator<UpdateCategoryCommand>
+    {
+        public UpdateCategoryValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Nazwa kategorii jest wymagana")
+                .MaximumLength(256).WithMessage("Nazwa może mieć max 256 znaków");
+        }
+    }
+}
+```
+
+**`Features/Categories/Validators/Commands/DeleteCategoryValidator.cs`:**
+
+```csharp
+using FluentValidation;
+using WolfmedAPI.Features.Categories.Messages.Commands;
+
+namespace WolfmedAPI.Features.Categories.Validators.Commands
+{
+    public class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCommand>
+    {
+        public DeleteCategoryValidator()
+        {
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("Nieprawidłowe ID kategorii");
         }
     }
 }
