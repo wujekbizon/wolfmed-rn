@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { useSignIn, useSignUp, useSSO, useUser } from '@clerk/clerk-expo'
+import { useSignIn, useSignUp, useSSO, useUser } from '@clerk/expo'
 import * as WebBrowser from 'expo-web-browser'
 import * as AuthSession from 'expo-auth-session'
 import { type SignInFormData, type SignUpFormData } from '@/lib/validations/auth'

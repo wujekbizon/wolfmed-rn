@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"/c/Users/wujek/AppData/Local/Android/Sdk/platform-tools/adb.exe\" logcat:*)"
+    ]
+  }
+}

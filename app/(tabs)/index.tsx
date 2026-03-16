@@ -15,7 +15,7 @@ import GradientOverlay from '@/components/GradientOverlay'
 import { FloatingShapes } from '@/components/FloatingShapes'
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import { AntDesign } from '@expo/vector-icons'
-import { useAuth } from '@clerk/clerk-expo'
+import { useAuth } from '@clerk/expo'
 
 
 export default function WelcomeScreen() {
