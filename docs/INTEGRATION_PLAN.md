@@ -350,55 +350,69 @@ In `WolfmedAPI.csproj`, add inside `<PropertyGroup>`:
 
 Create folder: `Models/`
 
+> All models use proper namespace declarations and C# null-safe initializers.
+> `JsonDocument` (System.Text.Json) maps to PostgreSQL `jsonb` via Npgsql.
+
 ### 3.1 — `User.cs`
 
 ```csharp
-public class User
+namespace WolfmedAPI.Models
 {
-    public Guid Id { get; set; }
-    public string UserId { get; set; }        // Clerk ID
-    public string Username { get; set; }
-    public string Motto { get; set; }
-    public int TestLimit { get; set; }
-    public bool Supporter { get; set; }
-    public int TestsAttempted { get; set; }
-    public int TotalScore { get; set; }
-    public int TotalQuestions { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public class User
+    {
+        public Guid Id { get; set; }
+        public string UserId { get; set; } = string.Empty;      // Clerk ID
+        public string Username { get; set; } = string.Empty;
+        public string Motto { get; set; } = string.Empty;
+        public int TestLimit { get; set; } = 150;
+        public bool Supporter { get; set; } = false;
+        public int TestsAttempted { get; set; } = 0;
+        public int TotalScore { get; set; } = 0;
+        public int TotalQuestions { get; set; } = 0;
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
-    public ICollection<CompletedTest> CompletedTests { get; set; }
-    public ICollection<Comment> Comments { get; set; }
+        public ICollection<CompletedTest> CompletedTests { get; set; } = new List<CompletedTest>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    }
 }
 ```
 
 ### 3.2 — `Category.cs`
 
 ```csharp
-public class Category
+namespace WolfmedAPI.Models
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string? Description { get; set; }
-    public bool IsActive { get; set; }
+    public class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public bool IsActive { get; set; } = true;
 
-    public ICollection<Test> Tests { get; set; }
+        public ICollection<Test> Tests { get; set; } = new List<Test>();
+    }
 }
 ```
 
 ### 3.3 — `Test.cs`
 
 ```csharp
-public class Test
-{
-    public Guid Id { get; set; }
-    public int? CategoryId { get; set; }
-    public string Category { get; set; }       // keep during migration period
-    public JsonDocument Data { get; set; }     // { question, answers[] }
-    public DateTime? CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+using System.Text.Json;
 
-    public Category? CategoryNav { get; set; }
+namespace WolfmedAPI.Models
+{
+    public class Test
+    {
+        public Guid Id { get; set; }
+        public int? CategoryId { get; set; }
+        public string Category { get; set; } = string.Empty;   // keep during migration period
+        public JsonDocument Data { get; set; } = null!;         // { question, answers[] }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+        public Category? CategoryNav { get; set; }
+    }
 }
 ```
 
@@ -409,40 +423,51 @@ public class Test
 ### 3.4 — `Procedure.cs`
 
 ```csharp
-public class Procedure
-{
-    public Guid Id { get; set; }
-    public JsonDocument Data { get; set; }     // { name, procedure, algorithm[] }
-    public DateTime? CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+using System.Text.Json;
 
-    public ICollection<ProcedureTag> ProcedureTags { get; set; }
+namespace WolfmedAPI.Models
+{
+    public class Procedure
+    {
+        public Guid Id { get; set; }
+        public JsonDocument Data { get; set; } = null!;         // { name, procedure, algorithm[] }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+        public ICollection<ProcedureTag> ProcedureTags { get; set; } = new List<ProcedureTag>();
+    }
 }
 ```
 
 ### 3.5 — `Tag.cs`
 
 ```csharp
-public class Tag
+namespace WolfmedAPI.Models
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public bool IsActive { get; set; }
+    public class Tag
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
 
-    public ICollection<ProcedureTag> ProcedureTags { get; set; }
+        public ICollection<ProcedureTag> ProcedureTags { get; set; } = new List<ProcedureTag>();
+    }
 }
 ```
 
 ### 3.6 — `ProcedureTag.cs` (join table)
 
 ```csharp
-public class ProcedureTag
+namespace WolfmedAPI.Models
 {
-    public Guid ProcedureId { get; set; }
-    public int TagId { get; set; }
+    public class ProcedureTag
+    {
+        public Guid ProcedureId { get; set; }
+        public int TagId { get; set; }
 
-    public Procedure Procedure { get; set; }
-    public Tag Tag { get; set; }
+        public Procedure Procedure { get; set; } = null!;
+        public Tag Tag { get; set; } = null!;
+    }
 }
 ```
 
@@ -451,62 +476,76 @@ public class ProcedureTag
 ### 3.7 — `CompletedTest.cs`
 
 ```csharp
-public class CompletedTest
-{
-    public Guid Id { get; set; }
-    public string UserId { get; set; }         // FK → User.UserId (varchar)
-    public int Score { get; set; }
-    public JsonDocument TestResult { get; set; } // [{ questionId, answer }]
-    public DateTime CompletedAt { get; set; }
+using System.Text.Json;
 
-    public User User { get; set; }
+namespace WolfmedAPI.Models
+{
+    public class CompletedTest
+    {
+        public Guid Id { get; set; }
+        public string UserId { get; set; } = string.Empty;      // FK → User.UserId (varchar)
+        public int Score { get; set; }
+        public JsonDocument TestResult { get; set; } = null!;   // [{ questionId, answer }]
+        public DateTime CompletedAt { get; set; }
+
+        public User User { get; set; } = null!;
+    }
 }
 ```
 
 ### 3.8 — `BlogPost.cs`
 
 ```csharp
-public class BlogPost
+namespace WolfmedAPI.Models
 {
-    public Guid Id { get; set; }
-    public string Title { get; set; }
-    public string Date { get; set; }
-    public string Excerpt { get; set; }
-    public string Content { get; set; }
-    public DateTime? CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public class BlogPost
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Date { get; set; } = string.Empty;
+        public string Excerpt { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
-    public ICollection<Comment> Comments { get; set; }
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    }
 }
 ```
 
 ### 3.9 — `Comment.cs`
 
 ```csharp
-public class Comment
+namespace WolfmedAPI.Models
 {
-    public Guid Id { get; set; }
-    public Guid BlogPostId { get; set; }
-    public string UserId { get; set; }
-    public string Content { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public class Comment
+    {
+        public Guid Id { get; set; }
+        public Guid BlogPostId { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
-    public BlogPost BlogPost { get; set; }
-    public User User { get; set; }
+        public BlogPost BlogPost { get; set; } = null!;
+        public User User { get; set; } = null!;
+    }
 }
 ```
 
 ### 3.10 — `Message.cs`
 
 ```csharp
-public class Message
+namespace WolfmedAPI.Models
 {
-    public int Id { get; set; }               // serial (int), not UUID
-    public string Email { get; set; }
-    public string MessageContent { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
+    public class Message
+    {
+        public int Id { get; set; }                              // serial (int), not UUID
+        public string Email { get; set; } = string.Empty;
+        public string MessageContent { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+    }
 }
 ```
 
@@ -519,80 +558,157 @@ public class Message
 
 Create: `Data/AppDbContext.cs`
 
-### 4.1 — DbSet declarations
+### 4.1 — Complete `AppDbContext.cs`
 
-- [ ] `DbSet<User> Users`
-- [ ] `DbSet<Test> Tests`
-- [ ] `DbSet<Procedure> Procedures`
-- [ ] `DbSet<CompletedTest> CompletedTests`
-- [ ] `DbSet<BlogPost> BlogPosts`
-- [ ] `DbSet<Message> Messages`
-- [ ] `DbSet<Category> Categories`
-- [ ] `DbSet<Tag> Tags`
-- [ ] `DbSet<Comment> Comments`
-- [ ] No `DbSet<ProcedureTag>` — configured via navigation properties only
+```csharp
+using Microsoft.EntityFrameworkCore;
+using WolfmedAPI.Models;
 
-### 4.2 — `OnModelCreating` configuration
+namespace WolfmedAPI.Data
+{
+    public class AppDbContext : DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-- [ ] Map every entity to its `wolfmed_mobile_*` table name:
-  ```csharp
-  modelBuilder.Entity<User>().ToTable("wolfmed_mobile_users");
-  modelBuilder.Entity<Test>().ToTable("wolfmed_mobile_tests");
-  // ... etc for all 9 entities
-  ```
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Test> Tests => Set<Test>();
+        public DbSet<Procedure> Procedures => Set<Procedure>();
+        public DbSet<CompletedTest> CompletedTests => Set<CompletedTest>();
+        public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+        public DbSet<Message> Messages => Set<Message>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Tag> Tags => Set<Tag>();
+        public DbSet<Comment> Comments => Set<Comment>();
+        // No DbSet<ProcedureTag> — configured via navigation properties only
 
-- [ ] Map column names that differ from C# property names:
-  - `User.UserId` → column `"userId"`
-  - `User.TestsAttempted` → column `"tests_attempted"`
-  - `User.TotalScore` → column `"total_score"`
-  - `User.TotalQuestions` → column `"total_questions"`
-  - `Message.MessageContent` → column `"message"`
-  - `Test.CategoryNav` navigation → FK column `"categoryId"`
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // ── Table name mappings (wolfmed_mobile_ prefix) ──────────────────
+            modelBuilder.Entity<User>().ToTable("wolfmed_mobile_users");
+            modelBuilder.Entity<Test>().ToTable("wolfmed_mobile_tests");
+            modelBuilder.Entity<Procedure>().ToTable("wolfmed_mobile_procedures");
+            modelBuilder.Entity<CompletedTest>().ToTable("wolfmed_mobile_completed_tests");
+            modelBuilder.Entity<BlogPost>().ToTable("wolfmed_mobile_blog_posts");
+            modelBuilder.Entity<Message>().ToTable("wolfmed_mobile_messages");
+            modelBuilder.Entity<Category>().ToTable("wolfmed_mobile_categories");
+            modelBuilder.Entity<Tag>().ToTable("wolfmed_mobile_tags");
+            modelBuilder.Entity<Comment>().ToTable("wolfmed_mobile_comments");
+            modelBuilder.Entity<ProcedureTag>().ToTable("wolfmed_mobile_procedure_tags");
 
-- [ ] Configure composite PK for `ProcedureTag`:
-  ```csharp
-  modelBuilder.Entity<ProcedureTag>()
-      .HasKey(pt => new { pt.ProcedureId, pt.TagId });
-  ```
+            // ── User ────────────────────────────────────────────────────────
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(u => u.UserId).HasColumnName("userId");
+                entity.Property(u => u.Username).HasColumnName("username");
+                entity.Property(u => u.Motto).HasColumnName("motto");
+                entity.Property(u => u.TestLimit).HasColumnName("testLimit");
+                entity.Property(u => u.Supporter).HasColumnName("supporter");
+                entity.Property(u => u.TestsAttempted).HasColumnName("tests_attempted");
+                entity.Property(u => u.TotalScore).HasColumnName("total_score");
+                entity.Property(u => u.TotalQuestions).HasColumnName("total_questions");
+                entity.Property(u => u.CreatedAt).HasColumnName("createdAt");
+                entity.Property(u => u.UpdatedAt).HasColumnName("updatedAt");
+                entity.HasIndex(u => u.UserId).IsUnique();
+            });
 
-- [ ] Configure many-to-many via ProcedureTag:
-  ```csharp
-  modelBuilder.Entity<Procedure>()
-      .HasMany(p => p.ProcedureTags)
-      .WithOne(pt => pt.Procedure)
-      .HasForeignKey(pt => pt.ProcedureId);
+            // ── Test ─────────────────────────────────────────────────────────
+            modelBuilder.Entity<Test>(entity =>
+            {
+                entity.Property(t => t.CategoryId).HasColumnName("categoryId");
+                entity.Property(t => t.Category).HasColumnName("category");
+                entity.Property(t => t.Data).HasColumnName("data").HasColumnType("jsonb");
+                entity.Property(t => t.CreatedAt).HasColumnName("createdAt");
+                entity.Property(t => t.UpdatedAt).HasColumnName("updatedAt");
+                entity.HasOne(t => t.CategoryNav)
+                      .WithMany(c => c.Tests)
+                      .HasForeignKey(t => t.CategoryId);
+            });
 
-  modelBuilder.Entity<Tag>()
-      .HasMany(t => t.ProcedureTags)
-      .WithOne(pt => pt.Tag)
-      .HasForeignKey(pt => pt.TagId);
-  ```
+            // ── Procedure ────────────────────────────────────────────────────
+            modelBuilder.Entity<Procedure>(entity =>
+            {
+                entity.Property(p => p.Data).HasColumnName("data").HasColumnType("jsonb");
+                entity.Property(p => p.CreatedAt).HasColumnName("createdAt");
+                entity.Property(p => p.UpdatedAt).HasColumnName("updatedAt");
+            });
 
-- [ ] Configure FK from `CompletedTest` to `User.UserId` (varchar, not the Guid PK):
-  ```csharp
-  modelBuilder.Entity<CompletedTest>()
-      .HasOne(ct => ct.User)
-      .WithMany(u => u.CompletedTests)
-      .HasForeignKey(ct => ct.UserId)
-      .HasPrincipalKey(u => u.UserId);
-  ```
+            // ── CompletedTest — FK to User.UserId (varchar, not Guid PK) ─────
+            modelBuilder.Entity<CompletedTest>(entity =>
+            {
+                entity.Property(ct => ct.UserId).HasColumnName("userId");
+                entity.Property(ct => ct.Score).HasColumnName("score");
+                entity.Property(ct => ct.TestResult).HasColumnName("testResult").HasColumnType("jsonb");
+                entity.Property(ct => ct.CompletedAt).HasColumnName("completedAt");
+                entity.HasOne(ct => ct.User)
+                      .WithMany(u => u.CompletedTests)
+                      .HasForeignKey(ct => ct.UserId)
+                      .HasPrincipalKey(u => u.UserId);  // FK to varchar userId, NOT Guid PK
+            });
 
-- [ ] Configure `JsonDocument` columns for EF Core (Npgsql handles this natively):
-  - `Test.Data`
-  - `Procedure.Data`
-  - `CompletedTest.TestResult`
+            // ── BlogPost ──────────────────────────────────────────────────────
+            modelBuilder.Entity<BlogPost>(entity =>
+            {
+                entity.Property(b => b.CreatedAt).HasColumnName("createdAt");
+                entity.Property(b => b.UpdatedAt).HasColumnName("updatedAt");
+            });
 
-- [ ] Configure `Comment` FK to `User.UserId` (same varchar pattern as CompletedTest):
-  ```csharp
-  modelBuilder.Entity<Comment>()
-      .HasOne(c => c.User)
-      .WithMany(u => u.Comments)
-      .HasForeignKey(c => c.UserId)
-      .HasPrincipalKey(u => u.UserId);
-  ```
+            // ── Comment — FK to BlogPost and FK to User.UserId (varchar) ──────
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.Property(c => c.BlogPostId).HasColumnName("blogPostId");
+                entity.Property(c => c.UserId).HasColumnName("userId");
+                entity.Property(c => c.CreatedAt).HasColumnName("createdAt");
+                entity.Property(c => c.UpdatedAt).HasColumnName("updatedAt");
+                entity.HasOne(c => c.BlogPost)
+                      .WithMany(b => b.Comments)
+                      .HasForeignKey(c => c.BlogPostId);
+                entity.HasOne(c => c.User)
+                      .WithMany(u => u.Comments)
+                      .HasForeignKey(c => c.UserId)
+                      .HasPrincipalKey(u => u.UserId);  // FK to varchar userId
+            });
 
-### 4.3 — DO NOT run EF Core migrations against existing tables
+            // ── Message ────────────────────────────────────────────────────────
+            modelBuilder.Entity<Message>(entity =>
+            {
+                entity.Property(m => m.MessageContent).HasColumnName("message");
+                entity.Property(m => m.CreatedAt).HasColumnName("createdAt");
+                entity.Property(m => m.UpdatedAt).HasColumnName("updatedAt");
+            });
 
+            // ── Category ───────────────────────────────────────────────────────
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.Property(c => c.IsActive).HasColumnName("isActive");
+            });
+
+            // ── Tag ─────────────────────────────────────────────────────────────
+            modelBuilder.Entity<Tag>(entity =>
+            {
+                entity.Property(t => t.IsActive).HasColumnName("isActive");
+            });
+
+            // ── ProcedureTag — composite PK ─────────────────────────────────────
+            modelBuilder.Entity<ProcedureTag>(entity =>
+            {
+                entity.HasKey(pt => new { pt.ProcedureId, pt.TagId });
+                entity.Property(pt => pt.ProcedureId).HasColumnName("procedureId");
+                entity.Property(pt => pt.TagId).HasColumnName("tagId");
+                entity.HasOne(pt => pt.Procedure)
+                      .WithMany(p => p.ProcedureTags)
+                      .HasForeignKey(pt => pt.ProcedureId);
+                entity.HasOne(pt => pt.Tag)
+                      .WithMany(t => t.ProcedureTags)
+                      .HasForeignKey(pt => pt.TagId);
+            });
+        }
+    }
+}
+```
+
+### 4.2 — Checklist
+
+- [ ] Create `Data/AppDbContext.cs` with code above
 - [ ] No `Database.EnsureCreated()` call
 - [ ] No `Database.Migrate()` call
 - [ ] EF Core only connects — Drizzle manages schema
@@ -604,46 +720,547 @@ Create: `Data/AppDbContext.cs`
 
 Create folder: `Features/`
 
+### 5.0 — Supporting Infrastructure
+
+**`Behaviors/ValidationBehavior.cs`** — intercepts all Commands before Handler runs:
+
+```csharp
+using FluentValidation;
+using MediatR;
+
+namespace WolfmedAPI.Behaviors
+{
+    public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
+    {
+        private readonly IEnumerable<IValidator<TRequest>> _validators;
+
+        public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+        {
+            _validators = validators;
+        }
+
+        public async Task<TResponse> Handle(
+            TRequest request,
+            RequestHandlerDelegate<TResponse> next,
+            CancellationToken cancellationToken)
+        {
+            if (!_validators.Any()) return await next();
+
+            var context = new ValidationContext<TRequest>(request);
+            var errors = _validators
+                .Select(v => v.Validate(context))
+                .SelectMany(r => r.Errors)
+                .Where(e => e != null)
+                .ToList();
+
+            if (errors.Count != 0)
+                throw new ValidationException(errors);
+
+            return await next();
+        }
+    }
+}
+```
+
+**`Middleware/GlobalExceptionMiddleware.cs`** — catches 404/400/500:
+
+```csharp
+using FluentValidation;
+using System.Net;
+using System.Text.Json;
+
+namespace WolfmedAPI.Middleware
+{
+    public class GlobalExceptionMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly ILogger<GlobalExceptionMiddleware> _logger;
+
+        public GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
+        {
+            _next = next;
+            _logger = logger;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await _next(context);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning("Not found: {Message}", ex.Message);
+                await WriteResponse(context, HttpStatusCode.NotFound, ex.Message);
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning("Validation error");
+                var errors = ex.Errors.Select(e => new { field = e.PropertyName, error = e.ErrorMessage });
+                await WriteResponse(context, HttpStatusCode.BadRequest, "Validation failed", errors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled exception");
+                await WriteResponse(context, HttpStatusCode.InternalServerError, "An unexpected error occurred");
+            }
+        }
+
+        private static async Task WriteResponse(HttpContext context, HttpStatusCode statusCode, string message, object? details = null)
+        {
+            context.Response.StatusCode = (int)statusCode;
+            context.Response.ContentType = "application/json";
+            var response = new { message, details };
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        }
+    }
+}
+```
+
 ### 5.1 — Feature folder structure (replicate for each entity)
 
 ```
 Features/
-├── Tests/
-│   ├── Queries/
-│   │   ├── GetAllTests/
-│   │   │   ├── GetAllTestsQuery.cs
-│   │   │   └── GetAllTestsHandler.cs
-│   │   └── GetTestById/
-│   │       ├── GetTestByIdQuery.cs
-│   │       └── GetTestByIdHandler.cs
+├── Categories/
+│   ├── CategoryDto.cs
 │   ├── Commands/
-│   │   ├── CreateTest/
-│   │   │   ├── CreateTestCommand.cs
-│   │   │   ├── CreateTestHandler.cs
-│   │   │   └── CreateTestValidator.cs
-│   │   ├── UpdateTest/
-│   │   │   ├── UpdateTestCommand.cs
-│   │   │   ├── UpdateTestHandler.cs
-│   │   │   └── UpdateTestValidator.cs
-│   │   └── DeleteTest/
-│   │       ├── DeleteTestCommand.cs
-│   │       └── DeleteTestHandler.cs
-│   └── TestDto.cs
+│   │   ├── CreateCategory/
+│   │   │   ├── CreateCategoryCommand.cs
+│   │   │   ├── CreateCategoryHandler.cs
+│   │   │   └── CreateCategoryValidator.cs
+│   │   ├── UpdateCategory/
+│   │   │   ├── UpdateCategoryCommand.cs
+│   │   │   └── UpdateCategoryHandler.cs
+│   │   └── DeleteCategory/
+│   │       ├── DeleteCategoryCommand.cs
+│   │       └── DeleteCategoryHandler.cs
+│   └── Queries/
+│       ├── GetAllCategories/
+│       │   ├── GetAllCategoriesQuery.cs
+│       │   └── GetAllCategoriesHandler.cs
+│       └── GetCategoryById/
+│           ├── GetCategoryByIdQuery.cs
+│           └── GetCategoryByIdHandler.cs
+├── Tests/
+├── Procedures/
+├── Tags/
+├── CompletedTests/
+├── BlogPosts/
+├── Comments/
+├── Users/
+└── Messages/
 ```
 
-### 5.2 — Entities to implement (9 total)
+### 5.2 — Complete Categories Feature (reference implementation)
 
-- [ ] `Features/Tests/`
-- [ ] `Features/Procedures/`
-- [ ] `Features/Categories/`
-- [ ] `Features/Tags/`
-- [ ] `Features/CompletedTests/`
-- [ ] `Features/BlogPosts/`
-- [ ] `Features/Comments/`
-- [ ] `Features/Users/`
-- [ ] `Features/Messages/`
+> Categories is the reference feature. All other entities follow the same pattern.
 
-### 5.3 — Per feature checklist
+**`Features/Categories/CategoryDto.cs`:**
+
+```csharp
+namespace WolfmedAPI.Features.Categories
+{
+    public class CategoryDto
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        public int TestCount { get; set; }
+    }
+}
+```
+
+**`Features/Categories/Queries/GetAllCategories/GetAllCategoriesQuery.cs`:**
+
+```csharp
+using MediatR;
+
+namespace WolfmedAPI.Features.Categories.Queries.GetAllCategories
+{
+    public class GetAllCategoriesQuery : IRequest<List<CategoryDto>> { }
+}
+```
+
+**`Features/Categories/Queries/GetAllCategories/GetAllCategoriesHandler.cs`:**
+
+```csharp
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using WolfmedAPI.Data;
+
+namespace WolfmedAPI.Features.Categories.Queries.GetAllCategories
+{
+    public class GetAllCategoriesHandler : IRequestHandler<GetAllCategoriesQuery, List<CategoryDto>>
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<GetAllCategoriesHandler> _logger;
+
+        public GetAllCategoriesHandler(AppDbContext context, ILogger<GetAllCategoriesHandler> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task<List<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Pobieranie wszystkich kategorii");
+
+            var categories = await _context.Categories
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Name)
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Description = c.Description,
+                    IsActive = c.IsActive,
+                    TestCount = c.Tests.Count()
+                })
+                .ToListAsync(cancellationToken);
+
+            _logger.LogInformation("Pobrano {Count} kategorii", categories.Count);
+            return categories;
+        }
+    }
+}
+```
+
+**`Features/Categories/Queries/GetCategoryById/GetCategoryByIdQuery.cs`:**
+
+```csharp
+using MediatR;
+
+namespace WolfmedAPI.Features.Categories.Queries.GetCategoryById
+{
+    public class GetCategoryByIdQuery : IRequest<CategoryDto?>
+    {
+        public int Id { get; set; }
+        public GetCategoryByIdQuery(int id) => Id = id;
+    }
+}
+```
+
+**`Features/Categories/Queries/GetCategoryById/GetCategoryByIdHandler.cs`:**
+
+```csharp
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using WolfmedAPI.Data;
+
+namespace WolfmedAPI.Features.Categories.Queries.GetCategoryById
+{
+    public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, CategoryDto?>
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<GetCategoryByIdHandler> _logger;
+
+        public GetCategoryByIdHandler(AppDbContext context, ILogger<GetCategoryByIdHandler> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task<CategoryDto?> Handle(GetCategoryByIdQuery request, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Pobieranie kategorii ID: {Id}", request.Id);
+
+            var category = await _context.Categories
+                .Where(c => c.Id == request.Id)
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Description = c.Description,
+                    IsActive = c.IsActive,
+                    TestCount = c.Tests.Count()
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (category == null)
+                _logger.LogWarning("Kategoria ID {Id} nie znaleziona", request.Id);
+
+            return category;
+        }
+    }
+}
+```
+
+**`Features/Categories/Commands/CreateCategory/CreateCategoryCommand.cs`:**
+
+```csharp
+using MediatR;
+
+namespace WolfmedAPI.Features.Categories.Commands.CreateCategory
+{
+    public class CreateCategoryCommand : IRequest<int>
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+}
+```
+
+**`Features/Categories/Commands/CreateCategory/CreateCategoryHandler.cs`:**
+
+```csharp
+using MediatR;
+using WolfmedAPI.Data;
+using WolfmedAPI.Models;
+
+namespace WolfmedAPI.Features.Categories.Commands.CreateCategory
+{
+    public class CreateCategoryHandler : IRequestHandler<CreateCategoryCommand, int>
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<CreateCategoryHandler> _logger;
+
+        public CreateCategoryHandler(AppDbContext context, ILogger<CreateCategoryHandler> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task<int> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Tworzenie kategorii: {Name}", request.Name);
+
+            var category = new Category
+            {
+                Name = request.Name,
+                Description = request.Description,
+                IsActive = true
+            };
+
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Utworzono kategorię ID: {Id}", category.Id);
+            return category.Id;
+        }
+    }
+}
+```
+
+**`Features/Categories/Commands/CreateCategory/CreateCategoryValidator.cs`:**
+
+```csharp
+using FluentValidation;
+
+namespace WolfmedAPI.Features.Categories.Commands.CreateCategory
+{
+    public class CreateCategoryValidator : AbstractValidator<CreateCategoryCommand>
+    {
+        public CreateCategoryValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Nazwa kategorii jest wymagana")
+                .MaximumLength(256).WithMessage("Nazwa może mieć max 256 znaków");
+        }
+    }
+}
+```
+
+**`Features/Categories/Commands/UpdateCategory/UpdateCategoryCommand.cs`:**
+
+```csharp
+using MediatR;
+
+namespace WolfmedAPI.Features.Categories.Commands.UpdateCategory
+{
+    public class UpdateCategoryCommand : IRequest<Unit>
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+    }
+}
+```
+
+**`Features/Categories/Commands/UpdateCategory/UpdateCategoryHandler.cs`:**
+
+```csharp
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using WolfmedAPI.Data;
+
+namespace WolfmedAPI.Features.Categories.Commands.UpdateCategory
+{
+    public class UpdateCategoryHandler : IRequestHandler<UpdateCategoryCommand, Unit>
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<UpdateCategoryHandler> _logger;
+
+        public UpdateCategoryHandler(AppDbContext context, ILogger<UpdateCategoryHandler> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task<Unit> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        {
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+
+            if (category == null)
+                throw new KeyNotFoundException($"Kategoria ID {request.Id} nie istnieje");
+
+            _logger.LogInformation("Aktualizacja kategorii ID: {Id}", request.Id);
+
+            category.Name = request.Name;
+            category.Description = request.Description;
+            category.IsActive = request.IsActive;
+
+            await _context.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Zaktualizowano kategorię ID: {Id}", request.Id);
+
+            return Unit.Value;
+        }
+    }
+}
+```
+
+**`Features/Categories/Commands/DeleteCategory/DeleteCategoryCommand.cs`:**
+
+```csharp
+using MediatR;
+
+namespace WolfmedAPI.Features.Categories.Commands.DeleteCategory
+{
+    public class DeleteCategoryCommand : IRequest<Unit>
+    {
+        public int Id { get; set; }
+        public DeleteCategoryCommand(int id) => Id = id;
+    }
+}
+```
+
+**`Features/Categories/Commands/DeleteCategory/DeleteCategoryHandler.cs`:**
+
+```csharp
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using WolfmedAPI.Data;
+
+namespace WolfmedAPI.Features.Categories.Commands.DeleteCategory
+{
+    public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, Unit>
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<DeleteCategoryHandler> _logger;
+
+        public DeleteCategoryHandler(AppDbContext context, ILogger<DeleteCategoryHandler> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task<Unit> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+        {
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+
+            if (category == null)
+                throw new KeyNotFoundException($"Kategoria ID {request.Id} nie istnieje");
+
+            _logger.LogInformation("Soft-delete kategorii ID: {Id}", request.Id);
+            category.IsActive = false;
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Unit.Value;
+        }
+    }
+}
+```
+
+### 5.3 — Entities to implement (9 total)
+
+- [ ] `Features/Categories/` — **done above** (reference implementation)
+- [ ] `Features/Tags/` — same pattern as Categories (`int` IDs, `IsActive` soft delete)
+- [ ] `Features/Tests/` — `Guid` IDs, `CategoryId` join, no `IsActive` (hard delete)
+- [ ] `Features/Procedures/` — `Guid` IDs, `ProcedureTags` include, hard delete
+- [ ] `Features/CompletedTests/` — `Guid` IDs, filter by `userId` on GetAll, hard delete
+- [ ] `Features/BlogPosts/` — `Guid` IDs, no `IsActive`, hard delete
+- [ ] `Features/Comments/` — `Guid` IDs, filter by `blogPostId` on GetAll, hard delete
+- [ ] `Features/Users/` — string `userId` (Clerk), no `IsActive`
+- [ ] `Features/Messages/` — `int` IDs, hard delete
+
+### 5.4 — Special DTO considerations
+
+**`Features/Tests/TestDto.cs`** — include category info from join:
+
+```csharp
+using System.Text.Json;
+
+namespace WolfmedAPI.Features.Tests
+{
+    public class TestDto
+    {
+        public Guid Id { get; set; }
+        public string? Category { get; set; }
+        public int? CategoryId { get; set; }
+        public string? CategoryName { get; set; }    // from CategoryNav join
+        public JsonElement Data { get; set; }         // question + answers
+        public DateTime? CreatedAt { get; set; }
+    }
+}
+```
+
+**`Features/Procedures/ProcedureDto.cs`** — include tags from many-to-many:
+
+```csharp
+using System.Text.Json;
+
+namespace WolfmedAPI.Features.Procedures
+{
+    public class ProcedureDto
+    {
+        public Guid Id { get; set; }
+        public JsonElement Data { get; set; }        // name, procedure, algorithm[]
+        public List<string> Tags { get; set; } = new List<string>();  // tag names
+        public DateTime? CreatedAt { get; set; }
+    }
+}
+```
+
+**`Features/CompletedTests/CompletedTestDto.cs`:**
+
+```csharp
+using System.Text.Json;
+
+namespace WolfmedAPI.Features.CompletedTests
+{
+    public class CompletedTestDto
+    {
+        public Guid Id { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public int Score { get; set; }
+        public JsonElement TestResult { get; set; }
+        public DateTime CompletedAt { get; set; }
+    }
+}
+```
+
+**GetAll handler for Procedures** — shows how to include Tags:
+
+```csharp
+// In GetAllProceduresHandler.cs
+var procedures = await _context.Procedures
+    .Include(p => p.ProcedureTags)
+        .ThenInclude(pt => pt.Tag)
+    .Select(p => new ProcedureDto
+    {
+        Id = p.Id,
+        Data = p.Data.RootElement,
+        Tags = p.ProcedureTags.Select(pt => pt.Tag.Name).ToList(),
+        CreatedAt = p.CreatedAt
+    })
+    .ToListAsync(cancellationToken);
+```
+
+### 5.5 — Per feature checklist
 
 For **each** of the 9 entities, create:
 
@@ -652,64 +1269,12 @@ For **each** of the 9 entities, create:
 - [ ] `Create` Command + Handler + Validator — returns new record's Id (Guid or int)
 - [ ] `Update` Command + Handler + Validator — returns `Unit`, throws `KeyNotFoundException` if not found
 - [ ] `Delete` Command + Handler — **soft delete** (`IsActive = false`) where field exists,
-  hard delete for `CompletedTest` and `Message` (no `IsActive` field)
+  hard delete for `CompletedTest`, `Message`, `BlogPost`, `Comment`, `Test` (no `IsActive` field)
 - [ ] `TDto.cs` — DTO class in the feature folder, includes related entity names
   (e.g. `TestDto` includes `CategoryName` from the join)
 
-### 5.4 — Special DTO considerations
-
-**TestDto** — include category info from join:
-```csharp
-public class TestDto
-{
-    public Guid Id { get; set; }
-    public string? Category { get; set; }
-    public int? CategoryId { get; set; }
-    public string? CategoryName { get; set; }
-    public JsonElement Data { get; set; }    // question + answers
-    public DateTime? CreatedAt { get; set; }
-}
-```
-
-**ProcedureDto** — include tags from many-to-many:
-```csharp
-public class ProcedureDto
-{
-    public Guid Id { get; set; }
-    public JsonElement Data { get; set; }    // name, procedure, algorithm[]
-    public List<string> Tags { get; set; }   // tag names from join
-    public DateTime? CreatedAt { get; set; }
-}
-```
-
-**CompletedTestDto** — include score summary:
-```csharp
-public class CompletedTestDto
-{
-    public Guid Id { get; set; }
-    public string UserId { get; set; }
-    public int Score { get; set; }
-    public JsonElement TestResult { get; set; }
-    public DateTime CompletedAt { get; set; }
-}
-```
-
-### 5.5 — FluentValidation examples
-
-**CreateTestValidator:**
-```csharp
-public class CreateTestValidator : AbstractValidator<CreateTestCommand>
-{
-    public CreateTestValidator()
-    {
-        RuleFor(x => x.CategoryId).NotNull().GreaterThan(0);
-        RuleFor(x => x.Data).NotNull();
-    }
-}
-```
-
-- [ ] Add `ValidationBehavior<TRequest, TResponse>` pipeline behavior
-  (intercepts all Commands before Handler runs)
+- [ ] Add `ValidationBehavior<TRequest, TResponse>` to `Behaviors/`
+- [ ] Add `GlobalExceptionMiddleware` to `Middleware/`
 - [ ] Register in `Program.cs`: `services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>))`
 
 ---
@@ -718,30 +1283,101 @@ public class CreateTestValidator : AbstractValidator<CreateTestCommand>
 
 Create folder: `Controllers/`
 
-### 6.1 — Controller list
+### 6.1 — Complete `CategoriesController.cs` (reference implementation)
 
+```csharp
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using WolfmedAPI.Features.Categories;
+using WolfmedAPI.Features.Categories.Commands.CreateCategory;
+using WolfmedAPI.Features.Categories.Commands.DeleteCategory;
+using WolfmedAPI.Features.Categories.Commands.UpdateCategory;
+using WolfmedAPI.Features.Categories.Queries.GetAllCategories;
+using WolfmedAPI.Features.Categories.Queries.GetCategoryById;
+
+namespace WolfmedAPI.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CategoriesController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+        private readonly ILogger<CategoriesController> _logger;
+
+        public CategoriesController(IMediator mediator, ILogger<CategoriesController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
+
+        /// <summary>Pobiera wszystkie aktywne kategorie</summary>
+        [HttpGet]
+        public async Task<ActionResult<List<CategoryDto>>> GetAll(CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetAllCategoriesQuery(), cancellationToken);
+            return Ok(result);
+        }
+
+        /// <summary>Pobiera kategorię po ID</summary>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<CategoryDto>> GetById(int id, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new GetCategoryByIdQuery(id), cancellationToken);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        /// <summary>Tworzy nową kategorię</summary>
+        [HttpPost]
+        public async Task<ActionResult<int>> Create([FromBody] CreateCategoryCommand command, CancellationToken cancellationToken)
+        {
+            var id = await _mediator.Send(command, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id }, id);
+        }
+
+        /// <summary>Aktualizuje kategorię</summary>
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryCommand command, CancellationToken cancellationToken)
+        {
+            command.Id = id;
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        /// <summary>Soft-delete kategorii (IsActive = false)</summary>
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+        {
+            await _mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
+            return NoContent();
+        }
+    }
+}
+```
+
+### 6.2 — Controller list (all follow CategoriesController pattern)
+
+| Controller | ID type | Route constraint | Notes |
+|---|---|---|---|
+| `CategoriesController` | `int` | `{id:int}` | Soft delete (IsActive) |
+| `TagsController` | `int` | `{id:int}` | Soft delete (IsActive) |
+| `TestsController` | `Guid` | `{id:guid}` | Add `?categoryId=` on GetAll |
+| `ProceduresController` | `Guid` | `{id:guid}` | Tags in DTO |
+| `CompletedTestsController` | `Guid` | `{id:guid}` | Add `?userId=` on GetAll |
+| `BlogPostsController` | `Guid` | `{id:guid}` | Hard delete |
+| `CommentsController` | `Guid` | `{id:guid}` | Add `?blogPostId=` on GetAll |
+| `UsersController` | `string` | `{userId}` | No constraint needed |
+| `MessagesController` | `int` | `{id:int}` | Hard delete |
+
+- [ ] `CategoriesController.cs` — **done above** (reference)
+- [ ] `TagsController.cs`
 - [ ] `TestsController.cs`
 - [ ] `ProceduresController.cs`
-- [ ] `CategoriesController.cs`
-- [ ] `TagsController.cs`
 - [ ] `CompletedTestsController.cs`
 - [ ] `BlogPostsController.cs`
 - [ ] `CommentsController.cs`
 - [ ] `UsersController.cs`
 - [ ] `MessagesController.cs`
-
-### 6.2 — Per controller checklist
-
-Each controller follows this exact pattern (from the guide):
-
-- [ ] `[ApiController]` + `[Route("api/[controller]")]` attributes
-- [ ] Constructor injects `IMediator` (and optionally `ILogger<T>`)
-- [ ] `GET /` → `GetAllQuery` → `Ok(result)`
-- [ ] `GET /{id}` → `GetByIdQuery` → `Ok(result)` or `NotFound()`
-- [ ] `POST /` → `CreateCommand` → `CreatedAtAction(...)`
-- [ ] `PUT /{id}` → `UpdateCommand` → `NoContent()` or `NotFound()`
-- [ ] `DELETE /{id}` → `DeleteCommand` → `NoContent()` or `NotFound()`
-- [ ] XML `<summary>` comments on each action (feeds Swagger docs)
 
 ### 6.3 — Auth protection strategy
 
@@ -769,40 +1405,74 @@ Not all endpoints need auth. Suggested approach:
 
 ## Part 7 — Program.cs Configuration
 
-### 7.1 — Service registrations
+### 7.1 — Complete `Program.cs`
 
 ```csharp
-// MediatR — auto-discovers all Handlers in the assembly
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+using System.Reflection;
+using FluentValidation;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using WolfmedAPI.Behaviors;
+using WolfmedAPI.Data;
+using WolfmedAPI.Middleware;
 
-// FluentValidation
-builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+var builder = WebApplication.CreateBuilder(args);
 
-// FluentValidation Pipeline Behavior
-builder.Services.AddTransient(
-    typeof(IPipelineBehavior<,>),
-    typeof(ValidationBehavior<,>));
+// Controllers
+builder.Services.AddControllers();
 
-// EF Core + Npgsql (PostgreSQL)
+// Swagger / OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "WolfmedAPI", Version = "v1" });
+    // JWT auth button in Swagger UI
+    c.AddSecurityDefinition("Bearer", new()
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Wpisz token JWT"
+    });
+    c.AddSecurityRequirement(new()
+    {
+        {
+            new() { Reference = new() { Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme, Id = "Bearer" } },
+            Array.Empty<string>()
+        }
+    });
+    // XML comments (from .csproj <GenerateDocumentationFile>true</GenerateDocumentationFile>)
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
+});
+
+// EF Core + Npgsql (PostgreSQL — Neon)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// CORS — allow RN dev (Android emulator + iOS simulator + physical device)
+// MediatR — auto-discovers all Handlers, Queries, Commands in the assembly
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+// FluentValidation — auto-discovers all Validators in the assembly
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+// FluentValidation Pipeline Behavior — validates Commands before Handler runs
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+// CORS — Development: allow all; Production: restrict to Azure URL
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevelopmentPolicy", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     options.AddPolicy("ProductionPolicy", policy =>
-    {
-        policy.WithOrigins("https://your-azure-url.azurewebsites.net")
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+        policy.WithOrigins(builder.Configuration["AllowedOrigins"] ?? "*")
+              .AllowAnyMethod().AllowAnyHeader());
 });
 
 // Clerk JWT Authentication
@@ -810,57 +1480,51 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.Authority = builder.Configuration["Clerk:Authority"];
-        options.Audience  = builder.Configuration["Clerk:Audience"];
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer   = true,
-            ValidateAudience = true,
+            ValidateIssuer = true,
+            ValidateAudience = false,  // Clerk doesn't set audience by default
             ValidateLifetime = true,
         };
     });
 
-// Swagger with JWT support
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "WolfmedAPI", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme { ... });
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
-});
+builder.Services.AddAuthorization();
 
 // Health checks
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>();
-```
 
-### 7.2 — Middleware pipeline (order is critical)
+var app = builder.Build();
 
-```csharp
-app.UseSwagger();
-app.UseSwaggerUI();
+var isDevelopment = app.Environment.IsDevelopment();
+
+// Swagger (dev only)
+if (isDevelopment)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Middleware pipeline ORDER IS CRITICAL
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors(isDevelopment ? "DevelopmentPolicy" : "ProductionPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<GlobalExceptionMiddleware>();
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+app.Run();
 ```
 
+### 7.2 — Checklist
+
 - [ ] All services registered
-- [ ] Middleware in correct order (CORS before Auth)
+- [ ] `GlobalExceptionMiddleware` placed **before** everything else in pipeline
+- [ ] `UseCors()` placed **before** `UseAuthentication()` (critical for RN emulator)
 - [ ] Health check endpoint at `/health`
-
-### 7.3 — Global exception middleware
-
-Create: `Middleware/GlobalExceptionMiddleware.cs`
-
-- [ ] Catch `KeyNotFoundException` → return 404 JSON response
-- [ ] Catch `ValidationException` (FluentValidation) → return 400 with errors list
-- [ ] Catch all unhandled exceptions → return 500 with generic message
-- [ ] Log all exceptions with `ILogger`
-- [ ] Never expose stack traces in production
+- [ ] `Behaviors/ValidationBehavior.cs` created (see Part 5.0)
+- [ ] `Middleware/GlobalExceptionMiddleware.cs` created (see Part 5.0)
 
 ---
 
