@@ -1,0 +1,16 @@
+[
+  { "id": 1,  "name": "Stoma" },
+  { "id": 2,  "name": "Gastrostomia" },
+  { "id": 3,  "name": "Insulinoterapia" },
+  { "id": 4,  "name": "Farmakologia" },
+  { "id": 5,  "name": "Nebulizacja" },
+  { "id": 6,  "name": "Pomiary Vitalne" },
+  { "id": 7,  "name": "Pobranie Materiałów" },
+  { "id": 8,  "name": "Opatrunki" },
+  { "id": 9,  "name": "Tlenoterapia" },
+  { "id": 10, "name": "Dostęp Dożylny" },
+  { "id": 11, "name": "Higiena" },
+  { "id": 12, "name": "Transport Pacjenta" },
+  { "id": 13, "name": "Żywienie" },
+  { "id": 14, "name": "Kał i Mocz" }
+]

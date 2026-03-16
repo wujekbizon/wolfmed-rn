@@ -10,7 +10,9 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx scripts/populate.ts",
+    "db:setup": "pnpm db:push && pnpm db:seed"
   },
   "jest": {
     "preset": "jest-expo"
@@ -70,6 +72,7 @@
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^9.39.4",
     "eslint-config-expo": "~10.0.0",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.3"
   },
   "private": true

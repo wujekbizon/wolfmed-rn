@@ -10,10 +10,23 @@ import {
   text,
   pgEnum,
   boolean,
+  primaryKey,
 } from 'drizzle-orm/pg-core'
 
 export const createTable = pgTableCreator((name) => `wolfmed_mobile_${name}`)
 
+export const categories = createTable('categories', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 256 }).notNull(),
+  description: varchar('description', { length: 512 }),
+  isActive: boolean('isActive').default(true).notNull(),
+})
+
+export const tags = createTable('tags', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 256 }).notNull(),
+  isActive: boolean('isActive').default(true).notNull(),
+})
 
 export const users = createTable(
   'users',
@@ -49,6 +62,7 @@ export const completedTestes = createTable('completed_tests', {
 export const tests = createTable('tests', {
   id: uuid('id').primaryKey().defaultRandom(),
   category: varchar('category', { length: 256 }).notNull(),
+  categoryId: integer('categoryId').references(() => categories.id),
   data: jsonb('data').notNull(),
   createdAt: timestamp('createdAt').defaultNow(),
   updatedAt: timestamp('updatedAt'),
@@ -78,4 +92,32 @@ export const blogPosts = createTable('blog_posts', {
   createdAt: timestamp('createdAt').defaultNow(),
   updatedAt: timestamp('updatedAt'),
 })
+
+export const comments = createTable('comments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  blogPostId: uuid('blogPostId')
+    .notNull()
+    .references(() => blogPosts.id, { onDelete: 'cascade' }),
+  userId: varchar('userId', { length: 256 })
+    .notNull()
+    .references(() => users.userId, { onDelete: 'cascade' }),
+  content: text('content').notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt'),
+})
+
+export const procedureTags = createTable(
+  'procedure_tags',
+  {
+    procedureId: uuid('procedureId')
+      .notNull()
+      .references(() => procedures.id, { onDelete: 'cascade' }),
+    tagId: integer('tagId')
+      .notNull()
+      .references(() => tags.id, { onDelete: 'cascade' }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.procedureId, table.tagId] }),
+  })
+)
 

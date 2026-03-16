@@ -1,5 +1,5 @@
 import { db } from '@/server/db/index'
-import { procedures, tests, blogPosts, users, completedTestes } from '@/server/db/schema'
+import { procedures, tests, blogPosts, users, completedTestes, categories, tags, procedureTags } from '@/server/db/schema'
 import { Post, Procedure, Test, User, CompletedTestData } from '@/types/dataTypes'
 import { readFile } from 'node:fs/promises'
 import * as path from 'node:path'
@@ -12,7 +12,43 @@ async function readDataFileAndParse(fileName: string, folder = 'data', encoding:
 
 async function insertData<T>(data: T[], table: any, mapToInsertValues: (item: T) => any) {
   for (const item of data) {
-    await db.insert(table).values(mapToInsertValues(item))
+    await db.insert(table).values(mapToInsertValues(item)).onConflictDoNothing()
+  }
+}
+
+export async function populateCategories() {
+  try {
+    const data = await readDataFileAndParse('categories.json')
+    for (const item of data) {
+      await db.insert(categories).values({ id: item.id, name: item.name, description: item.description }).onConflictDoNothing()
+    }
+    console.log('Categories table populated successfully!')
+  } catch (error) {
+    console.error('Error populating categories table:', error)
+  }
+}
+
+export async function populateTags() {
+  try {
+    const data = await readDataFileAndParse('tags.json')
+    for (const item of data) {
+      await db.insert(tags).values({ id: item.id, name: item.name }).onConflictDoNothing()
+    }
+    console.log('Tags table populated successfully!')
+  } catch (error) {
+    console.error('Error populating tags table:', error)
+  }
+}
+
+export async function populateProcedureTags() {
+  try {
+    const data = await readDataFileAndParse('procedureTags.json')
+    for (const item of data) {
+      await db.insert(procedureTags).values({ procedureId: item.procedureId, tagId: item.tagId }).onConflictDoNothing()
+    }
+    console.log('ProcedureTags table populated successfully!')
+  } catch (error) {
+    console.error('Error populating procedureTags table:', error)
   }
 }
 
@@ -20,9 +56,12 @@ export async function populateTests() {
   try {
     const testsData = (await readDataFileAndParse('tests.json')) as Test[]
 
+    const categoryMap: Record<string, number> = { medical: 5 }
+
     await insertData(testsData, tests, (test) => ({
       id: test.id,
       category: test.category,
+      categoryId: categoryMap[test.category] ?? null,
       data: test.data,
     }))
 

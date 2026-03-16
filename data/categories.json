@@ -1,0 +1,7 @@
+[
+  { "id": 1, "name": "Pielęgnacja", "description": "Procedury pielęgnacyjne" },
+  { "id": 2, "name": "Diagnostyka", "description": "Procedury diagnostyczne" },
+  { "id": 3, "name": "Farmakologia", "description": "Podawanie leków i tlenoterapia" },
+  { "id": 4, "name": "Ratownictwo Medyczne", "description": "Procedury ratownicze" },
+  { "id": 5, "name": "medical", "description": "Pytania testowe — ogólne" }
+]

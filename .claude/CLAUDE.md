@@ -18,26 +18,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Animations**: React Native Reanimated 4.1.2
 - **Lists**: Shopify FlashList 2.0.2 (optimized performance)
 
+### Backend (In Progress)
+
+- **API**: C# .NET 10 Web API (CQRS — Vertical Slice with MediatR)
+- **Validation**: FluentValidation
+- **ORM (C#)**: Entity Framework Core 10 + Npgsql (read/write only — no EF migrations)
+- **Containerization**: Docker + docker-compose
+- **Auth**: Clerk JWT validated by C# API
+- **Rule**: Drizzle is sole schema owner — EF Core never runs migrations
+
+## Package Manager
+
+Always use **pnpm** — never npm or yarn.
+
 ## Essential Commands
 
 ### Development
 ```bash
-npm start              # Start Expo development server
-npm run android        # Run on Android emulator
-npm run ios            # Run on iOS simulator
-npm run web            # Run web version
+pnpm start             # Start Expo development server
+pnpm android           # Run on Android emulator
+pnpm ios               # Run on iOS simulator
+pnpm web               # Run web version
 ```
 
 ### Code Quality
 ```bash
-npm run lint           # Run ESLint
-npm test               # Run Jest tests in watch mode
+pnpm lint              # Run ESLint
+pnpm test              # Run Jest tests in watch mode
 ```
 
 ### Database Operations
 ```bash
-npm run db:push        # Push schema changes to Neon database
-npm run db:studio      # Open Drizzle Studio (database GUI)
+pnpm db:push           # Push schema changes to Neon database
+pnpm db:studio         # Open Drizzle Studio (database GUI)
+pnpm db:seed           # Seed all tables from data/ JSON files
+pnpm db:setup          # db:push + db:seed (fresh DB setup)
 ```
 
 ## High-Level Architecture
@@ -91,8 +106,11 @@ Root layout (`app/_layout.tsx`) wraps the app in layered providers:
 - Schema definitions: `server/db/schema.ts`
 - Drizzle ORM for queries: `server/db.ts` and `server/queries.ts`
 - Zod validation schemas: `server/schema.ts` and `lib/validations/`
-- Main tables: `users`, `completedTestes`, `tests`, `procedures`, `blogPosts`
+- Tables: `users`, `completedTestes`, `tests`, `procedures`, `blogPosts`, `customersMessages`, `categories`, `tags`, `comments`, `procedureTags`
 - Static data in JSON files: `data/tests.json`, `data/procedures.json`
+- `categories` normalizes `tests.category` (new `categoryId` FK added, old `category` varchar kept as fallback)
+- `tags` + `procedureTags` (join): many-to-many for procedures
+- `comments`: blog post comments (FK → blogPosts, users)
 
 ### Styling Architecture
 
@@ -196,16 +214,15 @@ Required in `.env` file:
 
 ## Recent Changes
 
-- Migration to Expo SDK 54 (latest commit)
+- Schema extended: added `categories`, `tags`, `procedure_tags`, `comments` tables; `tests` got `categoryId` FK (Part 1.1 of integration plan)
+- Migration to Expo SDK 54
 - Refactored DrawerLayout (removed unused header styles/components)
 - Separated CustomDrawerContent to standalone file
-- Enhanced Learn page with new material card design
-- Performance improvements in DrawerLayout and ProceduresScreen
 
 ## Testing
 
 - Jest configured with `jest-expo` preset
-- Run tests: `npm test`
+- Run tests: `pnpm test`
 - Test framework is set up but test files need to be written
 
 ## Git Workflow
