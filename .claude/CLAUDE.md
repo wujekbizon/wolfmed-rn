@@ -225,6 +225,12 @@ Required in `.env` file:
 - Run tests: `pnpm test`
 - Test framework is set up but test files need to be written
 
+## Error Handling Rules
+
+- Always wrap calls to third-party libraries (Clerk, Zod, API) in try-catch
+- In catch blocks, never assume error object shape — use fallbacks: `error.issues ?? error.errors ?? []`
+- Library versions change error shapes (e.g. Zod v4: `.errors` → `.issues`) — verify against installed version in package.json before writing catch block logic
+
 ## Git Workflow
 
 - Main branch: `main`

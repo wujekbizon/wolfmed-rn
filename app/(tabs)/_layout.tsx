@@ -1,8 +1,14 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { Tabs } from 'expo-router'
+import { Tabs, Redirect } from 'expo-router'
+import { useAuth } from '@clerk/expo'
 
 export default function TabLayout() {
+  const { isSignedIn, isLoaded } = useAuth()
+
+  if (!isLoaded) return null
+  if (!isSignedIn) return <Redirect href="/(auth)/sign-in" />
+
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: 'red' }}>
       <Tabs.Screen name="index" options={{

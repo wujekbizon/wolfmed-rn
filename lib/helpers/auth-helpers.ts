@@ -6,7 +6,8 @@ export const validateSignInForm = (email: string, password: string) => {
     return { isValid: true, errors: {} }
   } catch (error: any) {
     const formattedErrors: Partial<SignInFormData> = {}
-    error.errors.forEach((err: any) => {
+    const issues = error.issues ?? error.errors ?? []
+    issues.forEach((err: any) => {
       if (err.path[0] === 'email') formattedErrors.email = err.message
       if (err.path[0] === 'password') formattedErrors.password = err.message
     })
@@ -29,7 +30,8 @@ export const validateSignUpForm = (
     return { isValid: true, errors: {} }
   } catch (error: any) {
     const formattedErrors: Partial<SignUpFormData> = {}
-    error.errors.forEach((err: any) => {
+    const issues = error.issues ?? error.errors ?? []
+    issues.forEach((err: any) => {
       if (err.path[0] === 'email') formattedErrors.email = err.message
       if (err.path[0] === 'password') formattedErrors.password = err.message
       if (err.path[0] === 'code') formattedErrors.code = err.message
@@ -39,8 +41,11 @@ export const validateSignUpForm = (
 }
 
 export const handleAuthError = (error: any) => {
-  if (error.errors?.[0]?.message) {
-    return { password: error.errors[0].message }
-  }
-  return {}
+  const message = error?.message ?? error?.errors?.[0]?.message ?? error?.errors?.[0]?.longMessage
+  if (!message) return {}
+
+  const msg = (message as string).toLowerCase()
+  if (msg.includes('email') || msg.includes('identifier')) return { email: message }
+  if (msg.includes('password')) return { password: message }
+  return { password: message }
 } 

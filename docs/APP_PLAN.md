@@ -323,6 +323,21 @@ All new screens and components must feel native, consistent with existing app st
 
 ---
 
+## Corner Cases (handle later)
+
+### Auth / User Sync
+- `syncUserToDb` failure: user exists in Clerk but not in DB — broken state. Needs retry logic + fallback sign-out if all retries fail.
+- OAuth sign-in returning user: `POST /api/users` is upsert so safe, but if API is down the user lands in app with no DB record.
+- Sign-in for user that exists in Clerk but not in DB (edge case: manually deleted from Neon). Currently no fallback — needs `GET /api/users/{userId}` 404 check after sign-in + trigger upsert.
+- Token expiry during `syncUserToDb`: `getToken()` may return null if called too quickly after `finalize()`. Needs small retry delay.
+
+### General Error Handling
+- API down / network offline: all React Query hooks fail silently — needs global error boundary or offline indicator.
+- Clerk token refresh failure: `getToken()` returns null — API calls get 401 — needs graceful handling (prompt re-login).
+- Zod validation errors not covering all Clerk error codes — `handleAuthError` may return `{}` for unknown errors leaving user with no feedback.
+
+---
+
 ## Unresolved questions
 - Does `/api/users/{userId}` accept `{ motto }` in PUT body, or is there a separate endpoint? (plan assumes same PUT endpoint handles both username and motto)
 - `blog/[id].tsx` needs single post fetch — check if C# API has `GET /api/blogposts/{id}` returning comments array (plan assumes yes per integration plan Part 7)

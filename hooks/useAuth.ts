@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { useSignIn, useSignUp, useSSO } from '@clerk/expo'
+import { useSignIn, useSignUp, useSSO, useAuth as useClerkAuth } from '@clerk/expo'
 import * as WebBrowser from 'expo-web-browser'
 import * as AuthSession from 'expo-auth-session'
 import { type SignInFormData, type SignUpFormData } from '@/lib/validations/auth'
@@ -13,8 +13,57 @@ export type AuthMode = 'sign-in' | 'sign-up'
 
 WebBrowser.maybeCompleteAuthSession()
 
+/**
+ * useAuth — unified authentication hook for sign-in and sign-up flows.
+ *
+ * Built on @clerk/expo v3 (Signal-based API). Pass `mode` to switch between flows.
+ *
+ * ─── SIGN-UP FLOW (email + password) ───────────────────────────────────────
+ * 1. handleSubmit({ email, password })
+ *    - Validates form (Zod)
+ *    - signUp.password({ emailAddress, password }) — creates Clerk account
+ *    - signUp.verifications.sendEmailCode() — sends verification email
+ *    - Sets pendingVerification = true → UI shows code input
+ *
+ * 2. handleVerifyCode(code)
+ *    - signUp.verifications.verifyEmailCode({ code }) — verifies the code
+ *    - signUp.finalize() — activates the session (Clerk JWT now available)
+ *    - syncUserToDb() — POST /api/users { username, motto } + Bearer token
+ *      (userId is NOT sent — API extracts it from JWT sub claim for security)
+ *    - Navigates to "/"
+ *
+ * ─── SIGN-IN FLOW (email + password) ───────────────────────────────────────
+ * 1. handleSubmit({ email, password })
+ *    - Validates form (Zod)
+ *    - signIn.create({ identifier: email }) — starts sign-in, identifies user
+ *    - signIn.password({ identifier, password }) — submits password (v3 two-step)
+ *    - signIn.finalize() — activates the session
+ *    - Navigates to "/"
+ *
+ * ─── OAUTH FLOW (Google) ────────────────────────────────────────────────────
+ * 1. handleOAuth()
+ *    - startSSOFlow({ strategy: 'oauth_google', redirectUrl }) — opens browser
+ *    - setActiveSession({ session: createdSessionId }) — activates the session
+ *    - syncUserToDb() always called — API is an upsert (no-op if user exists)
+ *    - Navigates to "/"
+ *
+ * ─── USER SYNC ──────────────────────────────────────────────────────────────
+ * syncUserToDb() is always called AFTER finalize()/setActiveSession() so that
+ * getToken() returns a valid JWT. The API endpoint POST /api/users requires
+ * [Authorize] and overwrites userId from the JWT sub claim — the body only
+ * carries { username, motto } to prevent spoofing another user's ID.
+ *
+ * ─── CLERK v3 API NOTES ─────────────────────────────────────────────────────
+ * - useSignIn/useSignUp return { signIn/signUp, fetchStatus } — no setActive/isLoaded
+ * - finalize() replaces setActive({ session })
+ * - signUp.password() replaces signUp.create({ password })
+ * - signUp.verifications.sendEmailCode() replaces prepareEmailAddressVerification()
+ * - signUp.verifications.verifyEmailCode() replaces attemptEmailAddressVerification()
+ * - useSSO (OAuth) still uses old-style setActive — unchanged
+ */
 export function useAuth(mode: AuthMode) {
   const router = useRouter()
+  const { getToken } = useClerkAuth()
   const { startSSOFlow } = useSSO()
   const { signIn, fetchStatus: signInFetchStatus } = useSignIn()
   const { signUp, fetchStatus: signUpFetchStatus } = useSignUp()
@@ -28,12 +77,11 @@ export function useAuth(mode: AuthMode) {
     return () => { void WebBrowser.coolDownAsync() }
   }, [])
 
-  // Sync newly created user to our DB — non-blocking
-  const syncUserToDb = async (userId: string) => {
+  // Sync newly created user to our DB — call after finalize() so token is available
+  const syncUserToDb = async () => {
     try {
-      const api = createApiClient(async () => null)
+      const api = createApiClient(getToken)
       await createUserService(api).upsert({
-        userId,
         username: generateRandomUsername(),
         motto: generateRandomMotto(),
       })
@@ -60,9 +108,6 @@ export function useAuth(mode: AuthMode) {
     try {
       if (mode === 'sign-in') {
         if (!signIn) throw new Error('Sign in not initialized')
-        const { error } = await signIn.create({ identifier: email })
-        if (error) throw error
-
         const { error: pwError } = await signIn.password({ identifier: email, password })
         if (pwError) throw pwError
 
@@ -110,9 +155,7 @@ export function useAuth(mode: AuthMode) {
           await setActiveSession({ session: createdSessionId })
         }
 
-        if (mode === 'sign-up' && oauthSignUp?.status === 'complete' && oauthSignUp.createdUserId) {
-          await syncUserToDb(oauthSignUp.createdUserId)
-        }
+        await syncUserToDb()
 
         router.replace('/')
       }
@@ -139,10 +182,8 @@ export function useAuth(mode: AuthMode) {
       if (error) throw error
 
       if (signUp.status === 'complete') {
-        if (signUp.createdUserId) {
-          await syncUserToDb(signUp.createdUserId)
-        }
         await signUp.finalize()
+        await syncUserToDb()
         router.replace('/')
       } else {
         setErrors({ code: 'Nieprawidłowy kod weryfikacyjny' } as any)
