@@ -8,8 +8,7 @@ import {
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import ProcedureContent from "@/components/ProcedureContent";
-import proceduresData from "@/data/procedures.json";
-import { Procedure } from "@/types/dataTypes";
+import { useProcedures } from "@/hooks/useProcedures";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useAnimatedRef,
@@ -24,7 +23,8 @@ const IMG_HEIGHT = 500;
 export default function ProcedureDetailsScreen() {
   const { id, image } = useLocalSearchParams<{ id: string; image: any }>();
   const navigation = useNavigation();
-  const procedure: Procedure = proceduresData[Number(id)];
+  const { procedures } = useProcedures()
+  const procedure = procedures.find((p) => p.id === id);
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
 
   useLayoutEffect(() => {

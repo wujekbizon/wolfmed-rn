@@ -14,7 +14,9 @@ export interface TestData {
 export interface Test {
   id: string
   data: TestData
-  category: string
+  category: string       // keep for now
+  categoryId?: number    // new
+  categoryName?: string  // from DTO join
   createdAt?: Date | null
   updatedAt?: Date | null
 }
@@ -38,6 +40,7 @@ interface ProcedureData {
 export interface Procedure {
   id: string
   data: ProcedureData
+  tags?: string[]        // tag names from join
   image?: any;
 }
 export type ExtendedProcedures = Omit<Procedure, 'data'> & { data: unknown }
@@ -109,6 +112,28 @@ export interface CompletedTestData {
   }>
   score: number
   completedAt: Date | null
+}
+
+export interface Category {
+  id: number
+  name: string
+  description?: string
+  isActive: boolean
+}
+
+export interface Tag {
+  id: number
+  name: string
+  isActive: boolean
+}
+
+export interface Comment {
+  id: string
+  blogPostId: string
+  userId: string
+  content: string
+  createdAt: Date
+  updatedAt?: Date
 }
 
 export interface TestCardContent {

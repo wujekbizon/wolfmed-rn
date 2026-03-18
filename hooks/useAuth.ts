@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
-import { useSignIn, useSignUp, useSSO, useUser } from '@clerk/expo'
+import { useSignIn, useSignUp, useSSO } from '@clerk/expo'
 import * as WebBrowser from 'expo-web-browser'
 import * as AuthSession from 'expo-auth-session'
 import { type SignInFormData, type SignUpFormData } from '@/lib/validations/auth'
 import { validateSignInForm, validateSignUpForm, handleAuthError } from '@/lib/helpers/auth-helpers'
+import { generateRandomUsername, generateRandomMotto } from '@/lib/helpers/generateUserDefaults'
+import { createApiClient } from '@/services/apiClient'
+import { createUserService } from '@/services/userService'
 
 export type AuthMode = 'sign-in' | 'sign-up'
 
@@ -13,28 +16,37 @@ WebBrowser.maybeCompleteAuthSession()
 export function useAuth(mode: AuthMode) {
   const router = useRouter()
   const { startSSOFlow } = useSSO()
-  const { signIn, setActive: setSignInActive, isLoaded: isSignInLoaded } = useSignIn()
-  const { signUp, setActive: setSignUpActive, isLoaded: isSignUpLoaded } = useSignUp()
-  const { user } = useUser()
+  const { signIn, fetchStatus: signInFetchStatus } = useSignIn()
+  const { signUp, fetchStatus: signUpFetchStatus } = useSignUp()
 
   const [isAuthenticating, setIsAuthenticating] = useState(false)
   const [pendingVerification, setPendingVerification] = useState(false)
   const [errors, setErrors] = useState<Partial<SignInFormData | SignUpFormData>>({})
 
-  // Warm up browser for OAuth
   useEffect(() => {
     void WebBrowser.warmUpAsync()
-    return () => {
-      void WebBrowser.coolDownAsync()
-    }
+    return () => { void WebBrowser.coolDownAsync() }
   }, [])
 
-  const handleSubmit = async ({ email, password }: { email: string; password: string }) => {
-    if ((!isSignInLoaded && mode === 'sign-in') || (!isSignUpLoaded && mode === 'sign-up') || isAuthenticating) {
-      return
+  // Sync newly created user to our DB — non-blocking
+  const syncUserToDb = async (userId: string) => {
+    try {
+      const api = createApiClient(async () => null)
+      await createUserService(api).upsert({
+        userId,
+        username: generateRandomUsername(),
+        motto: generateRandomMotto(),
+      })
+    } catch (err) {
+      console.error('User DB sync failed:', err)
     }
+  }
 
-    const { isValid, errors } = mode === 'sign-in' 
+  const handleSubmit = async ({ email, password }: { email: string; password: string }) => {
+    const isBusy = mode === 'sign-in' ? signInFetchStatus === 'fetching' : signUpFetchStatus === 'fetching'
+    if (isBusy || isAuthenticating) return
+
+    const { isValid, errors } = mode === 'sign-in'
       ? validateSignInForm(email, password)
       : validateSignUpForm(email, password)
 
@@ -48,25 +60,26 @@ export function useAuth(mode: AuthMode) {
     try {
       if (mode === 'sign-in') {
         if (!signIn) throw new Error('Sign in not initialized')
-        const signInAttempt = await signIn.create({
-          identifier: email,
-          password,
-        })
+        const { error } = await signIn.create({ identifier: email })
+        if (error) throw error
 
-        if (signInAttempt.status === 'complete') {
-          await setSignInActive?.({ session: signInAttempt.createdSessionId })
+        const { error: pwError } = await signIn.password({ identifier: email, password })
+        if (pwError) throw pwError
+
+        if (signIn.status === 'complete') {
+          await signIn.finalize()
           router.replace('/')
         } else {
-          console.error(JSON.stringify(signInAttempt, null, 2))
+          console.error(JSON.stringify(signIn, null, 2))
         }
       } else {
         if (!signUp) throw new Error('Sign up not initialized')
-        await signUp.create({
-          emailAddress: email,
-          password,
-        })
+        const { error: createError } = await signUp.password({ emailAddress: email, password })
+        if (createError) throw createError
 
-        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+        const { error: sendError } = await signUp.verifications.sendEmailCode()
+        if (sendError) throw sendError
+
         setPendingVerification(true)
       }
     } catch (err: any) {
@@ -78,69 +91,61 @@ export function useAuth(mode: AuthMode) {
   }
 
   const handleOAuth = async () => {
-    if ((!isSignInLoaded && mode === 'sign-in') || (!isSignUpLoaded && mode === 'sign-up') || isAuthenticating) {
-      return
-    }
+    const isBusy = mode === 'sign-in' ? signInFetchStatus === 'fetching' : signUpFetchStatus === 'fetching'
+    if (isBusy || isAuthenticating) return
 
     setIsAuthenticating(true)
-    
+
     try {
       const { createdSessionId, setActive: setActiveSession, signUp: oauthSignUp } = await startSSOFlow({
-        strategy: "oauth_google",
+        strategy: 'oauth_google',
         redirectUrl: AuthSession.makeRedirectUri({
           scheme: 'com.wujekbizon.wolfmed',
-          path: '/(auth)/oauth-callback'
+          path: '/(auth)/oauth-callback',
         }),
       })
-      
+
       if (createdSessionId) {
         if (setActiveSession) {
           await setActiveSession({ session: createdSessionId })
         }
-        
-        // Set user role if this is a new signup
+
         if (mode === 'sign-up' && oauthSignUp?.status === 'complete' && oauthSignUp.createdUserId) {
-          await user?.update({
-            unsafeMetadata: { role: 'user' },
-          })
+          await syncUserToDb(oauthSignUp.createdUserId)
         }
-        
+
         router.replace('/')
-      } else if (oauthSignUp) {
-        console.log("Additional sign in steps required")
       }
     } catch (err) {
-      console.error("OAuth error:", err)
+      console.error('OAuth error:', err)
     } finally {
       setIsAuthenticating(false)
     }
   }
 
   const handleVerifyCode = async (code: string) => {
-    if (!isSignUpLoaded || isAuthenticating || mode !== 'sign-up' || !signUp) return
-    
+    if (signUpFetchStatus === 'fetching' || isAuthenticating || mode !== 'sign-up' || !signUp) return
+
     const { isValid, errors } = validateSignUpForm('', '', true, code)
     if (!isValid) {
       setErrors(errors)
       return
     }
-    
+
     setIsAuthenticating(true)
 
     try {
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code,
-      })
+      const { error } = await signUp.verifications.verifyEmailCode({ code })
+      if (error) throw error
 
-      if (completeSignUp.status === 'complete') {
-        await setSignUpActive?.({ session: completeSignUp.createdSessionId })
-        await user?.update({
-          unsafeMetadata: { role: 'user' },
-        })
+      if (signUp.status === 'complete') {
+        if (signUp.createdUserId) {
+          await syncUserToDb(signUp.createdUserId)
+        }
+        await signUp.finalize()
         router.replace('/')
       } else {
-        console.error(JSON.stringify(completeSignUp, null, 2))
-        setErrors({ code: 'Nieprawidłowy kod weryfikacyjny' })
+        setErrors({ code: 'Nieprawidłowy kod weryfikacyjny' } as any)
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
@@ -151,7 +156,7 @@ export function useAuth(mode: AuthMode) {
   }
 
   return {
-    isLoaded: mode === 'sign-in' ? isSignInLoaded : isSignUpLoaded,
+    isLoaded: mode === 'sign-in' ? signInFetchStatus !== undefined : signUpFetchStatus !== undefined,
     isAuthenticating,
     pendingVerification,
     errors,
@@ -160,4 +165,4 @@ export function useAuth(mode: AuthMode) {
     handleOAuth,
     handleVerifyCode,
   }
-} 
+}

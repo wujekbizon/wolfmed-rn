@@ -1792,7 +1792,7 @@ services:
       context: .
       dockerfile: WolfmedAPI/Dockerfile
     ports:
-      - "5000:80"
+      - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=<neon-host>;...

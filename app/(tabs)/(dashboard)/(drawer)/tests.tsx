@@ -1,18 +1,17 @@
 import React, { useEffect } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native'
 import { useGenerateTestStore } from '@/store/useGenerateTestStore'
-import testsData from '@/data/tests.json'
-import { Test } from '@/types/dataTypes'
+import { useTests } from '@/hooks/useTests'
 import TestsLevelMenu from '@/components/TestsLevelMenu'
 import TestCard from '@/components/TestCard'
 
 export default function Testy() {
   const { numberTests, isTest, setNumberTests, setIsTest, tests, setTests } = useGenerateTestStore()
+  const { tests: apiTests } = useTests()
 
   useEffect(() => {
-    // Load tests from JSON file
-    setTests(testsData as Test[])
-  }, [setTests])
+    if (apiTests.length > 0) setTests(apiTests)
+  }, [apiTests, setTests])
 
   const randomTest = tests.slice(0, numberTests || 0)
 

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   title?: string;
@@ -13,8 +14,9 @@ export default function CustomHeader({
   onRightPress,
 }: Props) {
   const navigation = useNavigation();
+  const { top } = useSafeAreaInsets();
   return (
-    <View style={styles.container} >
+    <View style={[styles.container, { height: 45 + top, paddingTop: top }]}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back-circle-outline" size={34}  />
       </TouchableOpacity>

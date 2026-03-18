@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(\"/c/Users/wujek/AppData/Local/Android/Sdk/platform-tools/adb.exe\" logcat:*)"
+      "Bash(\"/c/Users/wujek/AppData/Local/Android/Sdk/platform-tools/adb.exe\" logcat:*)",
+      "Bash(grep -r \"getToken\\\\|useAuth\" C:/RN/wolfmed/hooks/ C:/RN/wolfmed/app/ --include=*.ts --include=*.tsx)",
+      "Bash(grep -E \"\\\\.tsx?$\")",
+      "WebFetch(domain:clerk.com)",
+      "Bash(find /c/RN/wolfmed/node_modules/@clerk -name *.d.ts)",
+      "Bash(xargs grep:*)"
     ]
   }
 }
