@@ -3,13 +3,13 @@ import { StyleSheet, Text, View, FlatList, useColorScheme } from 'react-native'
 import { cards } from '@/constants/cardContent'
 import { TestInfoCard } from '@/components/TestInfoCard'
 import { Divider } from '@/components/Divider'
-import { CardContent } from '@/types/dataTypes'
+import { TestCardContent } from '@/types/dataTypes'
 
 export default function TestsProceduresScreen() {
   const colorScheme = useColorScheme()
 
   const renderItem = useCallback(
-    ({ item, index }: { item: CardContent; index: number }) => (
+    ({ item, index }: { item: TestCardContent; index: number }) => (
       <View>
         <TestInfoCard card={item} colorScheme={colorScheme} />
         {index < cards.length - 1 && <Divider colorScheme={colorScheme} />}

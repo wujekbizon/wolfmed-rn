@@ -90,8 +90,8 @@ export default function DashboardScreen() {
       <View 
         style={{
           position: 'absolute',
-          top: SCREEN_HEIGHT / 2.5 - SCREEN_WIDTH * 0.225,
-          left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.225,
+          top: SCREEN_HEIGHT / 2.5 - SCREEN_WIDTH * 0.3,
+          left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.25,
           zIndex: 100,
         }}
       >

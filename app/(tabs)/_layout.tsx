@@ -19,7 +19,7 @@ export default function TabLayout() {
           title: 'Panel',
           tabBarIcon: ({ color }) => <MaterialIcons size={28} name="dashboard" color={color} />,
       }}/>
-      <Tabs.Screen name="forum" options={{
+      <Tabs.Screen name="kontakt" options={{
           title: 'Kontakt',
           tabBarIcon: ({ color }) => <MaterialIcons size={28} name="mail-outline" color={color} />,
       }}/>
