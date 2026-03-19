@@ -12,7 +12,7 @@ const MOTTOS = [
 ]
 
 export const generateRandomUsername = (): string =>
-  'User-' + Math.random().toString(36).slice(2, 10)
+  'User_' + Math.random().toString(36).slice(2, 10)
 
 export const generateRandomMotto = (): string =>
   MOTTOS[Math.floor(Math.random() * MOTTOS.length)]

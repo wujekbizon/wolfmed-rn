@@ -20,8 +20,8 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <MaterialIcons size={28} name="dashboard" color={color} />,
       }}/>
       <Tabs.Screen name="forum" options={{
-          title: 'Forum',
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons size={28} name="forum" color={color} />,
+          title: 'Kontakt',
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="mail-outline" color={color} />,
       }}/>
       <Tabs.Screen name="blog" options={{
           title: 'Blog',

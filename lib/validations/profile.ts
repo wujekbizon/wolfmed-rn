@@ -5,7 +5,7 @@ export const usernameSchema = z.object({
     .string()
     .min(3, 'Nazwa musi mieć co najmniej 3 znaki')
     .max(16, 'Nazwa nie może być dłuższa niż 16 znaków')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Nazwa może zawierać tylko litery, cyfry i podkreślenia')
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Nazwa może zawierać tylko litery, cyfry, podkreślenia i myślniki')
 })
 
 export const mottoSchema = z.object({
@@ -23,9 +23,9 @@ export const validateUsername = (username: string) => {
     usernameSchema.parse({ username })
     return { isValid: true, error: null }
   } catch (error: any) {
-    return { 
-      isValid: false, 
-      error: error.errors[0]?.message || 'Nieprawidłowa nazwa użytkownika'
+    return {
+      isValid: false,
+      error: error.issues?.[0]?.message ?? error.errors?.[0]?.message ?? 'Nieprawidłowa nazwa użytkownika'
     }
   }
 }
@@ -35,9 +35,9 @@ export const validateMotto = (motto: string) => {
     mottoSchema.parse({ motto })
     return { isValid: true, error: null }
   } catch (error: any) {
-    return { 
-      isValid: false, 
-      error: error.errors[0]?.message || 'Nieprawidłowe motto'
+    return {
+      isValid: false,
+      error: error.issues?.[0]?.message ?? error.errors?.[0]?.message ?? 'Nieprawidłowe motto'
     }
   }
 } 

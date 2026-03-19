@@ -8,14 +8,6 @@ export const learningMaterials = [
       total: 644,
     },
     {
-      id: '2',
-      title: 'Wyzwania',
-      description: 'Zweryfikuj swoją znajomość procedur obowiązujących opiekuna medycznego.',
-      href: '/(drawer)/(learn)/quizes',
-      icon:'brain',
-      total: 1,
-    },
-    {
       id: '3',
       title: 'Procedury medyczne',
       description: 'Lista procedur i algorytmów dla opiekunów medycznych.',

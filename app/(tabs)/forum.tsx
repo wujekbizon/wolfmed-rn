@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native'
 
-export default function ForumScreen() {
+export default function KontaktScreen() {
   return (
     <View>
-      <Text>Forum Dyskusyjne</Text>
+      <Text>Kontakt</Text>
     </View>
   )
 }

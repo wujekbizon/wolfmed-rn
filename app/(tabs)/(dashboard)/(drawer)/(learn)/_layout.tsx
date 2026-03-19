@@ -30,13 +30,6 @@ export default function LearnLayout() {
         }}
       />
       <Stack.Screen
-        name="quizes"
-        options={{
-          header: () => <CustomHeader title="Wyzwania" />,
-          presentation: "card",
-        }}
-      />
-      <Stack.Screen
         name="procedures"
         options={{
           header: () => <CustomHeader title="Procedury" />,

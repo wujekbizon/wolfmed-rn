@@ -285,18 +285,176 @@ File: `app/(tabs)/forum.tsx` (replacing content)
 
 ---
 
+## Part 8 — UI Audit & Consistency (Figma Design System)
+
+Reference: `docs/RNFigma.png`. Every component audited below. Light-mode-first design, purple/pink palette.
+
+### 8.0 — Design Tokens (use everywhere, no arbitrary hex)
+
+| Token | Value | Usage |
+|---|---|---|
+| `primary` | `#6d28d9` | Buttons, active elements, borders |
+| `primaryLight` | `#f3e8ff` | Card backgrounds, input fill |
+| `primaryMid` | `#a78bfa` | Active card fill |
+| `accent` | `#ec4899` | Avatar bg, back button, icon accents |
+| `danger` | `#dc2626` | Exam date highlight, errors |
+| `success` | `#10b981` | Correct answer, success message |
+| `textPrimary` | `#1f2937` | Main text (light mode) |
+| `textMuted` | `#6b7280` | Labels, subtitles |
+| `cardBg` | `#ffffff` | Inactive card bg (light) / `#27272a` (dark) |
+| `screenBg` | `#ffffff` | Screen bg (light) / `#09090b` (dark) |
+
+---
+
+### 8.1 — CustomDrawerContent ❌ needs fix
+
+**Issues:**
+- No `useSafeAreaInsets` → logo overlaps camera punch hole on Android
+- `pt-6` on logo Pressable is not sufficient — needs dynamic `paddingTop: insets.top`
+
+**Fix:**
+```tsx
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+// inside component:
+const { top } = useSafeAreaInsets()
+// on logo Pressable: style={{ paddingTop: top + 12 }}
+```
+
+### 8.2 — LogoHeader ❌ needs fix
+
+**Issues:**
+- In drawer context: has `border border-red-200/40` border + `bg-white/90` card — Figma shows logo on plain white drawer bg, no card/border wrapping
+- `border-red-200` — red border has no basis in design tokens
+
+**Fix:** Remove the border and card bg from LogoHeader. In drawer, logo should sit directly on the drawer's white background. Keep the internal layout (wolf image + text) as-is.
+
+### 8.3 — ProfileHeader ⚠️ minor fixes
+
+**Issues:**
+- Avatar: `rounded-2xl` (square) → Figma shows full circle; change to `rounded-full`
+- Avatar bg: `#ff69b480` — already close to accent, fine
+- Avatar icon: `person-circle-outline` → Figma shows filled `person` icon; change to `person`
+- `gap-24` between username and motto sections — too large; change to `gap-6`
+- BlurView wrapper: acceptable, keep (Figma shows clean white but no transparency detail visible)
+
+### 8.4 — ExamCountdown ❌ needs fix
+
+**Issues:**
+- Uses `Animated` from React Native (JS-thread) — must use Reanimated
+- Exam date text color: currently `themeColors[0]` (pink) → Figma shows `danger` red (`#dc2626`)
+- Wraps in both `BlurView` + `LinearGradient` — Figma shows clean flat card
+- `formatDateInPolish` formats date as text — verify "20 czerwca" format matches Figma ✓
+
+**Fix:**
+- Replace `Animated.Value` pulse → `useSharedValue` + `withRepeat(withSequence(withTiming(...)))`
+- Date highlight color → `#dc2626`
+- Replace `BlurView + LinearGradient` → plain `View` with `backgroundColor: primaryLight` (light) / `#27272a` (dark), `borderRadius: 16`
+
+### 8.5 — LearningCard (questions answer card) ❌ needs fix
+
+**Issues:**
+- Toggle button: color `#FF6B6B` (red) → must be `primary` (`#6d28d9`)
+- Button text: "Show Answer" / "Hide Answer" — English, must be Polish "Pokaż odpowiedź" / "Ukryj odpowiedź"
+- Card dark bg: `#333333` → use `#27272a`
+- Uses `TouchableOpacity` — prefer `Pressable`
+
+**Fix:** Change button bg to `primary`, fix label strings, fix dark card bg.
+
+### 8.6 — LearningCardItem (answer option row) ❌ needs fix
+
+**Issues:**
+- Correct answer color `#FF6B6B` (red) → should be `success` green (`#10b981`)
+- `correctHighlight` bg: red-ish → `#10b98120`
+- Answer options are plain text rows, no card bg — Figma shows each option in a light card with bg
+- `incorrectOption` just fades — acceptable, keep
+
+**Fix:**
+- Wrap each answer in a `View` with `backgroundColor: primaryLight` (`#f3e8ff`) or `#fff` + border
+- Correct state: `borderColor: success`, `backgroundColor: #10b98115`
+- Correct label color → `success`
+- Remove red colors entirely
+
+### 8.7 — StatCard ❌ needs fix
+
+**Issues:**
+- Uses `LinearGradient` + `BlurView` — dark/moody style; Figma shows clean flat cards
+- Gradient colors mismatch all design tokens
+
+**Fix (`components/StatCard.tsx`):**
+- Replace `LinearGradient` → plain `View`
+- Replace `BlurView` → plain `View`
+- Light mode: `backgroundColor: primaryLight` (`#f3e8ff`), `borderRadius: 16`
+- Dark mode: `backgroundColor: #27272a`
+- Keep `CircularProgress` (right side) — in Figma ✓
+- Title: `textMuted`, Value: bold `textPrimary`, Subtitle: `textMuted`
+- Icon circle bg: `${primary}15`, icon color: `primary`
+
+### 8.8 — CustomHeader ❌ needs fix
+
+**Issues:**
+- `backgroundColor: '#fff'` hardcoded — broken in dark mode (header stays white)
+- Back arrow: no color → renders black, but Figma shows accent-colored circular back button
+- Arrow icon: `arrow-back-circle-outline` is close to Figma; keep but color it `accent`
+
+**Fix:**
+- `backgroundColor`: use `colorScheme === 'dark' ? '#09090b' : '#ffffff'`
+- Arrow icon color: `accent` (`#ec4899`)
+- Title: dark mode aware (already using NativeWind `text-slate-900` — add dark variant)
+
+### 8.9 — QuickActions ⚠️ not in Figma
+
+`QuickActions` (settings grid: "Tryb ciemny", "Ustawienia konta", etc.) does not appear in Figma at all. It is shown in the circular dashboard menu expansion. Decision needed: keep as-is (non-Figma extension), remove, or replace with Figma-compliant content.
+- For now: **no visual change** — flag as out-of-scope until Greg decides if this screen should exist
+- If kept: replace BlurView items → flat `primaryLight` bg cards
+
+### 8.10 — NewsFeed ⚠️ not in Figma
+
+`NewsFeed` ("Najnowsze Aktualizacje") does not appear in Figma. Uses `getTypeColor` for dynamic colors outside design tokens.
+- For now: **no visual change** — content/colors will be revisited when real news data is defined
+- If kept: unify item border/shadow to use `primary` token instead of dynamic type colors
+
+### 8.11 — Blog Screen (Part 5 — to build)
+
+Follow inactive card style:
+- `BlogPostCard`: white bg, `borderRadius: 16`, title bold `textPrimary`, excerpt `textMuted`, date small `textMuted`
+- No BlurView — plain `View` + `elevation: 2` / `shadowOpacity: 0.06`
+
+### 8.12 — Contact Screen (Part 6 — to build)
+
+- Inputs: `backgroundColor: ${primary}30`, `borderColor: ${primary}70`, `borderRadius: 12` (match UsernameForm)
+- Submit: full-width, `primary` bg, white text, `borderRadius: 12`
+- Success: inline, `success` green text
+
+---
+
+### 8 — Summary: files to change
+
+| File | Change |
+|---|---|
+| `components/ui/CustomDrawerContent.tsx` | Add `useSafeAreaInsets` for logo top padding |
+| `components/LogoHeader.tsx` | Remove border/card wrapper in drawer |
+| `components/ProfileHeader.tsx` | Avatar → `rounded-full` + `person` icon, reduce gap |
+| `components/ExamCountdown.tsx` | Reanimated pulse, flat card, red date |
+| `components/LearningCard.tsx` | Purple button, Polish labels, fix dark bg |
+| `components/LearningCardItem.tsx` | Green correct colors, card bg per answer |
+| `components/StatCard.tsx` | Replace LinearGradient+BlurView → flat card |
+| `components/ui/CustomHeader.tsx` | Dark mode bg, accent back arrow |
+
+---
+
 ## UI/UX — Native Feel Requirement
 
-All new screens and components must feel native, consistent with existing app style:
+All new screens and components must feel native, consistent with existing app style and Figma design:
 - **Animations**: Use Reanimated (`withSpring`, `withTiming`) for any transitions — no JS-thread animations
 - **Haptics**: `expo-haptics` on all button presses (match `MinimizedProcedureCard` pattern)
-- **Cards**: BlurView with `intensity={80}` + `tint` based on colorScheme (match `ProfileHeader` style)
-- **Inputs**: Styled with colored border + `borderRadius` (match `UsernameForm` TextInput style)
+- **Cards**: Two variants — active (solid `primaryMid` bg) and inactive (white bg + `${primary}20` border). Only use BlurView where it already exists (ProfileHeader, forms) — new cards use plain View
+- **Inputs**: Styled with `backgroundColor: ${primary}30`, `borderColor: ${primary}70`, `borderRadius: 12` (match `UsernameForm`)
 - **Loading**: Use existing `LoadingSpinner` component, never plain `ActivityIndicator`
-- **Colors**: Use `useColorScheme()` + `themeColors` pattern from existing components
+- **Colors**: Use Part 8.1 tokens — no arbitrary hex values in new code
 - **Lists**: `FlatList` with `removeClippedSubviews`, `maxToRenderPerBatch=10` (match `TestList`)
 - **No modals** for simple results — use inline animated views (`formHeight` expand pattern from `UsernameForm`)
 - **Gestures**: swipe-to-dismiss on expandable forms (match existing pan gesture pattern in `UsernameForm`)
+- **Dark mode**: always test both — card bg flips, text flips, primary/accent stay same
 
 ---
 
@@ -304,7 +462,7 @@ All new screens and components must feel native, consistent with existing app st
 
 - All mutation hooks follow same pattern as query hooks: `createApiClient(getToken)` + service factory
 - `useMutation` from `@tanstack/react-query` with `onSuccess: queryClient.invalidateQueries`
-- BlurView card style from `ProfileHeader.tsx` — reuse for `BlogPostCard`
+- Inactive card style (white bg, borderRadius 16, subtle border) for `BlogPostCard`
 - Zod + Polish error messages pattern from `lib/validations/auth.ts` — extend for contact form
 - `LoadingSpinner` component for all loading states
 - `useAuth()` from `@clerk/expo` for `getToken` + `userId`

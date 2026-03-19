@@ -1,16 +1,18 @@
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import { View, Text } from "react-native"
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, SharedValue } from "react-native-reanimated"
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, SharedValue } from "react-native-reanimated"
 import { GestureDetector, Gesture } from "react-native-gesture-handler"
+import { useAuth } from "@clerk/expo"
 
-import { SECTIONS } from "@/constants/dashboardButton"
 import { StatCard } from "./StatCard"
+import { LoadingSpinner } from "./LoadingSpinner"
 import { DraggableCardProps } from "@/types/draggableCardTypes"
+import { useUserProfile } from "@/hooks/useUserProfile"
 
 const CARD_HEIGHT = 120
 
 function DraggableCard({ item, index, positions, stats, onReorder }: DraggableCardProps) {
-  const translateY = positions[item.id] || useSharedValue(index * CARD_HEIGHT)
+  const translateY = positions[item.id]
 
   const gesture = Gesture.Pan()
     .onUpdate(e => {
@@ -44,31 +46,51 @@ function DraggableCard({ item, index, positions, stats, onReorder }: DraggableCa
 }
 
 export default function QuickStats() {
-  const [stats, setStats] = useState([
-    { id: "average", title: "Średni Wynik", value: "75%", subtitle: "Twój ogólny wynik", icon: "stats-chart", progress: 75 },
-    { id: "completed", title: "Ukończone Testy", value: "42/150", subtitle: "Wykonane testy", icon: "checkmark-circle", progress: (42/150)*100 },
-    { id: "best", title: "Najlepszy Wynik", value: "95%", subtitle: "Twój rekord", icon: "trophy", progress: 95 },
-    { id: "streak", title: "Seria Dni", value: "7", subtitle: "Dni pod rząd", icon: "flame", progress: 70 },
-  ])
+  const { userId } = useAuth()
+  const { userProfile, isLoading } = useUserProfile(userId ?? undefined)
 
-  const positions = stats.reduce((acc, item, index) => {
-    acc[item.id] = useSharedValue(index * CARD_HEIGHT)
-    return acc
-  }, {} as Record<string, SharedValue<number>>)
+  const scorePercent = userProfile && userProfile.total_questions > 0
+    ? Math.round((userProfile.total_score / userProfile.total_questions) * 100)
+    : 0
 
-  const moveCard = (id: string, newOrder: number) => {
-    const oldIndex = stats.findIndex(s => s.id === id)
-    if (oldIndex !== -1 && newOrder >= 0 && newOrder < stats.length) {
-      const updated = [...stats]
-      const [moved] = updated.splice(oldIndex, 1)
-      updated.splice(newOrder, 0, moved)
-      setStats(updated)
-    }
+  const STAT_DEFS = useMemo(() => [
+    { id: "average", title: "Średni Wynik", value: `${scorePercent}%`, subtitle: "Twój ogólny wynik", icon: "stats-chart", progress: scorePercent },
+    { id: "completed", title: "Ukończone Testy", value: `${userProfile?.tests_attempted ?? 0}`, subtitle: "Wykonane testy", icon: "checkmark-circle", progress: Math.min((userProfile?.tests_attempted ?? 0), 100) },
+    { id: "questions", title: "Pytania odpowiedziane", value: `${userProfile?.total_questions ?? 0}`, subtitle: "Łącznie", icon: "help-circle", progress: Math.min((userProfile?.total_questions ?? 0) / 10, 100) },
+  ], [scorePercent, userProfile?.tests_attempted, userProfile?.total_questions])
+
+  const [order, setOrder] = useState<string[]>(() => STAT_DEFS.map(s => s.id))
+
+  const stats = useMemo(
+    () => order.map(id => STAT_DEFS.find(s => s.id === id)!).filter(Boolean),
+    [order, STAT_DEFS]
+  )
+
+  const sv0 = useSharedValue(0 * CARD_HEIGHT)
+  const sv1 = useSharedValue(1 * CARD_HEIGHT)
+  const sv2 = useSharedValue(2 * CARD_HEIGHT)
+
+  const positions = useMemo<Record<string, SharedValue<number>>>(() => ({
+    [order[0]]: sv0,
+    [order[1]]: sv1,
+    [order[2]]: sv2,
+  }), [])
+
+  const moveCard = (id: string, newIndex: number) => {
+    setOrder(prev => {
+      const oldIndex = prev.indexOf(id)
+      if (oldIndex === -1 || newIndex < 0 || newIndex >= prev.length) return prev
+      const updated = [...prev]
+      updated.splice(oldIndex, 1)
+      updated.splice(newIndex, 0, id)
+      return updated
+    })
   }
 
   return (
     <View className="flex-1 px-4 pt-4">
       <Text className="text-3xl font-bold text-zinc-800 dark:text-zinc-100 mb-6">Twoje Statystyki</Text>
+      <LoadingSpinner isLoading={isLoading} />
 
       {stats.map((item, index) => {
         return (

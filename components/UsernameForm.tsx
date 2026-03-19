@@ -1,28 +1,30 @@
-import { View, Text, TextInput, Pressable , useColorScheme } from 'react-native'
+import { View, Text, TextInput, Pressable, useColorScheme } from 'react-native'
 import { BlurView } from 'expo-blur'
 import { Ionicons } from '@expo/vector-icons'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { validateUsername } from '../lib/validations/profile'
-import Animated, { 
-  useAnimatedStyle, 
-  withSpring, 
+import Animated, {
+  useAnimatedStyle,
+  withSpring,
   withSequence,
   withTiming,
   useSharedValue,
   runOnJS
 } from 'react-native-reanimated'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
+import { useUpdateProfile } from '@/hooks/useUpdateProfile'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView)
 
 interface UsernameFormProps {
   username: string
-  onUpdateUsername: (username: string) => void
-  isDragging?: boolean
+  userId?: string
+  onUpdateUsername?: (username: string) => void
 }
 
-export function UsernameForm({ username, onUpdateUsername, isDragging }: UsernameFormProps) {
+export function UsernameForm({ username, userId, onUpdateUsername }: UsernameFormProps) {
+  const { mutate: updateProfile, isPending } = useUpdateProfile(userId)
   const colorScheme = useColorScheme()
   const themeColor = '#6d28d9'
   const [value, setValue] = useState(username)
@@ -30,7 +32,10 @@ export function UsernameForm({ username, onUpdateUsername, isDragging }: Usernam
   const [isEditing, setIsEditing] = useState(false)
   const [showIcon, setShowIcon] = useState(true)
 
-  // Animation values
+  useEffect(() => {
+    if (!isEditing) setValue(username)
+  }, [username, isEditing])
+
   const scale = useSharedValue(1)
   const opacity = useSharedValue(0)
   const formHeight = useSharedValue(0)
@@ -38,7 +43,6 @@ export function UsernameForm({ username, onUpdateUsername, isDragging }: Usernam
   const translateY = useSharedValue(0)
 
   const pulseAnimation = () => {
-    scale.value = 1
     scale.value = withSequence(
       withTiming(0.8, { duration: 100 }),
       withTiming(1.2, { duration: 100 }),
@@ -60,7 +64,7 @@ export function UsernameForm({ username, onUpdateUsername, isDragging }: Usernam
     maxHeight: formHeight.value,
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
-    overflow: 'hidden'
+    overflow: 'hidden',
   }))
 
   const finishClosing = useCallback(() => {
@@ -69,31 +73,19 @@ export function UsernameForm({ username, onUpdateUsername, isDragging }: Usernam
   }, [])
 
   const closeForm = () => {
-    formHeight.value = withSpring(0, {
-      damping: 15,
-      stiffness: 100
-    })
-    opacity.value = withTiming(0, { 
-      duration: 150 
-    }, (finished) => {
-      if (finished) {
-        runOnJS(finishClosing)()
-      }
+    formHeight.value = withSpring(0, { damping: 15, stiffness: 100 })
+    opacity.value = withTiming(0, { duration: 150 }, (finished) => {
+      if (finished) runOnJS(finishClosing)()
     })
     translateY.value = withSpring(0)
   }
 
   const handlePress = () => {
-    if (isDragging) return
-    
     if (!isEditing) {
       setIsEditing(true)
       setShowIcon(false)
       opacity.value = withTiming(1, { duration: 200 })
-      formHeight.value = withSpring(120, {
-        damping: 12,
-        stiffness: 100
-      })
+      formHeight.value = withSpring(120, { damping: 12, stiffness: 100 })
     } else {
       handleSubmit()
     }
@@ -110,56 +102,50 @@ export function UsernameForm({ username, onUpdateUsername, isDragging }: Usernam
       return
     }
     setError(null)
-    onUpdateUsername(value)
+    updateProfile({ username: value })
+    onUpdateUsername?.(value)
     closeForm()
   }
 
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
-      'worklet';
-      if (event.translationY > 0) {
-        translateY.value = event.translationY
-      }
+      'worklet'
+      if (event.translationY > 0) translateY.value = event.translationY
     })
     .onEnd((event) => {
-      'worklet';
-      if (event.translationY > 50) {
-        runOnJS(closeForm)()
-      } else {
-        translateY.value = withSpring(0)
-      }
+      'worklet'
+      if (event.translationY > 50) runOnJS(closeForm)()
+      else translateY.value = withSpring(0)
     })
 
   const tapOutside = Gesture.Tap()
     .onStart(() => {
-      'worklet';
-      if (isEditing) {
-        runOnJS(closeForm)()
-      }
+      'worklet'
+      if (isEditing) runOnJS(closeForm)()
     })
 
   const gestures = Gesture.Race(panGesture, tapOutside)
 
   const FormContent = (
-    <View className="px-4" pointerEvents={isDragging ? "none" : "auto"}>
-      <AnimatedBlurView 
-        intensity={80} 
-        tint={colorScheme === 'dark' ? 'dark' : 'light'} 
+    <View className="px-4">
+      <AnimatedBlurView
+        intensity={80}
+        tint={colorScheme === 'dark' ? 'dark' : 'light'}
         className="overflow-hidden rounded-2xl"
       >
         <View className="p-4">
-          <Pressable 
-            onPress={() => !isEditing && !isDragging && handlePress()}
+          <Pressable
+            onPress={() => !isEditing && handlePress()}
             className="flex-row items-center justify-between"
           >
             <Text className="text-base font-medium text-zinc-700 dark:text-zinc-400">
               Zmiana nazwy użytkownika
             </Text>
             {showIcon && (
-              <Ionicons 
-                name="chevron-down" 
-                size={20} 
-                color={colorScheme === 'dark' ? '#a1a1aa' : '#71717a'} 
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color={colorScheme === 'dark' ? '#a1a1aa' : '#71717a'}
               />
             )}
           </Pressable>
@@ -180,26 +166,23 @@ export function UsernameForm({ username, onUpdateUsername, isDragging }: Usernam
                   setValue(text)
                   setError(null)
                 }}
-                editable={!isDragging}
               />
-              <AnimatedPressable 
+              <AnimatedPressable
                 onPress={handlePress}
                 onPressIn={pulseAnimation}
                 className="absolute right-2 top-2 w-10 h-10 rounded-lg items-center justify-center"
                 style={buttonStyle}
-                disabled={isDragging}
+                disabled={isPending}
               >
-                <Ionicons 
-                  name="arrow-forward" 
-                  size={24} 
+                <Ionicons
+                  name={isPending ? 'hourglass-outline' : 'arrow-forward'}
+                  size={24}
                   color="white"
                 />
               </AnimatedPressable>
             </View>
             {error && (
-              <Text className="text-sm text-red-500 mt-1">
-                {error}
-              </Text>
+              <Text className="text-sm text-red-500 mt-1">{error}</Text>
             )}
           </Animated.View>
         </View>
@@ -207,10 +190,9 @@ export function UsernameForm({ username, onUpdateUsername, isDragging }: Usernam
     </View>
   )
 
-  // Only use GestureDetector when editing and not dragging
-  return isEditing && !isDragging ? (
+  return isEditing ? (
     <GestureDetector gesture={gestures}>
       {FormContent}
     </GestureDetector>
   ) : FormContent
-} 
+}

@@ -8,15 +8,20 @@ export function useUserProfile(userId: string | undefined) {
 
   const { data: userProfile, isLoading, error } = useQuery({
     queryKey: ['userProfile', userId],
-    queryFn: () => {
+    queryFn: async () => {
+      console.log('[useUserProfile] fetching for userId:', userId)
       const api = createApiClient(getToken)
-      return createUserService(api).getByUserId(userId!)
+      const result = await createUserService(api).getByUserId(userId!)
+      console.log('[useUserProfile] result:', JSON.stringify(result))
+      return result
     },
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
     retry: 2,
     retryDelay: 1000,
   })
+
+  if (error) console.error('[useUserProfile] error:', error)
 
   return { userProfile, isLoading, error }
 }

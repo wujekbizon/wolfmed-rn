@@ -1,0 +1,22 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '@clerk/expo'
+import { createApiClient } from '@/services/apiClient'
+import { createUserService } from '@/services/userService'
+import { User } from '@/types/dataTypes'
+
+export function useUpdateProfile(userId: string | undefined) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (patch: Partial<User>) => {
+      const current = queryClient.getQueryData<User>(['userProfile', userId])
+      const merged = { ...(current ?? {}), ...patch }
+      const api = createApiClient(getToken)
+      return createUserService(api).update(userId!, merged)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userProfile', userId] })
+    },
+  })
+}
