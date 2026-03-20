@@ -97,9 +97,9 @@ export interface User {
   motto: string
   supporter: boolean
   username: string
-  tests_attempted: number
-  total_score: number
-  total_questions: number
+  testsAttempted: number
+  totalScore: number
+  totalQuestions: number
 }
 
 // Add this to your existing types

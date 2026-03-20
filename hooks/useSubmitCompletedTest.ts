@@ -21,6 +21,7 @@ export function useSubmitCompletedTest() {
     },
     onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['completedTests', variables.userId] })
+      queryClient.resetQueries({ queryKey: ['userProfile', variables.userId] })
     },
     onError: (error) => {
       console.error('[useSubmitCompletedTest]', error)

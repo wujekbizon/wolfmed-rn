@@ -1,7 +1,14 @@
 import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
+import { Ionicons } from '@expo/vector-icons'
 import { LETTERS } from '@/constants/optionsLetters'
 import { Test } from '@/types/dataTypes'
+
+const PRIMARY = '#A491BB'
+const PRIMARY_SOFT = '#A491BB18'
+const SECONDARY = 'rgba(134, 108, 164, 0.75)'
+const SHADOW_COLOR = '#280652'
 
 export default function TestCard({
   test,
@@ -13,21 +20,37 @@ export default function TestCard({
   onAnswer: (questionId: string, selectedIndex: number) => void
 }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const isDarkMode = useColorScheme() === 'dark'
+  const isDark = useColorScheme() === 'dark'
 
-  const {
-    data: { answers, question },
-  } = test
+  const { data: { answers, question } } = test
 
   const handlePress = (index: number) => {
     setActiveIndex(index)
     onAnswer(test.id, index)
   }
 
+  const cardBg = isDark ? '#1e1b2e' : '#ffffff'
+  const textPrimary = isDark ? '#f1f5f9' : '#1e1b4b'
+  const textMuted = isDark ? '#94a3b8' : '#6b7280'
+  const answerBg = isDark ? '#2a2540' : '#f9f7fc'
+
   return (
-    <View style={[styles.container, isDarkMode ? styles.containerDark : styles.containerLight]}>
-      <Text style={[styles.questionNumber, isDarkMode ? styles.textDark : styles.textLight]}>{questionNumber}</Text>
-      <Text style={[styles.question, isDarkMode ? styles.textDark : styles.textLight]}>{question}</Text>
+    <View style={[styles.shadow, { backgroundColor: cardBg, shadowColor: SHADOW_COLOR }]}>
+    <View style={[styles.container, { backgroundColor: cardBg }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{questionNumber}</Text>
+        </View>
+        <Ionicons name="help-circle-outline" size={18} color={PRIMARY} />
+      </View>
+
+      {/* Question */}
+      <Text style={[styles.question, { color: textPrimary }]}>{question}</Text>
+
+      <View style={styles.divider} />
+
+      {/* Answers */}
       <View style={styles.answersContainer}>
         {answers.map((answer, index) => {
           const isActive = activeIndex === index
@@ -35,111 +58,126 @@ export default function TestCard({
           return (
             <TouchableOpacity
               key={`${answer.option}/${index}`}
-              style={[
-                styles.answerItem,
-                isActive && styles.activeAnswer,
-                isDarkMode ? styles.answerItemDark : styles.answerItemLight,
-              ]}
               onPress={() => handlePress(index)}
+              activeOpacity={0.75}
             >
-              <Text style={[styles.answerLetter, isDarkMode ? styles.textDark : styles.textLight]}>
-                {LETTERS[index]})
-              </Text>
-              <View style={[styles.radioButton, isActive && styles.radioButtonActive]} />
-              <Text style={[styles.answerText, isDarkMode ? styles.textDark : styles.textLight]}>{answer.option}</Text>
+              {isActive ? (
+                <LinearGradient
+                  colors={[PRIMARY, SECONDARY]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.answerItem}
+                >
+                  <View style={styles.letterCircleActive}>
+                    <Text style={styles.letterActive}>{LETTERS[index]}</Text>
+                  </View>
+                  <Text style={styles.answerTextActive} numberOfLines={3}>{answer.option}</Text>
+                  <Ionicons name="checkmark-circle" size={18} color="#ffffff" />
+                </LinearGradient>
+              ) : (
+                <View style={[styles.answerItem, { backgroundColor: answerBg }]}>
+                  <View style={[styles.letterCircle, { backgroundColor: PRIMARY_SOFT }]}>
+                    <Text style={[styles.letter, { color: PRIMARY }]}>{LETTERS[index]}</Text>
+                  </View>
+                  <Text style={[styles.answerText, { color: textMuted }]} numberOfLines={3}>{answer.option}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           )
         })}
       </View>
     </View>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    minHeight: 320,
+  shadow: {
     width: '100%',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    padding: 16,
+    borderRadius: 20,
     marginBottom: 16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  containerLight: {
-    backgroundColor: 'white',
-    borderColor: 'rgba(254, 202, 202, 0.5)',
+  container: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    padding: 20,
   },
-  containerDark: {
-    backgroundColor: '#333',
-    borderColor: 'rgba(254, 202, 202, 0.2)',
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
   },
-  questionNumber: {
-    position: 'absolute',
-    right: 8,
-    top: 4,
+  badge: {
+    backgroundColor: PRIMARY_SOFT,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  badgeText: {
     fontSize: 12,
+    fontWeight: '600',
+    color: PRIMARY,
   },
   question: {
     fontSize: 16,
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    fontWeight: '600',
+    lineHeight: 24,
+    marginBottom: 14,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: PRIMARY_SOFT,
+    marginBottom: 14,
   },
   answersContainer: {
-    flex: 1,
     gap: 8,
   },
   answerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
-    borderRadius: 8,
+    padding: 12,
+    borderRadius: 12,
+    gap: 10,
   },
-  answerItemLight: {
-    backgroundColor: '#f8f8f8',
+  letterCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  answerItemDark: {
-    backgroundColor: '#444',
+  letter: {
+    fontSize: 13,
+    fontWeight: '700',
   },
-  activeAnswer: {
-    backgroundColor: '#ffdcdc',
+  letterCircleActive: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  correctAnswer: {
-    backgroundColor: 'rgba(134, 239, 172, 0.4)',
-  },
-  incorrectAnswer: {
-    backgroundColor: 'rgba(252, 165, 165, 0.4)',
-    opacity: 0.5,
-  },
-  answerLetter: {
-    fontSize: 14,
-    marginRight: 8,
-    color: '#666',
-  },
-  radioButton: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#666',
-    marginRight: 8,
-  },
-  radioButtonActive: {
-    backgroundColor: '#ff6060',
-    borderColor: '#ff6060',
+  letterActive: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#ffffff',
   },
   answerText: {
     flex: 1,
     fontSize: 14,
+    lineHeight: 20,
   },
-  textLight: {
-    color: '#333',
-  },
-  textDark: {
-    color: '#f1f1f1',
+  answerTextActive: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#ffffff',
+    fontWeight: '500',
   },
 })

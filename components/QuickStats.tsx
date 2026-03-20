@@ -1,109 +1,243 @@
-import React, { useState, useMemo } from "react"
-import { View, Text } from "react-native"
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, SharedValue } from "react-native-reanimated"
-import { GestureDetector, Gesture } from "react-native-gesture-handler"
+import React from "react"
+import { View, Text, StyleSheet, useColorScheme } from "react-native"
+import { LinearGradient } from "expo-linear-gradient"
+import { Ionicons } from "@expo/vector-icons"
 import { useAuth } from "@clerk/expo"
-
-import { StatCard } from "./StatCard"
+import CircularProgress from "react-native-circular-progress-indicator"
 import { LoadingSpinner } from "./LoadingSpinner"
-import { DraggableCardProps } from "@/types/draggableCardTypes"
 import { useUserProfile } from "@/hooks/useUserProfile"
 
-const CARD_HEIGHT = 120
-
-function DraggableCard({ item, index, positions, stats, onReorder }: DraggableCardProps) {
-  const translateY = positions[item.id]
-
-  const gesture = Gesture.Pan()
-    .onUpdate(e => {
-      translateY.value = index * CARD_HEIGHT + e.translationY
-      positions[item.id].value = translateY.value
-    })
-    .onEnd(e => {
-      const newIndex = Math.round(translateY.value / CARD_HEIGHT)
-      translateY.value = withSpring(newIndex * CARD_HEIGHT, {}, () => {
-        onReorder(item.id, newIndex)
-      })
-    })
-
-  const style = useAnimatedStyle(() => ({
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: CARD_HEIGHT,
-    transform: [{ translateY: translateY.value }],
-    zIndex: 10,
-  }))
-
-  return (
-    <GestureDetector gesture={gesture}>
-      <Animated.View style={style}>
-        <StatCard {...item} color="#ec4899" />
-      </Animated.View>
-    </GestureDetector>
-  )
-}
+const PRIMARY = "#A491BB"
+const PRIMARY_LIGHT = "#c4b5d4"
+const PRIMARY_SOFT = "#A491BB18"
+const SECONDARY = "rgba(134, 108, 164, 0.75)"
+const SHADOW_COLOR = "#280652"
 
 export default function QuickStats() {
   const { userId } = useAuth()
   const { userProfile, isLoading } = useUserProfile(userId ?? undefined)
+  const isDark = useColorScheme() === "dark"
 
-  const scorePercent = userProfile && userProfile.total_questions > 0
-    ? Math.round((userProfile.total_score / userProfile.total_questions) * 100)
-    : 0
+  const scorePercent =
+    userProfile && userProfile.totalQuestions > 0
+      ? Math.round((userProfile.totalScore / userProfile.totalQuestions) * 100)
+      : 0
 
-  const STAT_DEFS = useMemo(() => [
-    { id: "average", title: "Średni Wynik", value: `${scorePercent}%`, subtitle: "Twój ogólny wynik", icon: "stats-chart", progress: scorePercent },
-    { id: "completed", title: "Ukończone Testy", value: `${userProfile?.tests_attempted ?? 0}`, subtitle: "Wykonane testy", icon: "checkmark-circle", progress: Math.min((userProfile?.tests_attempted ?? 0), 100) },
-    { id: "questions", title: "Pytania odpowiedziane", value: `${userProfile?.total_questions ?? 0}`, subtitle: "Łącznie", icon: "help-circle", progress: Math.min((userProfile?.total_questions ?? 0) / 10, 100) },
-  ], [scorePercent, userProfile?.tests_attempted, userProfile?.total_questions])
+  const testsAttempted = userProfile?.testsAttempted ?? 0
+  const totalQuestions = userProfile?.totalQuestions ?? 0
 
-  const [order, setOrder] = useState<string[]>(() => STAT_DEFS.map(s => s.id))
+  const gradeLabel =
+    scorePercent >= 90 ? "Doskonały" :
+    scorePercent >= 70 ? "Dobry" :
+    scorePercent >= 50 ? "Zaliczony" :
+    testsAttempted === 0 ? "Brak danych" : "Do poprawy"
 
-  const stats = useMemo(
-    () => order.map(id => STAT_DEFS.find(s => s.id === id)!).filter(Boolean),
-    [order, STAT_DEFS]
-  )
-
-  const sv0 = useSharedValue(0 * CARD_HEIGHT)
-  const sv1 = useSharedValue(1 * CARD_HEIGHT)
-  const sv2 = useSharedValue(2 * CARD_HEIGHT)
-
-  const positions = useMemo<Record<string, SharedValue<number>>>(() => ({
-    [order[0]]: sv0,
-    [order[1]]: sv1,
-    [order[2]]: sv2,
-  }), [])
-
-  const moveCard = (id: string, newIndex: number) => {
-    setOrder(prev => {
-      const oldIndex = prev.indexOf(id)
-      if (oldIndex === -1 || newIndex < 0 || newIndex >= prev.length) return prev
-      const updated = [...prev]
-      updated.splice(oldIndex, 1)
-      updated.splice(newIndex, 0, id)
-      return updated
-    })
-  }
+  const textPrimary = isDark ? "#f1f5f9" : "#1e1b4b"
+  const textSecondary = isDark ? "#94a3b8" : "#6b7280"
+  const cardBg = isDark ? "#1e1b2e" : "#ffffff"
+  const smallCardBg = isDark ? "#1e1b2e" : "#ffffff"
 
   return (
-    <View className="flex-1 px-4 pt-4">
-      <Text className="text-3xl font-bold text-zinc-800 dark:text-zinc-100 mb-6">Twoje Statystyki</Text>
+    <View style={styles.container}>
+      <Text style={[styles.heading, { color: textPrimary }]}>Twoje Statystyki</Text>
+
       <LoadingSpinner isLoading={isLoading} />
 
-      {stats.map((item, index) => {
-        return (
-          <DraggableCard
-            key={item.id}
-            item={item}
-            index={index}
-            positions={positions}
-            stats={stats}
-            onReorder={moveCard}
+      {/* Hero card */}
+      <LinearGradient
+        colors={[PRIMARY, PRIMARY_LIGHT]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.heroCard}
+      >
+        <View style={styles.heroLeft}>
+          <Text style={styles.heroLabel}>Średni wynik</Text>
+          <View style={styles.gradeBadge}>
+            <Text style={styles.gradeText}>{gradeLabel}</Text>
+          </View>
+          <Text style={styles.heroSub}>
+            {testsAttempted > 0
+              ? `z ${testsAttempted} ${testsAttempted === 1 ? "testu" : "testów"}`
+              : "Zacznij swój pierwszy test"}
+          </Text>
+        </View>
+        <View style={styles.heroRight}>
+          <CircularProgress
+            value={scorePercent}
+            radius={55}
+            activeStrokeColor="#ffffff"
+            inActiveStrokeColor="rgba(255,255,255,0.25)"
+            activeStrokeWidth={8}
+            inActiveStrokeWidth={8}
+            progressValueColor="#ffffff"
+            progressValueFontSize={18}
+            valueSuffix="%"
+            duration={800}
           />
-        )
-      })}
+        </View>
+      </LinearGradient>
+
+      {/* Two small cards */}
+      <View style={styles.row}>
+        <View style={[styles.smallCard, { backgroundColor: smallCardBg }]}>
+          <View style={[styles.smallIcon, { backgroundColor: PRIMARY_SOFT }]}>
+            <Ionicons name="checkmark-circle" size={22} color={PRIMARY} />
+          </View>
+          <Text style={[styles.smallValue, { color: textPrimary }]}>{testsAttempted}</Text>
+          <Text style={[styles.smallLabel, { color: textSecondary }]}>Ukończone testy</Text>
+        </View>
+
+        <View style={[styles.smallCard, { backgroundColor: smallCardBg }]}>
+          <View style={[styles.smallIcon, { backgroundColor: PRIMARY_SOFT }]}>
+            <Ionicons name="help-circle" size={22} color={PRIMARY} />
+          </View>
+          <Text style={[styles.smallValue, { color: textPrimary }]}>{totalQuestions}</Text>
+          <Text style={[styles.smallLabel, { color: textSecondary }]}>Pytania odpowiedziane</Text>
+        </View>
+      </View>
+
+      {/* Score breakdown bar */}
+      {testsAttempted > 0 && (
+        <View style={[styles.breakdownCard, { backgroundColor: cardBg }]}>
+          <View style={styles.breakdownHeader}>
+            <Ionicons name="stats-chart" size={18} color={PRIMARY} />
+            <Text style={[styles.breakdownTitle, { color: textPrimary }]}>Postęp</Text>
+          </View>
+          <View style={styles.barTrack}>
+            <View style={[styles.barFill, { width: `${scorePercent}%` }]} />
+          </View>
+          <View style={styles.breakdownFooter}>
+            <Text style={[styles.breakdownSub, { color: textSecondary }]}>
+              {userProfile?.totalScore ?? 0} poprawnych / {totalQuestions} pytań
+            </Text>
+            <Text style={[styles.breakdownPercent, { color: PRIMARY }]}>{scorePercent}%</Text>
+          </View>
+        </View>
+      )}
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    gap: 14,
+  },
+  heading: {
+    fontSize: 28,
+    fontWeight: "800",
+    letterSpacing: -0.5,
+  },
+  heroCard: {
+    borderRadius: 20,
+    padding: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  heroLeft: {
+    flex: 1,
+    gap: 6,
+  },
+  heroLabel: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.75)",
+    fontWeight: "500",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  gradeBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  gradeText: {
+    color: "#ffffff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  heroSub: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.65)",
+    marginTop: 2,
+  },
+  heroRight: {
+    marginLeft: 16,
+  },
+  row: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  smallCard: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 16,
+    gap: 8,
+    shadowColor: SHADOW_COLOR,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  smallIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  smallValue: {
+    fontSize: 28,
+    fontWeight: "800",
+  },
+  smallLabel: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  breakdownCard: {
+    borderRadius: 16,
+    padding: 16,
+    gap: 10,
+    shadowColor: SHADOW_COLOR,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  breakdownHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  breakdownTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  barTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#28065218",
+    overflow: "hidden",
+  },
+  barFill: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: PRIMARY,
+  },
+  breakdownFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  breakdownSub: {
+    fontSize: 12,
+  },
+  breakdownPercent: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+})

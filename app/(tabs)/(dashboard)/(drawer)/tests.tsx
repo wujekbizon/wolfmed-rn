@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import CircularProgress from 'react-native-circular-progress-indicator'
 import { useAuth } from '@clerk/expo'
 import { useGenerateTestStore } from '@/store/useGenerateTestStore'
 import { useTests } from '@/hooks/useTests'
@@ -102,19 +104,62 @@ export default function Testy() {
         </ScrollView>
       ) : isSubmitted && score ? (
         <View style={styles.scoreContainer}>
-          <Text style={[styles.scoreLabel, textStyle]}>Wynik testu</Text>
-          <Text style={[styles.scoreValue, textStyle]}>
-            {score.correct} / {score.total}
-          </Text>
-          <Text style={[styles.scorePercent, textStyle]}>
-            {Math.round((score.correct / score.total) * 100)}%
-          </Text>
+          <View style={[styles.scoreCard, { backgroundColor: isDarkMode ? '#1e1b2e' : '#ffffff' }]}>
+            <View style={styles.scoreIconRow}>
+              <View style={styles.scoreIconCircle}>
+                <Ionicons
+                  name={
+                    Math.round((score.correct / score.total) * 100) >= 90
+                      ? 'trophy'
+                      : Math.round((score.correct / score.total) * 100) >= 70
+                      ? 'medal'
+                      : 'school'
+                  }
+                  size={22}
+                  color="#A491BB"
+                />
+              </View>
+              <Text style={[styles.scoreLabel, { color: isDarkMode ? '#f1f5f9' : '#1e1b4b' }]}>Wynik testu</Text>
+            </View>
+
+            <CircularProgress
+              value={Math.round((score.correct / score.total) * 100)}
+              radius={70}
+              activeStrokeColor="#A491BB"
+              inActiveStrokeColor="#A491BB25"
+              activeStrokeWidth={10}
+              inActiveStrokeWidth={10}
+              progressValueColor="#A491BB"
+              progressValueFontSize={22}
+              valueSuffix="%"
+              duration={800}
+            />
+
+            <Text style={[styles.scoreValue, { color: isDarkMode ? '#f1f5f9' : '#1e1b4b' }]}>
+              {score.correct} / {score.total}
+            </Text>
+
+            <View style={styles.gradeBadge}>
+              <Text style={styles.scoreGrade}>
+                {Math.round((score.correct / score.total) * 100) >= 90
+                  ? 'Doskonały'
+                  : Math.round((score.correct / score.total) * 100) >= 70
+                  ? 'Dobry'
+                  : Math.round((score.correct / score.total) * 100) >= 50
+                  ? 'Zaliczony'
+                  : 'Niezaliczony'}
+              </Text>
+            </View>
+          </View>
+
           <View style={styles.scoreButtons}>
             <TouchableOpacity style={styles.button} onPress={handleRetry}>
+              <Ionicons name="refresh" size={16} color="white" style={styles.btnIcon} />
               <Text style={styles.buttonText}>Spróbuj ponownie</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={handleBackToMenu}>
-              <Text style={styles.buttonText}>Wróć do menu</Text>
+              <Ionicons name="arrow-back" size={16} color="#A491BB" style={styles.btnIcon} />
+              <Text style={styles.secondaryButtonText}>Wróć do menu</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -129,11 +174,11 @@ export default function Testy() {
             />
           ))}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={isPending}>
+            <TouchableOpacity style={styles.rowButton} onPress={handleSubmit} disabled={isPending}>
               <Text style={styles.buttonText}>{isPending ? 'Wysyłanie...' : 'Prześlij Test'}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={handleBackToMenu}>
-              <Text style={styles.buttonText}>Reset Test</Text>
+            <TouchableOpacity style={[styles.rowButton, styles.secondaryButton]} onPress={handleBackToMenu}>
+              <Text style={styles.secondaryButtonText}>Reset Test</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -155,25 +200,64 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 16,
+  },
+  scoreCard: {
+    width: '100%',
+    borderRadius: 24,
+    padding: 28,
+    alignItems: 'center',
     gap: 16,
+    borderWidth: 1.5,
+    borderColor: '#A491BB40',
+    shadowColor: '#280652',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  scoreIconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 10,
+  },
+  scoreIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#A491BB18',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scoreLabel: {
-    fontSize: 18,
+    fontSize: 13,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   scoreValue: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#6d28d9',
+    fontSize: 40,
+    fontWeight: '800',
   },
-  scorePercent: {
-    fontSize: 24,
-    color: '#a78bfa',
+  gradeBadge: {
+    backgroundColor: '#A491BB18',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+  },
+  scoreGrade: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#A491BB',
   },
   scoreButtons: {
     gap: 12,
     width: '100%',
     marginTop: 8,
+  },
+  btnIcon: {
+    marginRight: 6,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -183,18 +267,36 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   button: {
+    width: '100%',
+    flexDirection: 'row',
+    backgroundColor: '#A491BB',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowButton: {
     flex: 1,
-    backgroundColor: '#6d28d9',
+    flexDirection: 'row',
+    backgroundColor: '#A491BB',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   secondaryButton: {
-    backgroundColor: '#a78bfa',
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: '#A491BB',
   },
   buttonText: {
     color: 'white',
+    fontWeight: 'bold',
+  },
+  secondaryButtonText: {
+    color: '#A491BB',
     fontWeight: 'bold',
   },
   textLight: {

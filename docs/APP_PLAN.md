@@ -293,7 +293,9 @@ Reference: `docs/RNFigma.png`. Every component audited below. Light-mode-first d
 
 | Token | Value | Usage |
 |---|---|---|
-| `primary` | `#6d28d9` | Buttons, active elements, borders |
+| `primary` | `#A491BB` | Buttons, active elements, borders |
+| `secondary` | `#866CA4BF` (75%) | Secondary buttons, softer actions |
+| `shadowColor` | `#2806521A` (10%) | Drop shadows only |
 | `primaryLight` | `#f3e8ff` | Card backgrounds, input fill |
 | `primaryMid` | `#a78bfa` | Active card fill |
 | `accent` | `#ec4899` | Avatar bg, back button, icon accents |
