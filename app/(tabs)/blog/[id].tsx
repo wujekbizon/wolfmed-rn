@@ -12,7 +12,7 @@ import {
   Alert,
 } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@clerk/expo'
 import Animated, {
@@ -26,7 +26,9 @@ import { createBlogService } from '@/services/blogService'
 import { useAddComment } from '@/hooks/useAddComment'
 import { useDeleteComment } from '@/hooks/useDeleteComment'
 import { useUpdateComment } from '@/hooks/useUpdateComment'
+import { useDeletePost } from '@/hooks/useDeletePost'
 import { useComments } from '@/hooks/useComments'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Comment } from '@/types/dataTypes'
 
@@ -261,6 +263,7 @@ const commentStyles = StyleSheet.create({
 export default function BlogPostScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { getToken, userId } = useAuth()
+  const router = useRouter()
   const isDark = useColorScheme() === 'dark'
 
   const { data: post, isLoading: postLoading } = useQuery({
@@ -273,8 +276,10 @@ export default function BlogPostScreen() {
     staleTime: 5 * 60 * 1000,
   })
 
+  const isAdmin = useIsAdmin()
   const { comments, isLoading: commentsLoading } = useComments(id, { enabled: !!id })
   const { mutate: addComment, isPending } = useAddComment()
+  const { mutate: deletePost, isPending: isDeletingPost } = useDeletePost()
   const [comment, setComment] = useState('')
   const successOpacity = useSharedValue(0)
   const successStyle = useAnimatedStyle(() => ({ opacity: successOpacity.value }))
@@ -295,6 +300,35 @@ export default function BlogPostScreen() {
       }
     )
   }, [comment, userId, id, addComment, successOpacity])
+
+  const handleDeletePost = useCallback(() => {
+    if (!post) return
+    Alert.alert('Usuń artykuł', 'Na pewno chcesz usunąć ten artykuł?', [
+      { text: 'Anuluj', style: 'cancel' },
+      {
+        text: 'Usuń',
+        style: 'destructive',
+        onPress: () => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+          deletePost(post.id, { onSuccess: () => router.back() })
+        },
+      },
+    ])
+  }, [post, deletePost, router])
+
+  const handleEditPost = useCallback(() => {
+    if (!post) return
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    router.push({
+      pathname: '/blog/create' as any,
+      params: {
+        postId: post.id,
+        initialTitle: post.title,
+        initialExcerpt: post.excerpt,
+        initialContent: post.content,
+      },
+    })
+  }, [post, router])
 
   const bg = isDark ? '#09090b' : '#ffffff'
   const textColor = isDark ? '#f9fafb' : '#1f2937'
@@ -338,6 +372,26 @@ export default function BlogPostScreen() {
             </View>
           </View>
         </View>
+
+        {/* Admin actions */}
+        {isAdmin && (
+          <View style={[styles.adminRow, isDark && styles.adminRowDark]}>
+            <Pressable style={styles.adminBtn} onPress={handleEditPost}>
+              <Ionicons name="create-outline" size={18} color="#A491BB" />
+              <Text style={styles.adminBtnText}>Edytuj</Text>
+            </Pressable>
+            <Pressable
+              style={styles.adminBtn}
+              onPress={handleDeletePost}
+              disabled={isDeletingPost}
+            >
+              <Ionicons name="trash-outline" size={18} color="#dc2626" />
+              <Text style={[styles.adminBtnText, { color: '#dc2626' }]}>
+                {isDeletingPost ? 'Usuwam...' : 'Usuń'}
+              </Text>
+            </Pressable>
+          </View>
+        )}
 
         {/* Content */}
         <View style={styles.content}>
@@ -492,6 +546,33 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#ffffff',
     fontWeight: '600',
+  },
+  adminRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#A491BB22',
+    backgroundColor: '#faf8ff',
+  },
+  adminRowDark: {
+    backgroundColor: '#18181b',
+    borderBottomColor: '#ffffff10',
+  },
+  adminBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#A491BB15',
+  },
+  adminBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#A491BB',
   },
   commentsSection: {
     paddingHorizontal: 20,

@@ -7,7 +7,9 @@
       "WebFetch(domain:clerk.com)",
       "Bash(find /c/RN/wolfmed/node_modules/@clerk -name *.d.ts)",
       "Bash(xargs grep:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(find /c/RN/wolfmed/lib/validations -type f -name *.ts)",
+      "Bash(find /c/RN/wolfmed/services -type f -name *.ts)"
     ]
   }
 }

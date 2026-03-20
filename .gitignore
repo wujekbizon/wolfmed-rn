@@ -1,4 +1,5 @@
 node_modules/
+.claude/settings.local.json
 .expo/
 dist/
 npm-debug.*
@@ -25,3 +26,4 @@ data.d.ts
 
 android
 ios
+

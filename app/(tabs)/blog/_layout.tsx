@@ -1,6 +1,11 @@
-import { Stack } from 'expo-router'
+import { Stack, useLocalSearchParams } from 'expo-router'
 import { useColorScheme } from 'react-native'
 import CustomHeader from '@/components/ui/CustomHeader'
+
+function CreateHeader() {
+  const { postId } = useLocalSearchParams<{ postId?: string }>()
+  return <CustomHeader title={postId ? 'Edytuj artykuł' : 'Nowy artykuł'} />
+}
 
 export default function BlogLayout() {
   const isDark = useColorScheme() === 'dark'
@@ -20,6 +25,13 @@ export default function BlogLayout() {
         name="[id]"
         options={{
           header: () => <CustomHeader title="Artykuł" />,
+          presentation: 'card',
+        }}
+      />
+      <Stack.Screen
+        name="create"
+        options={{
+          header: () => <CreateHeader />,
           presentation: 'card',
         }}
       />
