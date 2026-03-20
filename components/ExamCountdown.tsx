@@ -1,4 +1,4 @@
-import { View, Text, Animated , useColorScheme } from 'react-native'
+import { View, Text, Animated, useColorScheme } from 'react-native'
 
 import { useState, useEffect, useRef } from 'react'
 import { BlurView } from 'expo-blur'
@@ -27,20 +27,15 @@ export function ExamCountdown({ examDate = new Date('2025-06-02'), className = '
 
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const pulseAnim = useRef(new Animated.Value(1)).current
+  const pulseLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
   useEffect(() => {
     const pulse = Animated.sequence([
-      Animated.timing(pulseAnim, {
-        toValue: 1.1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.timing(pulseAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
+      Animated.timing(pulseAnim, { toValue: 1.1, duration: 500, useNativeDriver: true }),
+      Animated.timing(pulseAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
     ])
+    pulseLoopRef.current = Animated.loop(pulse)
+    pulseLoopRef.current.start()
 
     const timer = setInterval(() => {
       const now = new Date().getTime()
@@ -50,14 +45,14 @@ export function ExamCountdown({ examDate = new Date('2025-06-02'), className = '
         days: Math.floor(distance / (1000 * 60 * 60 * 24)),
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
       })
-
-      Animated.loop(pulse).reset()
-      pulse.start()
     }, 1000)
 
-    return () => clearInterval(timer)
+    return () => {
+      clearInterval(timer)
+      pulseLoopRef.current?.stop()
+    }
   }, [examDate, pulseAnim])
 
   return (

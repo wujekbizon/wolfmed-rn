@@ -496,6 +496,137 @@ All new screens and components must feel native, consistent with existing app st
 
 ---
 
+---
+
+## Part 9 — Tests-Procedures Screen (Real Data)
+
+File: `app/(tabs)/(dashboard)/(drawer)/tests-procedures.tsx`
+
+Currently has 2 hardcoded cards. Replace with dynamic list from API.
+
+### 9.1 Hook: `hooks/useTestsProcedures.ts`
+- Fetch `GET /api/procedures` (reuse `createProceduresService(api).getAll()` — already exists)
+- Query key: `['procedures']`, `staleTime: 10 * 60 * 1000`
+- Returns `{ procedures, isLoading, error }`
+
+### 9.2 Screen redesign
+- Use `FlatList` (not ScrollView) with `removeClippedSubviews`, `maxToRenderPerBatch: 10`
+- Each row: `ProcedureCard` component (already exists — reuse as-is)
+- On press: navigate to procedure detail screen `(learn)/procedury/[id]` (already exists)
+- Loading state: `LoadingSpinner`
+- Empty state: plain text "Brak procedur" centered
+
+### 9.3 Remove hardcoded data
+- Delete `constants/testsProcedures.ts` (or equivalent hardcoded array) after wiring
+
+---
+
+## Part 10 — Global Error Handling & Offline State
+
+### 10.1 API error boundary
+- Create `components/ErrorBoundary.tsx` — class component wrapping screens
+- On uncaught render error: show "Coś poszło nie tak" + "Spróbuj ponownie" button that calls `resetErrorBoundary()`
+- Wrap `app/_layout.tsx` root with `<ErrorBoundary>`
+
+### 10.2 React Query global error handler
+In `app/_layout.tsx` where `QueryClient` is created, add:
+```ts
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    },
+  },
+})
+```
+
+### 10.3 Network offline indicator
+- Install (already available): `@react-native-community/netinfo`
+- Create `hooks/useNetworkStatus.ts` wrapping `NetInfo.useNetInfo()`
+- Create `components/OfflineBanner.tsx` — slim red bar "Brak połączenia z internetem" shown when `isConnected === false`
+- Mount in `app/(tabs)/_layout.tsx` above tab content
+
+### 10.4 401 / token expiry handling
+- In `services/apiClient.ts`: intercept 401 response → call `clerk.signOut()` + `router.replace('/(auth)/sign-in')`
+- Pass `clerk` instance (from `useAuth`) into `createApiClient` or use a module-level Clerk client ref
+
+---
+
+## Part 11 — Performance Audit
+
+### 11.1 Memoization sweep
+Check all list `renderItem` callbacks and event handler props — wrap with `useCallback`. Target files:
+- `app/(tabs)/(dashboard)/(drawer)/tests.tsx` — `handleAnswer`
+- `app/(tabs)/blog/index.tsx` — `onPress` handler passed to `BlogPostCard`
+- `components/ProfilePreview.tsx` — any inline callbacks
+
+### 11.2 Image optimization
+- Any `<Image>` with remote URI: add `contentFit="cover"` and explicit `width`/`height` (Expo Image, not RN Image) to avoid layout thrash
+- Replace all `import { Image } from 'react-native'` → `import { Image } from 'expo-image'` for disk caching
+
+### 11.3 FlashList migration
+- `blog/index.tsx`: use `FlashList` (already installed) instead of `FlatList`
+- `tests-procedures.tsx`: same
+- Estimate `estimatedItemSize` from average card height (blog card ~90, procedure card ~80)
+
+### 11.4 Bundle audit
+- Run `npx expo export --dump-sourcemap` and check bundle size
+- Ensure no server-only packages (`drizzle-orm`, `pg`, etc.) leak into client bundle — add `"browser": false` fields or move to server-only imports behind `if (typeof window === 'undefined')` guards
+
+---
+
+## Part 12 — Build & Distribution Prep
+
+### 12.1 `app.json` / `app.config.ts` audit
+- Verify `expo.name`, `expo.slug`, `expo.version` match Play Store / App Store listing names
+- Set `expo.android.package` = `com.wolfmed.app` (or chosen identifier)
+- Set `expo.ios.bundleIdentifier` = same
+- Add `expo.android.adaptiveIcon` (foreground + background color matching brand `#6d28d9`)
+- `expo.splash.backgroundColor` = `#ffffff`, image = wolf logo asset
+
+### 12.2 EAS Build setup
+- Create `eas.json` with 3 profiles:
+  ```json
+  {
+    "build": {
+      "development": { "developmentClient": true, "distribution": "internal" },
+      "preview": { "distribution": "internal" },
+      "production": { "autoIncrement": true }
+    }
+  }
+  ```
+- Add `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` and `NEON_DATABASE_URL` as EAS secrets (not in `.env`)
+
+### 12.3 OTA Updates
+- Enable `expo-updates` with `expo.updates.url` pointing to EAS Update channel
+- Add `Updates.checkForUpdateAsync()` call in root `_layout.tsx` on app foreground
+
+### 12.4 Environment config
+- Move all `EXPO_PUBLIC_*` vars to `app.config.ts` `extra` field for typed access via `Constants.expoConfig.extra`
+- Create `lib/config.ts` exporting typed config object — no raw `process.env` references scattered in code
+
+---
+
+## Updated Critical Files (Parts 9–12)
+
+| File | Action |
+|---|---|
+| `app/(tabs)/(dashboard)/(drawer)/tests-procedures.tsx` | Wire to procedures API via FlashList |
+| `hooks/useTestsProcedures.ts` | Create (reuses proceduresService) |
+| `components/ErrorBoundary.tsx` | Create class component |
+| `components/OfflineBanner.tsx` | Create netinfo-based banner |
+| `hooks/useNetworkStatus.ts` | Create NetInfo wrapper |
+| `services/apiClient.ts` | Add 401 intercept + sign-out |
+| `app/_layout.tsx` | Add QueryClient retry config + ErrorBoundary + OfflineBanner |
+| `app.json` / `app.config.ts` | Audit + set package IDs + splash |
+| `eas.json` | Create with 3 build profiles |
+| `lib/config.ts` | Create typed env config |
+
+---
+
 ## Unresolved questions
 - Does `/api/users/{userId}` accept `{ motto }` in PUT body, or is there a separate endpoint? (plan assumes same PUT endpoint handles both username and motto)
 - `blog/[id].tsx` needs single post fetch — check if C# API has `GET /api/blogposts/{id}` returning comments array (plan assumes yes per integration plan Part 7)
+- Is `@react-native-community/netinfo` already installed or needs adding?
+- Confirm chosen Android package name / iOS bundle ID before Part 12

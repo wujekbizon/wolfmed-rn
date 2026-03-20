@@ -21,5 +21,8 @@ export function useAddComment() {
     onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['blogPost', variables.blogPostId] })
     },
+    onError: (error) => {
+      console.error('[useAddComment]', error)
+    },
   })
 }

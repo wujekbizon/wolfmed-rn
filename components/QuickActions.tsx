@@ -2,7 +2,7 @@ import { View, Text, Switch, Pressable, useColorScheme, Dimensions, FlatList, Ac
 import { BlurView } from 'expo-blur'
 import { Link, RelativePathString } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import Animated, { FadeIn } from 'react-native-reanimated'
 
 type ActionType = 'setting' | 'link' | 'toggle'
@@ -213,23 +213,26 @@ export default function QuickActions({ color }: { color: string }) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const [isDarkMode, setIsDarkMode] = useState(isDark)
+  const colorSchemeRef = useRef(colorScheme)
   const windowWidth = Dimensions.get('window').width
   const itemWidth = (windowWidth - 48) / 2
 
-  // Sync with device theme changes
+  // Keep ref current so AppState callback always reads latest value
+  useEffect(() => {
+    colorSchemeRef.current = colorScheme
+  }, [colorScheme])
+
+  // Sync when app returns to foreground (stable mount-once listener)
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
-        setIsDarkMode(colorScheme === 'dark')
+        setIsDarkMode(colorSchemeRef.current === 'dark')
       }
     })
+    return () => subscription.remove()
+  }, [])
 
-    return () => {
-      subscription.remove()
-    }
-  }, [colorScheme])
-
-  // Update when device theme changes
+  // Sync immediately when device theme changes
   useEffect(() => {
     setIsDarkMode(isDark)
   }, [isDark])

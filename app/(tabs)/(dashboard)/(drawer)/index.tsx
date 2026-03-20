@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, useWindowDimensions } from 'react-native'
+import { View, Pressable, useWindowDimensions } from 'react-native'
 import QuickStats from '@/components/QuickStats'
 import QuickActions from '@/components/QuickActions'
 import ProfilePreview from '@/components/ProfilePreview'
@@ -7,11 +7,11 @@ import HelpInfo from '@/components/HelpInfo'
 import NewsFeed from '@/components/NewsFeed'
 import { DashboardCircle } from '@/components/DashboardCircle'
 import { useDashboardStore } from '@/store/useDashboardStore'
-import Animated, { 
-  FadeIn, 
+import Animated, {
+  FadeIn,
   FadeOut,
   SlideInRight,
-  SlideOutLeft 
+  SlideOutLeft
 } from 'react-native-reanimated'
 import { BlurView } from 'expo-blur'
 
@@ -26,12 +26,7 @@ const SECTION_COMPONENTS = {
 
 export default function DashboardScreen() {
   const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions()
-  const { 
-    activeSection, 
-    getSectionConfig,
-    isMinimized,
-    toggleMinimized
-  } = useDashboardStore()
+  const { activeSection, getSectionConfig, isMinimized, toggleMinimized } = useDashboardStore()
 
   const renderActiveComponent = () => {
     const activeColor = getSectionConfig(activeSection).color
@@ -72,32 +67,33 @@ export default function DashboardScreen() {
         </Animated.View>
       </View>
       {!isMinimized && (
-        <Animated.View 
+        <Animated.View
           entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(200)}
-          onTouchEnd={() => !isMinimized && toggleMinimized()}
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            zIndex: 50
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 50,
           }}
-        />
+          pointerEvents="box-none"
+        >
+          <Pressable
+            style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+            onPress={toggleMinimized}
+          />
+        </Animated.View>
       )}
-      <View 
+      <View
         style={{
           position: 'absolute',
           top: SCREEN_HEIGHT / 2.5 - SCREEN_WIDTH * 0.3,
           left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.25,
+          width: SCREEN_WIDTH * 0.45,
+          height: SCREEN_WIDTH * 0.45,
           zIndex: 100,
         }}
       >
         <DashboardCircle />
       </View>
-
     </View>
   )
 }

@@ -11,7 +11,7 @@ interface AnimatedAuthInputProps extends TextInputProps {
   delay?: number
 }
 
-const AnimatedAuthInput = forwardRef<TextInput, AnimatedAuthInputProps>(({
+const AnimatedAuthInput = React.memo(forwardRef<TextInput, AnimatedAuthInputProps>(({
   isDark,
   hasError,
   inputKey,
@@ -61,6 +61,6 @@ const AnimatedAuthInput = forwardRef<TextInput, AnimatedAuthInputProps>(({
       </Animated.View>
     </Animated.View>
   )
-}) 
+}))
 AnimatedAuthInput.displayName = 'AnimatedAuthInput';
 export default AnimatedAuthInput;

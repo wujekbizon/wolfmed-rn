@@ -147,6 +147,19 @@ plugins: ['react-native-reanimated/plugin'] // MUST be last plugin
 - Table prefix filter: `wolfmed_mobile_*`
 - Environment variable: `NEON_DATABASE_URL`
 
+## React & React Native Best Practices (Mandatory)
+
+Always verify code follows these rules before writing or suggesting any component/hook:
+
+- **Never compute derived data inline during render if it involves randomness, heavy filtering, or sorting** — use `useState` (set once on user action) or `useMemo` with stable deps
+- **Memoize callbacks** passed as props with `useCallback` to prevent child re-renders
+- **Memoize expensive derived values** with `useMemo`; deps must be minimal and stable
+- **Never put side effects or mutations directly in render** — use `useEffect` or event handlers
+- **useState for one-time computed values** (e.g. a shuffled question list) — compute in the handler, store in state, never recompute on re-render
+- **Avoid anonymous functions in renderItem / list props** — extract or memoize them
+
+Violating these rules causes subtle bugs (like re-shuffling state on every keystroke). Always review render-path code for unintended recomputation before finalizing.
+
 ## Development Guidelines
 
 ### Code Style (from .cursorrules)

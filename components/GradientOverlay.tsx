@@ -45,7 +45,7 @@ export default function GradientOverlay() {
       -1,
       true
     )
-  }, [opacity,rotation,scale])
+  }, []) // shared values are stable refs — no deps needed
 
   const baseGradientStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

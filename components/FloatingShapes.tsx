@@ -7,6 +7,7 @@ import Animated, {
   useSharedValue,
   withDelay,
   withSequence,
+  cancelAnimation,
   Easing,
 } from 'react-native-reanimated'
 
@@ -29,44 +30,37 @@ const Shape = ({ index, type, color, left, top, size }: ShapeProps) => {
   const colorScheme = useColorScheme()
 
   React.useEffect(() => {
+    cancelAnimation(opacity)
+    cancelAnimation(rotation)
+    cancelAnimation(translateY)
+    cancelAnimation(scale)
+
     opacity.value = withDelay(index * 200, withTiming(colorScheme === 'dark' ? 0.35 : 0.45, { duration: 1000 }))
     rotation.value = withRepeat(
-      withTiming(360, { 
+      withTiming(360, {
         duration: 50000 + index * 5000,
-        easing: Easing.linear 
+        easing: Easing.linear,
       }),
       -1,
       false
     )
     translateY.value = withRepeat(
       withSequence(
-        withTiming(-8, { 
-          duration: 4000 + index * 500,
-          easing: Easing.bezier(0.4, 0, 0.2, 1)
-        }),
-        withTiming(8, { 
-          duration: 4000 + index * 500,
-          easing: Easing.bezier(0.4, 0, 0.2, 1)
-        })
+        withTiming(-8, { duration: 4000 + index * 500, easing: Easing.bezier(0.4, 0, 0.2, 1) }),
+        withTiming(8, { duration: 4000 + index * 500, easing: Easing.bezier(0.4, 0, 0.2, 1) })
       ),
       -1,
       true
     )
     scale.value = withRepeat(
       withSequence(
-        withTiming(1.1, { 
-          duration: 4000,
-          easing: Easing.bezier(0.4, 0, 0.2, 1)
-        }),
-        withTiming(0.95, { 
-          duration: 4000,
-          easing: Easing.bezier(0.4, 0, 0.2, 1)
-        })
+        withTiming(1.1, { duration: 4000, easing: Easing.bezier(0.4, 0, 0.2, 1) }),
+        withTiming(0.95, { duration: 4000, easing: Easing.bezier(0.4, 0, 0.2, 1) })
       ),
       -1,
       true
     )
-  }, [index,colorScheme,opacity,rotation,scale,translateY])
+  }, [index, colorScheme, opacity, rotation, scale, translateY])
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -102,7 +96,7 @@ export function FloatingShapes({ count = 4 }: { count?: number }) {
   
   const shapes = React.useMemo(() => {
     const darkColors = ['#ff69b4', '#9333ea']
-    const lightColors = ['#e11d48', '#6d28d9'] // More vibrant colors for light mode
+    const lightColors = ['#e11d48', '#6d28d9']
     const colors = colorScheme === 'dark' ? darkColors : lightColors
 
     return Array.from({ length: count }, (_, i) => ({
@@ -112,7 +106,8 @@ export function FloatingShapes({ count = 4 }: { count?: number }) {
       color: colors[i % colors.length],
       size: Math.random() * 60 + 80,
     }))
-  }, [count, colorScheme])
+    // count only — positions must not re-randomize on theme change
+  }, [count])
 
   return (
     <View style={{ position: 'absolute', width: '100%', height: '100%' }}>

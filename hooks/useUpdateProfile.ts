@@ -18,5 +18,8 @@ export function useUpdateProfile(userId: string | undefined) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProfile', userId] })
     },
+    onError: (error) => {
+      console.error('[useUpdateProfile]', error)
+    },
   })
 }

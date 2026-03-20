@@ -11,5 +11,8 @@ export function useSendMessage() {
       const api = createApiClient(getToken)
       return createMessagesService(api).send(email, message)
     },
+    onError: (error) => {
+      console.error('[useSendMessage]', error)
+    },
   })
 }

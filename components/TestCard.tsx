@@ -2,16 +2,15 @@ import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
 import { LETTERS } from '@/constants/optionsLetters'
 import { Test } from '@/types/dataTypes'
-import { FormState } from '@/types/actionTypes'
 
 export default function TestCard({
   test,
   questionNumber,
-  formState,
+  onAnswer,
 }: {
   test: Test
   questionNumber: string
-  formState: FormState
+  onAnswer: (questionId: string, selectedIndex: number) => void
 }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const isDarkMode = useColorScheme() === 'dark'
@@ -20,6 +19,11 @@ export default function TestCard({
     data: { answers, question },
   } = test
 
+  const handlePress = (index: number) => {
+    setActiveIndex(index)
+    onAnswer(test.id, index)
+  }
+
   return (
     <View style={[styles.container, isDarkMode ? styles.containerDark : styles.containerLight]}>
       <Text style={[styles.questionNumber, isDarkMode ? styles.textDark : styles.textLight]}>{questionNumber}</Text>
@@ -27,8 +31,6 @@ export default function TestCard({
       <View style={styles.answersContainer}>
         {answers.map((answer, index) => {
           const isActive = activeIndex === index
-          const isCorrect = formState.status === 'SUCCESS' && answer.isCorrect
-          const isIncorrect = formState.status === 'SUCCESS' && !answer.isCorrect
 
           return (
             <TouchableOpacity
@@ -36,12 +38,9 @@ export default function TestCard({
               style={[
                 styles.answerItem,
                 isActive && styles.activeAnswer,
-                isCorrect && styles.correctAnswer,
-                isIncorrect && styles.incorrectAnswer,
                 isDarkMode ? styles.answerItemDark : styles.answerItemLight,
               ]}
-              onPress={() => setActiveIndex(index)}
-              disabled={formState.status === 'SUCCESS'}
+              onPress={() => handlePress(index)}
             >
               <Text style={[styles.answerLetter, isDarkMode ? styles.textDark : styles.textLight]}>
                 {LETTERS[index]})

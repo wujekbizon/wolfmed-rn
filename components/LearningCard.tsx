@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Text, View, TouchableOpacity, FlatList, StyleSheet , useColorScheme } from 'react-native';
-import {Test } from '@/types/dataTypes';
+import React, { useState, useCallback } from 'react';
+import { Text, View, TouchableOpacity, FlatList, StyleSheet, useColorScheme } from 'react-native';
+import { Test, Answer } from '@/types/dataTypes';
 
 import { LearningCardItem } from './LearningCardItem';
 
@@ -12,6 +12,17 @@ type LearningCardProps = {
 export const LearningCard = ({ test, questionNumber }: LearningCardProps) => {
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
   const colorScheme = useColorScheme();
+
+  const renderItem = useCallback(({ item, index }: { item: Answer; index: number }) => (
+    <LearningCardItem
+      item={item}
+      index={index}
+      showCorrectAnswer={showCorrectAnswer}
+      colorScheme={colorScheme}
+    />
+  ), [showCorrectAnswer, colorScheme]);
+
+  const keyExtractor = useCallback((_item: Answer, index: number) => `answer-${index}`, []);
 
   return (
     <View
@@ -40,15 +51,9 @@ export const LearningCard = ({ test, questionNumber }: LearningCardProps) => {
 
       <FlatList
         data={test.data.answers}
-        renderItem={({ item, index }) => (
-          <LearningCardItem
-            item={item}
-            index={index}
-            showCorrectAnswer={showCorrectAnswer}
-            colorScheme={colorScheme}
-          />
-        )}
-        keyExtractor={(_item, index) => `answer-${index}`}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        scrollEnabled={false}
       />
 
       <TouchableOpacity
@@ -60,7 +65,7 @@ export const LearningCard = ({ test, questionNumber }: LearningCardProps) => {
         activeOpacity={0.8}
       >
         <Text style={styles.toggleButtonText}>
-          {showCorrectAnswer ? 'Hide Answer' : 'Show Answer'}
+          {showCorrectAnswer ? 'Ukryj odpowiedź' : 'Pokaż odpowiedź'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -82,7 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   cardDark: {
-    backgroundColor: '#333333',
+    backgroundColor: '#27272a',
   },
   questionNumber: {
     position: 'absolute',
