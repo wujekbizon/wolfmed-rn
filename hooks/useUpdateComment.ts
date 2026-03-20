@@ -3,27 +3,26 @@ import { useAuth } from '@clerk/expo'
 import { createApiClient } from '@/services/apiClient'
 import { createCommentsService } from '@/services/commentsService'
 
-interface AddCommentData {
+interface UpdateCommentData {
+  commentId: string
   blogPostId: string
-  userId: string
   content: string
 }
 
-export function useAddComment() {
+export function useUpdateComment() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: AddCommentData) => {
+    mutationFn: ({ commentId, content }: UpdateCommentData) => {
       const api = createApiClient(getToken)
-      return createCommentsService(api).create(data)
+      return createCommentsService(api).update(commentId, content)
     },
     onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['comments', variables.blogPostId] })
-      queryClient.invalidateQueries({ queryKey: ['blogPost', variables.blogPostId] })
     },
     onError: (error) => {
-      console.error('[useAddComment]', error)
+      console.error('[useUpdateComment]', error)
     },
   })
 }

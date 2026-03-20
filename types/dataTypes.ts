@@ -74,6 +74,7 @@ export interface Post {
   date: string
   excerpt: string
   content: string
+  commentCount?: number
   createdAt?: Date | null
   updatedAt?: Date | null
 }

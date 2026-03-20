@@ -6,7 +6,8 @@
       "Bash(grep -E \"\\\\.tsx?$\")",
       "WebFetch(domain:clerk.com)",
       "Bash(find /c/RN/wolfmed/node_modules/@clerk -name *.d.ts)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "WebSearch"
     ]
   }
 }
