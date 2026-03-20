@@ -20,6 +20,7 @@
   "dependencies": {
     "@clerk/expo": "^3.1.2",
     "@clerk/localizations": "^3.37.2",
+    "@expo-google-fonts/open-sans": "^0.4.2",
     "@expo/vector-icons": "^15.1.1",
     "@neondatabase/serverless": "^1.0.2",
     "@react-navigation/drawer": "^7.5.0",

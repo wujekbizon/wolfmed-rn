@@ -1,5 +1,6 @@
 import { Drawer } from "expo-router/drawer";
-import { Dimensions, useColorScheme,View} from "react-native";
+import { Dimensions, useColorScheme, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import { usePathname } from "expo-router";
 import { useDashboardStore } from "@/store/useDashboardStore";
@@ -37,6 +38,7 @@ function DrawerIcon(props: {
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const insets = useSafeAreaInsets();
   const { activeSection, getSectionConfig } = useDashboardStore();
   const activeColor = getSectionConfig(activeSection).color;
   const pathname = usePathname();
@@ -46,40 +48,40 @@ export default function DrawerLayout() {
     <Drawer
       screenOptions={{
         headerShown: !isHeaderShown,
-        // headerStyle: {
-        //   backgroundColor: isDark ? "#000" : "#fff",
-        //   elevation: 0,
-        //   shadowOpacity: 0,
-        // },
-       
-        // headerTintColor: isDark ? "#fff" : "#18181B",
-        // headerShadowVisible: false,
-        // drawerStyle: {
-        //   backgroundColor: isDark ? "#000" : "#fff",
-        //   width: DRAWER_WIDTH,
-        //   borderRightWidth: 1,
-        //   borderRightColor: isDark
-        //     ? "rgba(255, 91, 91, 0.2)"
-        //     : "rgba(0,0,0,0.1)",
-        // },
-        drawerActiveTintColor: isDark ? "#fff" : "#18181B",
-        drawerInactiveTintColor: isDark
-          ? "rgba(255,255,255,0.5)"
-          : "rgba(0,0,0,0.5)",
-        drawerActiveBackgroundColor: isDark
-          ? "rgba(255,91,91,0.15)"
-          : "rgba(0,0,0,0.05)",
+        drawerStyle: {
+          backgroundColor: "transparent",
+          width: DRAWER_WIDTH,
+          marginTop: insets.top,
+          marginBottom: insets.bottom,
+          borderTopRightRadius: 24,
+          borderBottomRightRadius: 24,
+          shadowColor: "#280652",
+          shadowOffset: { width: 4, height: 0 },
+          shadowOpacity: 0.12,
+          shadowRadius: 16,
+          elevation: 8,
+        },
+        headerStyle: {
+          backgroundColor: isDark ? "#1e1b2e" : "#ffffff",
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        headerTintColor: isDark ? "#f1f5f9" : "#1e1b4b",
+        headerShadowVisible: false,
+        drawerActiveTintColor: "#A491BB",
+        drawerInactiveTintColor: isDark ? "rgba(255,255,255,0.45)" : "rgba(30,27,76,0.45)",
+        drawerActiveBackgroundColor: "#A491BB18",
         drawerItemStyle: {
-          borderRadius: 6,
-          marginHorizontal: 0,
-          marginVertical: 1,
-          paddingVertical: 1,
+          borderRadius: 12,
+          marginHorizontal: 8,
+          marginVertical: 2,
+          paddingVertical: 2,
         },
         drawerLabelStyle: {
           marginLeft: -4,
           fontSize: 15,
           fontWeight: "600",
-          letterSpacing: 0.3,
+          letterSpacing: 0.2,
         },
       }}
       drawerContent={(props) => <CustomDrawerContent {...props} />}

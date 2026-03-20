@@ -9,6 +9,14 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
+  useFonts,
+  OpenSans_400Regular,
+  OpenSans_600SemiBold,
+  OpenSans_700Bold,
+  OpenSans_800ExtraBold,
+} from '@expo-google-fonts/open-sans'
+import { Text, TextInput } from 'react-native'
+import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from 'react-native-reanimated';
@@ -22,6 +30,19 @@ configureReanimatedLogger({
 export default function RootLayout() {
   const [client] = useState(new QueryClient())
   const [isSplashVisible, setIsSplashVisible] = useState(true)
+  const [fontsLoaded] = useFonts({
+    OpenSans_400Regular,
+    OpenSans_600SemiBold,
+    OpenSans_700Bold,
+    OpenSans_800ExtraBold,
+  })
+
+  // Apply Open Sans as default font globally
+  const defaultTextStyle = { fontFamily: 'OpenSans_400Regular' } as const
+  ;(Text as any).defaultProps = (Text as any).defaultProps ?? {}
+  ;(Text as any).defaultProps.style = defaultTextStyle
+  ;(TextInput as any).defaultProps = (TextInput as any).defaultProps ?? {}
+  ;(TextInput as any).defaultProps.style = defaultTextStyle
 
   const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
 

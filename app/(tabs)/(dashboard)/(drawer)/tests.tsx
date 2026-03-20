@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   scoreButtons: {
     gap: 12,
     width: '100%',
-    marginTop: 8,
+    marginTop: 28,
   },
   btnIcon: {
     marginRight: 6,

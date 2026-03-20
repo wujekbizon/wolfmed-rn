@@ -1,40 +1,43 @@
-import { cn } from '@/lib/utils'
-import { Text, View, Image } from 'react-native'
+import { Text, View, Image, StyleSheet } from 'react-native'
 
 export default function LogoHeader({ isDark }: { isDark: boolean }) {
-    return (
-        <View className={cn(
-            "w-full flex-row items-center justify-evenly px-2 py-2 rounded-lg",
-            isDark 
-              ? "bg-black/40 border border-rose-500/20" 
-              : "bg-white/90 border border-red-200/40"
-          )}>
-            <View className="flex-row items-center gap-4">
-              <View className={cn(
-                "h-16 w-16 rounded-full flex items-center justify-center",
-                isDark ? "bg-black/50" : "bg-white"
-              )}>
-                <Image
-                  source={{ uri: 'https://utfs.io/a/zw3dk8dyy9/UVAwLrIxs2k5UOm8ArIxs2k5EyuGdN4SRigYP6qreJDvtVZl' }}
-                  className="w-12 h-12"
-                  resizeMode="contain"
-                />
-              </View>
-              <View className="flex-row items-center gap-2">
-                <Text className={cn(
-                  "text-2xl font-black tracking-wide",
-                  isDark ? "text-white" : "text-zinc-950"
-                )}>
-                  WOLFMED
-                </Text>
-                <Text className={cn(
-                  "text-2xl font-semibold tracking-wide",
-                  isDark ? "text-white/50" : "text-zinc-500"
-                )}>
-                  EDUKACJA
-                </Text>
-              </View>
-            </View>
-        </View>
-    )  
-}      
+  return (
+    <View style={styles.row}>
+      <Image
+        source={{ uri: 'https://utfs.io/a/zw3dk8dyy9/UVAwLrIxs2k5UOm8ArIxs2k5EyuGdN4SRigYP6qreJDvtVZl' }}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+      <View style={styles.textRow}>
+        <Text style={[styles.bold, { color: isDark ? '#f1f5f9' : '#1e1b4b' }]}>WOLFMED</Text>
+        <Text style={[styles.light, { color: isDark ? 'rgba(255,255,255,0.45)' : '#6b7280' }]}> EDUKACJA</Text>
+      </View>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  logo: {
+    width: 40,
+    height: 40,
+  },
+  textRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  bold: {
+    fontSize: 20,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  light: {
+    fontSize: 20,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+})      
