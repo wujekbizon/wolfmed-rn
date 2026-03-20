@@ -31,6 +31,7 @@ import { useComments } from '@/hooks/useComments'
 import { useIsAdmin } from '@/hooks/useIsAdmin'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Comment } from '@/types/dataTypes'
+import { commentSchema } from '@/lib/validations/blog'
 
 const CARD_COLORS = ['#e8dff5', '#f3e8ff', '#ddd6f3', '#ead4f7', '#d4c5e8']
 
@@ -48,6 +49,7 @@ type CommentItemProps = {
 function CommentItem({ comment, isDark, currentUserId, blogPostId }: CommentItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(comment.content)
+  const [editError, setEditError] = useState<string | null>(null)
   const { mutate: deleteComment, isPending: isDeleting } = useDeleteComment()
   const { mutate: updateComment, isPending: isUpdating } = useUpdateComment()
 
@@ -74,13 +76,19 @@ function CommentItem({ comment, isDark, currentUserId, blogPostId }: CommentItem
   }, [comment.id, blogPostId, deleteComment])
 
   const handleSaveEdit = useCallback(() => {
-    if (!editText.trim() || editText.trim() === comment.content) {
+    if (editText.trim() === comment.content) {
       setIsEditing(false)
       return
     }
+    const result = commentSchema.safeParse({ content: editText })
+    if (!result.success) {
+      setEditError(result.error.issues[0]?.message ?? 'Nieprawidłowy komentarz')
+      return
+    }
+    setEditError(null)
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     updateComment(
-      { commentId: comment.id, blogPostId, content: editText.trim() },
+      { commentId: comment.id, blogPostId, content: result.data.content },
       { onSuccess: () => setIsEditing(false) }
     )
   }, [editText, comment.id, comment.content, blogPostId, updateComment])
@@ -117,13 +125,14 @@ function CommentItem({ comment, isDark, currentUserId, blogPostId }: CommentItem
         {isEditing ? (
           <View>
             <TextInput
-              style={[commentStyles.editInput, isDark && commentStyles.editInputDark]}
+              style={[commentStyles.editInput, isDark && commentStyles.editInputDark, !!editError && commentStyles.editInputError]}
               value={editText}
-              onChangeText={setEditText}
+              onChangeText={(v) => { setEditText(v); setEditError(null) }}
               multiline
               autoFocus
               textAlignVertical="top"
             />
+            {!!editError && <Text style={commentStyles.editErrorText}>{editError}</Text>}
             <View style={commentStyles.editActions}>
               <Pressable
                 style={[commentStyles.editBtn, commentStyles.editBtnCancel]}
@@ -258,6 +267,14 @@ const commentStyles = StyleSheet.create({
   editBtnDisabled: {
     opacity: 0.5,
   },
+  editInputError: {
+    borderColor: '#dc2626',
+  },
+  editErrorText: {
+    fontSize: 12,
+    color: '#dc2626',
+    marginBottom: 6,
+  },
 })
 
 export default function BlogPostScreen() {
@@ -281,14 +298,21 @@ export default function BlogPostScreen() {
   const { mutate: addComment, isPending } = useAddComment()
   const { mutate: deletePost, isPending: isDeletingPost } = useDeletePost()
   const [comment, setComment] = useState('')
+  const [commentError, setCommentError] = useState<string | null>(null)
   const successOpacity = useSharedValue(0)
   const successStyle = useAnimatedStyle(() => ({ opacity: successOpacity.value }))
 
   const handleSubmit = useCallback(() => {
-    if (!comment.trim() || !userId || !id) return
+    if (!userId || !id) return
+    const result = commentSchema.safeParse({ content: comment })
+    if (!result.success) {
+      setCommentError(result.error.issues[0]?.message ?? 'Nieprawidłowy komentarz')
+      return
+    }
+    setCommentError(null)
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     addComment(
-      { blogPostId: id, userId, content: comment.trim() },
+      { blogPostId: id, userId, content: result.data.content },
       {
         onSuccess: () => {
           setComment('')
@@ -447,13 +471,16 @@ export default function BlogPostScreen() {
             multiline
             numberOfLines={4}
             value={comment}
-            onChangeText={setComment}
+            onChangeText={(v) => { setComment(v); setCommentError(null) }}
             textAlignVertical="top"
           />
+          {!!commentError && (
+            <Text style={styles.commentErrorText}>{commentError}</Text>
+          )}
           <Pressable
             style={[styles.button, isPending && styles.buttonDisabled]}
             onPress={handleSubmit}
-            disabled={isPending || !comment.trim()}
+            disabled={isPending}
           >
             <Text style={styles.buttonText}>
               {isPending ? 'Wysyłanie...' : 'Wyślij komentarz'}
@@ -629,6 +656,12 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  commentErrorText: {
+    fontSize: 12,
+    color: '#dc2626',
+    marginBottom: 8,
+    marginTop: -4,
   },
   successText: {
     color: '#10b981',

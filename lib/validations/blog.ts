@@ -15,3 +15,12 @@ export const postSchema = z.object({
 })
 
 export type PostFormValues = z.infer<typeof postSchema>
+
+export const commentSchema = z.object({
+  content: z
+    .string()
+    .min(3, 'Komentarz musi mieć co najmniej 3 znaki')
+    .max(1000, 'Komentarz nie może być dłuższy niż 1000 znaków'),
+})
+
+export type CommentFormValues = z.infer<typeof commentSchema>
