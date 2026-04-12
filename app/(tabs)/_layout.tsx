@@ -4,6 +4,7 @@ import { Tabs, Redirect } from 'expo-router'
 import { useAuth } from '@clerk/expo'
 import { useColorScheme } from 'react-native'
 
+
 export default function TabLayout() {
   const { isSignedIn, isLoaded } = useAuth()
   const colorScheme = useColorScheme()
@@ -13,23 +14,31 @@ export default function TabLayout() {
   if (!isSignedIn) return <Redirect href="/(auth)/sign-in" />
 
   return (
-    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: activeColor }}>
+    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: activeColor, tabBarInactiveTintColor: colorScheme === 'dark' ? '#ffffff' : '#111111' }}>
       <Tabs.Screen name="index" options={{
           title: 'Start',
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons size={28} name="home-heart" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons size={28} name="home-heart" color={color} style={{ textShadowColor: focused ? activeColor : 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: focused ? 10 : 5 }} />
+          ),
           tabBarStyle: { backgroundColor: 'transparent', borderTopWidth: 0, elevation: 0, shadowOpacity: 0, position: 'absolute' },
       }}/>
       <Tabs.Screen name="(dashboard)" options={{
           title: 'Panel',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="dashboard" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons size={28} name="dashboard" color={color} style={{ textShadowColor: focused ? activeColor : 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: focused ? 10 : 5 }} />
+          ),
       }}/>
       <Tabs.Screen name="kontakt" options={{
           title: 'Kontakt',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="mail-outline" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons size={28} name="mail-outline" color={color} style={{ textShadowColor: focused ? activeColor : 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: focused ? 10 : 5 }} />
+          ),
       }}/>
       <Tabs.Screen name="blog" options={{
           title: 'Blog',
-          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="article" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons size={28} name="article" color={color} style={{ textShadowColor: focused ? activeColor : 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: focused ? 10 : 5 }} />
+          ),
       }}/>
     </Tabs>
   )

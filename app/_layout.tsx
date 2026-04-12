@@ -47,6 +47,7 @@ export default function RootLayout() {
     OpenSans_700Bold,
     OpenSans_800ExtraBold
   })
+  const colorScheme = useColorScheme()
 
   if (!fontsLoaded) return null
 
@@ -57,8 +58,6 @@ export default function RootLayout() {
       'Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env'
     )
   }
-
-  const colorScheme = useColorScheme()
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ClerkProvider
