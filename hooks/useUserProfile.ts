@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@clerk/expo'
+import { useMemo } from 'react'
 import { createApiClient } from '@/services/apiClient'
 import { createUserService } from '@/services/userService'
 
 export function useUserProfile(userId: string | undefined) {
   const { getToken } = useAuth()
+  const service = useMemo(() => createUserService(createApiClient(getToken)), [getToken])
 
   const { data: userProfile, isLoading, error } = useQuery({
     queryKey: ['userProfile', userId],
     queryFn: async () => {
-      const api = createApiClient(getToken)
-      const result = await createUserService(api).getByUserId(userId!)
+      const result = await service.getByUserId(userId!)
       console.log('[useUserProfile] fetched:', JSON.stringify(result))
       return result
     },

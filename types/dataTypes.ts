@@ -21,6 +21,14 @@ export interface Test {
   updatedAt?: Date | null
 }
 
+export interface CreateTestPayload {
+  data: TestData
+  category: string
+  categoryId?: number
+}
+
+export type UpdateTestPayload = Partial<CreateTestPayload>
+
 // Create a custom type that uses the Omit utility type to exclude the data property
 // from TestsData and then adds it back with the type unknown.
 // this is because Drizzle doesn't support typed JSON in their schemas
@@ -122,10 +130,34 @@ export interface Category {
   isActive: boolean
 }
 
+export interface CreateCategoryPayload {
+  name: string
+  description?: string
+  isActive?: boolean
+}
+
+export type UpdateCategoryPayload = Partial<CreateCategoryPayload>
+
+export interface SubmitTestPayload {
+  userId: string
+  score: number
+  testResult: FormattedAnswer[]
+}
+
 export interface Tag {
   id: number
   name: string
   isActive: boolean
+}
+
+export interface CreateTagPayload {
+  name: string
+  isActive?: boolean
+}
+
+export interface UpdateTagPayload {
+  name?: string
+  isActive?: boolean
 }
 
 export interface Comment {
@@ -135,6 +167,14 @@ export interface Comment {
   content: string
   createdAt: Date
   updatedAt?: Date
+}
+
+export interface CustomerMessage {
+  id: number
+  email: string
+  messageContent: string
+  createdAt: Date
+  updatedAt?: Date | null
 }
 
 export interface TestCardContent {

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity} from "react-native";
+import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { Procedure } from "@/types/dataTypes";
 import ProcedureCard from "./ProcedureCard";
-import { Modal } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 export default function ProcedureContent({

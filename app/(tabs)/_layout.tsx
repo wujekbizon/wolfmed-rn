@@ -3,10 +3,11 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { Tabs, Redirect } from 'expo-router'
 import { useAuth } from '@clerk/expo'
 import { useColorScheme } from 'react-native'
-
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 
 export default function TabLayout() {
   const { isSignedIn, isLoaded } = useAuth()
+  const isAdmin = useIsAdmin()
   const colorScheme = useColorScheme()
   const activeColor = colorScheme === 'dark' ? '#ff69b4' : '#db2777'
 
@@ -38,6 +39,13 @@ export default function TabLayout() {
           title: 'Blog',
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons size={28} name="article" color={color} style={{ textShadowColor: focused ? activeColor : 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: focused ? 10 : 5 }} />
+          ),
+      }}/>
+      <Tabs.Screen name="admin" options={{
+          title: 'Admin',
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialIcons size={28} name="admin-panel-settings" color={color} style={{ textShadowColor: focused ? activeColor : 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: focused ? 10 : 5 }} />
           ),
       }}/>
     </Tabs>

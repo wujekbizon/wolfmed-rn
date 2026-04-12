@@ -91,23 +91,24 @@ const Shape = ({ index, type, color, left, top, size }: ShapeProps) => {
   )
 }
 
+const DARK_COLORS = ['#ff69b4', '#9333ea']
+const LIGHT_COLORS = ['#e11d48', '#6d28d9']
+
 export function FloatingShapes({ count = 4 }: { count?: number }) {
   const colorScheme = useColorScheme()
-  
-  const shapes = React.useMemo(() => {
-    const darkColors = ['#ff69b4', '#9333ea']
-    const lightColors = ['#e11d48', '#6d28d9']
-    const colors = colorScheme === 'dark' ? darkColors : lightColors
+  const colors = colorScheme === 'dark' ? DARK_COLORS : LIGHT_COLORS
 
-    return Array.from({ length: count }, (_, i) => ({
+  // positions stable per count — must not re-randomize on theme change
+  const positions = React.useMemo(() =>
+    Array.from({ length: count }, (_, i) => ({
       left: Math.random() * (SCREEN_WIDTH - 100) + 50,
       top: Math.random() * (SCREEN_HEIGHT - 200) + 100,
       type: (i % 2 === 0 ? 'circle' : 'square') as 'circle' | 'square',
-      color: colors[i % colors.length],
       size: Math.random() * 60 + 80,
     }))
-    // count only — positions must not re-randomize on theme change
-  }, [count])
+  , [count])
+
+  const shapes = positions.map((pos, i) => ({ ...pos, color: colors[i % colors.length] }))
 
   return (
     <View style={{ position: 'absolute', width: '100%', height: '100%' }}>

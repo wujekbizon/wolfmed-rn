@@ -45,7 +45,7 @@ export default function ProcedureDetailsScreen() {
         ),
       });
     }
-  }, [procedure]);
+  }, [procedure, navigation, headerAnimatedStyle]);
 
   const scrollOffset = useScrollViewOffset(scrollRef);
 

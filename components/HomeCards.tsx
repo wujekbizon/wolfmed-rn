@@ -1,6 +1,5 @@
 import { View, Text, useColorScheme } from 'react-native'
 import type { ReactNode } from 'react'
-import { he } from 'zod/v4/locales'
 
 interface CardHeaderProps {
   icon: ReactNode

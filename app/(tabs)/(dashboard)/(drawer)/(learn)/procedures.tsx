@@ -38,7 +38,7 @@ export default function ProceduresScreen() {
       pathname: `/procedury/[id]` as const,
       params: { id, image },
     });
-  }, []);
+  }, [router]);
 
   const renderItem = useCallback(
     ({ item, index }: { item: Procedure; index: number }) => (
@@ -48,7 +48,7 @@ export default function ProceduresScreen() {
         onPress={() => handleCardPress(item.id, item.image)}
       />
     ),
-    []
+    [handleCardPress]
   );
 
   return (

@@ -13,9 +13,7 @@ import TestCard from '@/components/TestCard'
 export default function Testy() {
   const { userId } = useAuth()
   const {
-    numberTests,
     isTest,
-    selectedCategoryId,
     setNumberTests,
     setIsTest,
     setSelectedCategoryId,
@@ -84,8 +82,6 @@ export default function Testy() {
     setNumberTests(questionCount)
     setIsTest(true)
   }
-
-  const textStyle = isDarkMode ? styles.textDark : styles.textLight
 
   return (
     <View style={styles.container}>

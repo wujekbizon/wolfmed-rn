@@ -1,19 +1,8 @@
-import React, { useState } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import React from 'react'
+import { View, Text } from 'react-native'
 import { Step } from '@/types/dataTypes'
 
 export default function ProcedureCard({ steps }: { steps: Step[] }) {
-  const [currentStep, setCurrentStep] = useState(0)
-  const [showAll, setShowAll] = useState(false)
-
-  const handleNextStep = () => {
-    setCurrentStep((prev) => (prev < steps.length - 1 ? prev + 1 : prev))
-  }
-
-  const handleShowAll = () => {
-    setShowAll(true)
-  }
-
   return (
     <View className="space-y-4">
   

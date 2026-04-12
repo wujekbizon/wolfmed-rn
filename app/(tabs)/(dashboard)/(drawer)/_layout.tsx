@@ -5,7 +5,6 @@ import { FontAwesome } from "@expo/vector-icons";
 import { usePathname } from "expo-router";
 import { useDashboardStore } from "@/store/useDashboardStore";
 import CustomDrawerContent from "@/components/ui/CustomDrawerContent";
-import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.85;

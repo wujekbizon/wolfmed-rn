@@ -2,7 +2,6 @@ import {
     StyleSheet,
     Pressable,
     GestureResponderEvent,
-    GestureResponderHandlers,
     View,
     StyleProp,
     ViewStyle,

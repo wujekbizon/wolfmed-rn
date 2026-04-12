@@ -10,7 +10,6 @@ import { useUserProfile } from "@/hooks/useUserProfile"
 const PRIMARY = "#A491BB"
 const PRIMARY_LIGHT = "#c4b5d4"
 const PRIMARY_SOFT = "#A491BB18"
-const SECONDARY = "rgba(134, 108, 164, 0.75)"
 const SHADOW_COLOR = "#280652"
 
 export default function QuickStats() {
