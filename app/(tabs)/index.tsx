@@ -97,11 +97,10 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <SafeAreaView 
-      className={`flex-1 ${colorScheme === 'dark' ? 'bg-[#111]' : 'bg-white'}`}
-    >
-      <View className="flex-1 justify-center items-center">
+    <View style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#111' : '#fff' }}>
       <GradientOverlay />
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
+      <View className="flex-1 justify-center items-center">
       <FloatingShapes count={6} />
         
       <Pressable
@@ -246,6 +245,7 @@ export default function WelcomeScreen() {
           </Pressable> */}
         </View>
       </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   )
 } 

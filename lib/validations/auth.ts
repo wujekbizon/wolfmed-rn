@@ -4,7 +4,7 @@ export const signInSchema = z.object({
   email: z
     .string()
     .min(1, 'Email jest wymagany')
-    .email('Nieprawidłowy adres email'),
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Nieprawidłowy adres email'),
   password: z
     .string()
     .min(1, 'Hasło jest wymagane')
@@ -15,7 +15,7 @@ export const signUpSchema = z.object({
   email: z
     .string()
     .min(1, 'Email jest wymagany')
-    .email('Nieprawidłowy adres email'),
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Nieprawidłowy adres email'),
   password: z
     .string()
     .min(1, 'Hasło jest wymagane')

@@ -112,8 +112,9 @@ export function useAuth(mode: AuthMode) {
         if (pwError) throw pwError
 
         if (signIn.status === 'complete') {
-          await signIn.finalize()
-          router.replace('/')
+          await signIn.finalize({
+            navigate: () => { router.replace('/') },
+          })
         } else {
           console.error(JSON.stringify(signIn, null, 2))
         }
@@ -182,9 +183,10 @@ export function useAuth(mode: AuthMode) {
       if (error) throw error
 
       if (signUp.status === 'complete') {
-        await signUp.finalize()
+        await signUp.finalize({
+          navigate: () => { router.replace('/') },
+        })
         await syncUserToDb()
-        router.replace('/')
       } else {
         setErrors({ code: 'Nieprawidłowy kod weryfikacyjny' } as any)
       }
