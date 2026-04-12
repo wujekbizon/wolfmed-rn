@@ -18,6 +18,16 @@ interface ExamCountdownProps {
   className?: string
 }
 
+const calcTimeLeft = (examDate: Date): TimeLeft => {
+  const distance = examDate.getTime() - Date.now()
+  return {
+    days: Math.floor(distance / 86400000),
+    hours: Math.floor((distance % 86400000) / 3600000),
+    minutes: Math.floor((distance % 3600000) / 60000),
+    seconds: Math.floor((distance % 60000) / 1000),
+  }
+}
+
 export function ExamCountdown({ examDate = new Date('2026-06-02'), className = '' }: ExamCountdownProps) {
   const colorScheme = useColorScheme()
   const themeColors = colorScheme === 'dark'
@@ -25,7 +35,7 @@ export function ExamCountdown({ examDate = new Date('2026-06-02'), className = '
     : ['#ff69b4', '#6d28d9']
   const isDark = colorScheme === 'dark'
 
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => calcTimeLeft(examDate))
   const pulseAnim = useRef(new Animated.Value(1)).current
   const pulseLoopRef = useRef<Animated.CompositeAnimation | null>(null)
 
@@ -38,15 +48,7 @@ export function ExamCountdown({ examDate = new Date('2026-06-02'), className = '
     pulseLoopRef.current.start()
 
     const timer = setInterval(() => {
-      const now = new Date().getTime()
-      const distance = examDate.getTime() - now
-
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      })
+      setTimeLeft(calcTimeLeft(examDate))
     }, 1000)
 
     return () => {
