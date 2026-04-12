@@ -18,7 +18,7 @@ interface ExamCountdownProps {
   className?: string
 }
 
-export function ExamCountdown({ examDate = new Date('2025-06-02'), className = '' }: ExamCountdownProps) {
+export function ExamCountdown({ examDate = new Date('2026-06-02'), className = '' }: ExamCountdownProps) {
   const colorScheme = useColorScheme()
   const themeColors = colorScheme === 'dark'
     ? ['#ff69b4', '#9333ea']

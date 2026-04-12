@@ -1,6 +1,14 @@
-import { Stack, useLocalSearchParams } from 'expo-router'
+import { Stack, useLocalSearchParams, useGlobalSearchParams } from 'expo-router'
 import { useColorScheme } from 'react-native'
 import CustomHeader from '@/components/ui/CustomHeader'
+
+const CARD_COLORS = ['#e8dff5', '#f3e8ff', '#ddd6f3', '#ead4f7', '#d4c5e8']
+
+function PostHeader() {
+  const { id, title, date } = useGlobalSearchParams<{ id?: string; title?: string; date?: string }>()
+  const cardColor = id ? CARD_COLORS[id.charCodeAt(0) % CARD_COLORS.length] : undefined
+  return <CustomHeader title={title ?? 'Artykuł'} backgroundColor={cardColor} date={date} />
+}
 
 function CreateHeader() {
   const { postId } = useLocalSearchParams<{ postId?: string }>()
@@ -24,7 +32,7 @@ export default function BlogLayout() {
       <Stack.Screen
         name="[id]"
         options={{
-          header: () => <CustomHeader title="Artykuł" />,
+          header: () => <PostHeader />,
           presentation: 'card',
         }}
       />

@@ -18,8 +18,8 @@ export default function BlogScreen() {
   const isAdmin = useIsAdmin()
 
   const handlePress = useCallback(
-    (id: string) => {
-      router.push(`/blog/${id}` as any)
+    (id: string, title: string, date: string) => {
+      router.push({ pathname: `/blog/${id}` as any, params: { title, date } })
     },
     [router]
   )
@@ -31,7 +31,7 @@ export default function BlogScreen() {
 
   const renderItem = useCallback(
     ({ item }: { item: Post }) => (
-      <BlogPostCard post={item} onPress={() => handlePress(item.id)} />
+      <BlogPostCard post={item} onPress={() => handlePress(item.id, item.title, item.date)} />
     ),
     [handlePress]
   )

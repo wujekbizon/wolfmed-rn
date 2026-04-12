@@ -33,11 +33,6 @@ import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Comment } from '@/types/dataTypes'
 import { commentSchema } from '@/lib/validations/blog'
 
-const CARD_COLORS = ['#e8dff5', '#f3e8ff', '#ddd6f3', '#ead4f7', '#d4c5e8']
-
-function getCardColor(id: string): string {
-  return CARD_COLORS[id.charCodeAt(0) % CARD_COLORS.length]
-}
 
 type CommentItemProps = {
   comment: Comment
@@ -373,8 +368,6 @@ export default function BlogPostScreen() {
     )
   }
 
-  const cardColor = getCardColor(post.id)
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -385,18 +378,6 @@ export default function BlogPostScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Color header with title overlay */}
-        <View style={[styles.gradientHeader, { backgroundColor: cardColor }]}>
-          <View style={styles.headerOverlay}>
-            <Text style={styles.headerTitle} numberOfLines={3}>
-              {post.title}
-            </Text>
-            <View style={styles.dateBadge}>
-              <Text style={styles.dateBadgeText}>{post.date}</Text>
-            </View>
-          </View>
-        </View>
-
         {/* Admin actions */}
         {isAdmin && (
           <View style={[styles.adminRow, isDark && styles.adminRowDark]}>
@@ -503,38 +484,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 48,
-  },
-  gradientHeader: {
-    height: 180,
-    justifyContent: 'flex-end',
-  },
-  headerOverlay: {
-    padding: 20,
-    paddingBottom: 18,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#1f2937',
-    lineHeight: 29,
-  },
-  dateBadge: {
-    backgroundColor: 'rgba(255,255,255,0.75)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-    alignSelf: 'flex-end',
-    flexShrink: 0,
-  },
-  dateBadgeText: {
-    fontSize: 11,
-    color: '#1f2937',
-    fontWeight: '500',
   },
   content: {
     paddingHorizontal: 20,
