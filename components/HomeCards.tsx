@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, useColorScheme } from 'react-native'
 import type { ReactNode } from 'react'
 
 interface CardHeaderProps {
@@ -58,4 +58,31 @@ export function SkeletonLine({ width }: { width: number | string }) {
       }}
     />
   )
+}
+
+export function useCardTheme() {
+  const isDark = useColorScheme() === 'dark'
+  return {
+    isDark,
+    accentColor: isDark ? '#ff69b4' : '#db2777',
+    cardBg: isDark ? 'rgba(25,25,35,1)' : 'rgba(255,255,255,1)',
+    textPrimary: isDark ? '#f0eeff' : '#1e1b4b',
+    textMuted: isDark ? 'rgba(240,238,255,0.45)' : 'rgba(30,27,75,0.45)',
+    iconBg: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(167,139,250,0.2)',
+    iconColor: isDark ? '#d7d3e3' : '#a78bfa',
+  }
+}
+
+export function baseCardStyle(cardBg: string) {
+  return {
+    backgroundColor: cardBg,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 } as const,
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 12,
+  }
 }
