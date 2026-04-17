@@ -16,13 +16,13 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlashList } from '@shopify/flash-list'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as DocumentPicker from 'expo-document-picker'
-import * as FileSystem from 'expo-file-system/legacy'
+import { File, Directory, Paths } from 'expo-file-system'
 import * as Sharing from 'expo-sharing'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 
 const STORAGE_KEY = 'wolfmed_materials'
-const FILES_DIR = FileSystem.documentDirectory + 'wolfmed_materials/'
+const getMaterialsDir = () => new Directory(Paths.document, 'wolfmed_materials')
 
 type MaterialType = 'PDF' | 'Wideo' | 'Dokument' | 'Link' | 'Inne'
 
@@ -45,6 +45,13 @@ const TYPE_CONFIG: Record<MaterialType, { icon: string; color: string }> = {
 
 const TYPES: MaterialType[] = ['PDF', 'Wideo', 'Dokument', 'Link', 'Inne']
 
+function getMimeType(type: MaterialType): string {
+  if (type === 'PDF') return 'application/pdf'
+  if (type === 'Wideo') return 'video/*'
+  if (type === 'Dokument') return 'application/octet-stream'
+  return '*/*'
+}
+
 function guessType(name: string): MaterialType {
   const ext = name.split('.').pop()?.toLowerCase() ?? ''
   if (ext === 'pdf') return 'PDF'
@@ -53,9 +60,9 @@ function guessType(name: string): MaterialType {
   return 'Inne'
 }
 
-async function ensureDir() {
-  const info = await FileSystem.getInfoAsync(FILES_DIR)
-  if (!info.exists) await FileSystem.makeDirectoryAsync(FILES_DIR, { intermediates: true })
+function ensureDir() {
+  const dir = getMaterialsDir()
+  if (!dir.exists) dir.create({ intermediates: true })
 }
 
 export default function TrainingMaterialsScreen() {
@@ -98,11 +105,12 @@ export default function TrainingMaterialsScreen() {
   const handleSave = useCallback(async () => {
     if (!pending || !title.trim()) return
     try {
-      await ensureDir()
+      ensureDir()
       const id = Date.now().toString()
       const ext = pending.name.split('.').pop() ?? ''
-      const dest = FILES_DIR + id + (ext ? `.${ext}` : '')
-      await FileSystem.copyAsync({ from: pending.uri, to: dest })
+      const destFile = new File(getMaterialsDir(), id + (ext ? `.${ext}` : ''))
+      new File(pending.uri).copy(destFile)
+      const dest = destFile.uri
       const next = [
         ...materials,
         {
@@ -118,22 +126,24 @@ export default function TrainingMaterialsScreen() {
       persist(next)
       setModalVisible(false)
       setPending(null)
-    } catch (e) {
-      Alert.alert('Błąd', `uri: ${pending?.uri}\n\n${String(e)}`)
+    } catch {
+      Alert.alert('Błąd', 'Nie udało się zapisać pliku.')
     }
   }, [pending, title, selectedType, materials, persist])
 
   const handleOpen = useCallback(async (item: Material) => {
     try {
-      const info = await FileSystem.getInfoAsync(item.localUri)
-      if (!info.exists) {
+      const filename = item.localUri.split('/').pop() ?? ''
+      const file = new File(getMaterialsDir(), filename)
+      if (!file.exists) {
         Alert.alert('Błąd', 'Plik nie istnieje.')
         return
       }
       const canShare = await Sharing.isAvailableAsync()
-      if (canShare) await Sharing.shareAsync(item.localUri)
-    } catch {
-      Alert.alert('Błąd', 'Nie można otworzyć pliku.')
+      if (!canShare) return
+      await Sharing.shareAsync(file.uri, { mimeType: getMimeType(item.type) })
+    } catch (e) {
+      Alert.alert('Błąd', String(e))
     }
   }, [])
 
@@ -145,7 +155,7 @@ export default function TrainingMaterialsScreen() {
         style: 'destructive',
         onPress: async () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-          try { await FileSystem.deleteAsync(item.localUri, { idempotent: true }) } catch {}
+          try { new File(item.localUri).delete() } catch {}
           persist(materials.filter((m) => m.id !== item.id))
         },
       },
