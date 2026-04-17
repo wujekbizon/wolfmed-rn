@@ -13,6 +13,7 @@ interface Props {
 export default function CategoryTestCard({ category, testsCount, onStart }: Props) {
   const [selectedCount, setSelectedCount] = useState(10)
   const isDark = useColorScheme() === 'dark'
+  const isInsufficient = testsCount < 10
 
   return (
     <View style={[styles.card, isDark ? styles.cardDark : styles.cardLight]}>
@@ -27,6 +28,9 @@ export default function CategoryTestCard({ category, testsCount, onStart }: Prop
           Czas trwania:{' '}
           <Text style={styles.metaHighlight}>25 min</Text>
         </Text>
+        {isInsufficient && (
+          <Text style={styles.insufficientText}>Za mało pytań (min. 10)</Text>
+        )}
       </View>
 
       <View style={styles.row}>
@@ -47,9 +51,9 @@ export default function CategoryTestCard({ category, testsCount, onStart }: Prop
       </View>
 
       <TouchableOpacity
-        style={styles.startButton}
+        style={[styles.startButton, isInsufficient && { opacity: 0.45 }]}
         onPress={() => onStart(category.id, selectedCount)}
-        disabled={testsCount === 0}
+        disabled={isInsufficient}
       >
         <Text style={styles.startButtonText}>Rozpocznij Test</Text>
       </TouchableOpacity>
@@ -135,5 +139,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 15,
+  },
+  insufficientText: {
+    fontSize: 12,
+    color: '#ff7a7a',
+    fontWeight: '600',
+    marginTop: 2,
   },
 })

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlashList } from '@shopify/flash-list'
 import AdminScreenHeader from '@/components/ui/AdminScreenHeader'
 import Ionicons from '@expo/vector-icons/Ionicons'
@@ -22,7 +23,7 @@ import { useCategories } from '@/hooks/useCategories'
 import { useCreateTest } from '@/hooks/useCreateTest'
 import { useUpdateTest } from '@/hooks/useUpdateTest'
 import { useDeleteTest } from '@/hooks/useDeleteTest'
-import { Test, Category } from '@/types/dataTypes'
+import { Test, Category, TestData } from '@/types/dataTypes'
 
 type FormState = {
   categoryId: string
@@ -43,6 +44,19 @@ export default function AdminTestsScreen() {
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [jsonError, setJsonError] = useState('')
+  const [searchText, setSearchText] = useState('')
+  const [filterCategoryId, setFilterCategoryId] = useState<number | null>(null)
+
+  const filteredTests = useMemo(() => {
+    let result = tests
+    if (filterCategoryId !== null)
+      result = result.filter((t) => t.categoryId === filterCategoryId)
+    if (searchText.trim()) {
+      const q = searchText.toLowerCase()
+      result = result.filter((t) => t.data.question?.toLowerCase().includes(q))
+    }
+    return result
+  }, [tests, filterCategoryId, searchText])
 
   const bg = isDark ? '#09090b' : '#f9fafb'
   const textColor = isDark ? '#f9fafb' : '#1f2937'
@@ -94,7 +108,7 @@ export default function AdminTestsScreen() {
       return
     }
     const selectedCategory = categories.find((c: Category) => c.id === categoryId)
-    const payload = { categoryId, category: selectedCategory?.name ?? '', data: parsedData }
+    const payload = { categoryId, category: selectedCategory?.name ?? '', data: parsedData as TestData }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     if (editId) {
       updateTest({ id: editId, data: payload }, { onSuccess: () => setModalVisible(false) })
@@ -107,7 +121,7 @@ export default function AdminTestsScreen() {
     <View style={[styles.item, isDark && styles.itemDark]}>
       <View style={styles.itemInfo}>
         <Text style={[styles.itemTitle, { color: textColor }]} numberOfLines={2}>
-          {(item.data as any)?.question ?? item.id}
+          {item.data.question ?? item.id}
         </Text>
         <Text style={styles.itemSub}>{item.categoryName ?? item.category}</Text>
       </View>
@@ -124,10 +138,50 @@ export default function AdminTestsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
-      <AdminScreenHeader title="Pytania testowe" count={tests.length} />
+      <AdminScreenHeader title="Pytania testowe" count={filteredTests.length} />
+
+      <View style={styles.filterBar}>
+        <View style={[styles.searchRow, isDark && styles.searchRowDark]}>
+          <Ionicons name="search-outline" size={16} color="#9ca3af" />
+          <TextInput
+            style={[styles.searchInput, { color: textColor }]}
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholder="Szukaj pytania..."
+            placeholderTextColor="#9ca3af"
+            autoCorrect={false}
+          />
+          {!!searchText && (
+            <Pressable onPress={() => setSearchText('')}>
+              <Ionicons name="close-circle" size={16} color="#9ca3af" />
+            </Pressable>
+          )}
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterChips}>
+          <Pressable
+            style={[styles.filterChip, filterCategoryId === null && styles.filterChipActive]}
+            onPress={() => setFilterCategoryId(null)}
+          >
+            <Text style={[styles.filterChipText, filterCategoryId === null && styles.filterChipTextActive]}>
+              Wszystkie
+            </Text>
+          </Pressable>
+          {categories.map((cat: Category) => (
+            <Pressable
+              key={cat.id}
+              style={[styles.filterChip, filterCategoryId === cat.id && styles.filterChipActive]}
+              onPress={() => setFilterCategoryId(filterCategoryId === cat.id ? null : cat.id)}
+            >
+              <Text style={[styles.filterChipText, filterCategoryId === cat.id && styles.filterChipTextActive]}>
+                {cat.name}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
 
       <FlashList
-        data={tests as Test[]}
+        data={filteredTests}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16 }}
@@ -141,6 +195,7 @@ export default function AdminTestsScreen() {
       </Pressable>
 
       <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
+        <SafeAreaView style={{ flex: 1, backgroundColor: bg }}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -206,6 +261,7 @@ export default function AdminTestsScreen() {
             </Pressable>
           </ScrollView>
         </KeyboardAvoidingView>
+        </SafeAreaView>
       </Modal>
     </View>
   )
@@ -213,6 +269,32 @@ export default function AdminTestsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  filterBar: { paddingHorizontal: 16, paddingTop: 12, gap: 8 },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    gap: 6,
+  },
+  searchRowDark: { backgroundColor: '#18181b', borderColor: '#3f3f46' },
+  searchInput: { flex: 1, fontSize: 14, paddingVertical: 0 },
+  filterChips: { marginBottom: 4 },
+  filterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#A491BB',
+    marginRight: 8,
+  },
+  filterChipActive: { backgroundColor: '#A491BB' },
+  filterChipText: { fontSize: 13, color: '#A491BB' },
+  filterChipTextActive: { color: '#ffffff' },
   item: {
     flexDirection: 'row',
     alignItems: 'center',

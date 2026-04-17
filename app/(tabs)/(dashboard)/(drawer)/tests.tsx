@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
 import { Ionicons } from '@expo/vector-icons'
 import CircularProgress from 'react-native-circular-progress-indicator'
 import { useAuth } from '@clerk/expo'
@@ -9,6 +10,7 @@ import { useCategories } from '@/hooks/useCategories'
 import { useSubmitCompletedTest } from '@/hooks/useSubmitCompletedTest'
 import CategoryTestCard from '@/components/CategoryTestCard'
 import TestCard from '@/components/TestCard'
+import { Category, Test } from '@/types/dataTypes'
 
 export default function Testy() {
   const { userId } = useAuth()
@@ -33,10 +35,6 @@ export default function Testy() {
   useEffect(() => {
     if (apiTests.length > 0) setTests(apiTests)
   }, [apiTests, setTests])
-
-  const handleAnswer = (questionId: string, selectedIndex: number) => {
-    setAnswers(prev => ({ ...prev, [questionId]: selectedIndex }))
-  }
 
   const handleSubmit = () => {
     if (!userId) return
@@ -72,7 +70,20 @@ export default function Testy() {
     setActiveTests([])
   }
 
-  const handleStart = (categoryId: number, questionCount: number) => {
+  const testsCountByCategory = useMemo(
+    () => tests.reduce<Record<number, number>>((acc, t) => {
+      if (t.categoryId != null) acc[t.categoryId] = (acc[t.categoryId] ?? 0) + 1
+      return acc
+    }, {}),
+    [tests]
+  )
+
+  const filteredCategories = useMemo(
+    () => categories.filter(c => c.isActive && (testsCountByCategory[c.id] ?? 0) > 0),
+    [categories, testsCountByCategory]
+  )
+
+  const handleStart = useCallback((categoryId: number, questionCount: number) => {
     const picked = tests
       .filter(t => t.categoryId === categoryId)
       .sort(() => Math.random() - 0.5)
@@ -81,23 +92,40 @@ export default function Testy() {
     setSelectedCategoryId(categoryId)
     setNumberTests(questionCount)
     setIsTest(true)
-  }
+  }, [tests, setActiveTests, setSelectedCategoryId, setNumberTests, setIsTest])
+
+  const handleAnswer = useCallback((questionId: string, selectedIndex: number) => {
+    setAnswers(prev => ({ ...prev, [questionId]: selectedIndex }))
+  }, [])
+
+  const renderCategory = useCallback(({ item }: { item: Category }) => (
+    <CategoryTestCard
+      category={item}
+      testsCount={testsCountByCategory[item.id] ?? 0}
+      onStart={handleStart}
+    />
+  ), [testsCountByCategory, handleStart])
+
+  const renderTest = useCallback(({ item, index }: { item: Test; index: number }) => (
+    <TestCard
+      test={item}
+      questionNumber={`${index + 1}/${activeTests.length}`}
+      onAnswer={handleAnswer}
+    />
+  ), [activeTests.length, handleAnswer])
 
   return (
     <View style={styles.container}>
       {!isTest ? (
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {categories
-            .filter(c => c.isActive)
-            .map(category => (
-              <CategoryTestCard
-                key={category.id}
-                category={category}
-                testsCount={tests.filter(t => t.categoryId === category.id).length}
-                onStart={handleStart}
-              />
-            ))}
-        </ScrollView>
+        <FlashList
+          data={filteredCategories}
+          renderItem={renderCategory}
+          keyExtractor={item => String(item.id)}
+          estimatedItemSize={200}
+          contentContainerStyle={styles.scrollContent}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          showsVerticalScrollIndicator={false}
+        />
       ) : isSubmitted && score ? (
         <View style={styles.scoreContainer}>
           <View style={[styles.scoreCard, { backgroundColor: isDarkMode ? '#1e1b2e' : '#ffffff' }]}>
@@ -160,24 +188,24 @@ export default function Testy() {
           </View>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {activeTests.map((item, index) => (
-            <TestCard
-              key={item.id}
-              test={item}
-              questionNumber={`${index + 1}/${activeTests.length}`}
-              onAnswer={handleAnswer}
-            />
-          ))}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.rowButton} onPress={handleSubmit} disabled={isPending}>
-              <Text style={styles.buttonText}>{isPending ? 'Wysyłanie...' : 'Prześlij Test'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.rowButton, styles.secondaryButton]} onPress={handleBackToMenu}>
-              <Text style={styles.secondaryButtonText}>Reset Test</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+        <FlashList
+          data={activeTests}
+          renderItem={renderTest}
+          keyExtractor={item => item.id}
+          estimatedItemSize={280}
+          contentContainerStyle={styles.scrollContent}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListFooterComponent={
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.rowButton} onPress={handleSubmit} disabled={isPending}>
+                <Text style={styles.buttonText}>{isPending ? 'Wysyłanie...' : 'Prześlij Test'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.rowButton, styles.secondaryButton]} onPress={handleBackToMenu}>
+                <Text style={styles.secondaryButtonText}>Reset Test</Text>
+              </TouchableOpacity>
+            </View>
+          }
+        />
       )}
     </View>
   )
@@ -189,8 +217,10 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   scrollContent: {
-    gap: 16,
     paddingBottom: 16,
+  },
+  separator: {
+    height: 16,
   },
   scoreContainer: {
     flex: 1,

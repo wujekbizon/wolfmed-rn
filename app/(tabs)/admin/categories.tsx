@@ -21,7 +21,7 @@ import { useUpdateCategory } from '@/hooks/useUpdateCategory'
 import { useDeleteCategory } from '@/hooks/useDeleteCategory'
 import { Category } from '@/types/dataTypes'
 
-type EditingState = { id: number; name: string; description: string } | null
+type EditingState = { id: number; name: string; description: string; isActive: boolean } | null
 
 export default function AdminCategoriesScreen() {
   const isDark = useColorScheme() === 'dark'
@@ -50,7 +50,7 @@ export default function AdminCategoriesScreen() {
     if (!editing || !editing.name.trim()) return
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     updateCategory(
-      { id: editing.id, data: { name: editing.name.trim(), description: editing.description.trim() } },
+      { id: editing.id, data: { name: editing.name.trim(), description: editing.description.trim(), isActive: editing.isActive } },
       { onSuccess: () => setEditing(null) }
     )
   }, [editing, updateCategory])
@@ -116,7 +116,7 @@ export default function AdminCategoriesScreen() {
             </View>
             <View style={styles.itemActions}>
               <Pressable
-                onPress={() => setEditing({ id: item.id, name: item.name, description: item.description ?? '' })}
+                onPress={() => setEditing({ id: item.id, name: item.name, description: item.description ?? '', isActive: item.isActive })}
                 style={styles.iconBtn}
               >
                 <MaterialIcons name="edit" size={20} color="#A491BB" />
@@ -166,6 +166,7 @@ export default function AdminCategoriesScreen() {
         data={categories}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
+        extraData={{ editing, isUpdating }}
         contentContainerStyle={{ padding: 16 }}
         ListEmptyComponent={
           !isLoading ? <Text style={styles.empty}>Brak kategorii</Text> : null

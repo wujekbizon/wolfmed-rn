@@ -21,7 +21,7 @@ import { useUpdateTag } from '@/hooks/useUpdateTag'
 import { useDeleteTag } from '@/hooks/useDeleteTag'
 import { Tag } from '@/types/dataTypes'
 
-type EditingState = { id: number; name: string } | null
+type EditingState = { id: number; name: string; isActive: boolean } | null
 
 export default function AdminTagsScreen() {
   const isDark = useColorScheme() === 'dark'
@@ -49,7 +49,7 @@ export default function AdminTagsScreen() {
     if (!editing || !editing.name.trim()) return
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     updateTag(
-      { id: editing.id, data: { name: editing.name.trim() } },
+      { id: editing.id, data: { name: editing.name.trim(), isActive: editing.isActive } },
       { onSuccess: () => setEditing(null) }
     )
   }, [editing, updateTag])
@@ -104,7 +104,7 @@ export default function AdminTagsScreen() {
             </View>
             <View style={styles.itemActions}>
               <Pressable
-                onPress={() => setEditing({ id: item.id, name: item.name })}
+                onPress={() => setEditing({ id: item.id, name: item.name, isActive: item.isActive })}
                 style={styles.iconBtn}
               >
                 <MaterialIcons name="edit" size={20} color="#A491BB" />
@@ -149,6 +149,8 @@ export default function AdminTagsScreen() {
         data={tags}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
+        extraData={{ editing, isUpdating }}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ padding: 16 }}
         ListEmptyComponent={
           !isLoading ? <Text style={styles.empty}>Brak tagów</Text> : null

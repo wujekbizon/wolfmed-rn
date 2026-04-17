@@ -9,7 +9,8 @@
       "Bash(xargs grep:*)",
       "WebSearch",
       "Bash(find /c/RN/wolfmed/lib/validations -type f -name *.ts)",
-      "Bash(find /c/RN/wolfmed/services -type f -name *.ts)"
+      "Bash(find /c/RN/wolfmed/services -type f -name *.ts)",
+      "Bash(pnpm exec *)"
     ]
   }
 }

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-
 import { LinearGradient } from 'expo-linear-gradient'
 import { Ionicons } from '@expo/vector-icons'
 import { LETTERS } from '@/constants/optionsLetters'
-import { Test } from '@/types/dataTypes'
+import { Test, Answer, TestData } from '@/types/dataTypes'
 
 const PRIMARY = '#A491BB'
 const PRIMARY_SOFT = '#A491BB18'
@@ -22,7 +22,13 @@ export default function TestCard({
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const isDark = useColorScheme() === 'dark'
 
-  const { data: { answers, question } } = test
+  const rawData: TestData | null = typeof test.data === 'string'
+    ? (JSON.parse(test.data) as TestData)
+    : test.data ?? null
+  const answers: Answer[] = rawData?.answers ?? []
+  const question = rawData?.question ?? ''
+
+  if (!answers.length) return null
 
   const handlePress = (index: number) => {
     setActiveIndex(index)
@@ -95,7 +101,6 @@ const styles = StyleSheet.create({
   shadow: {
     width: '100%',
     borderRadius: 20,
-    marginBottom: 16,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
