@@ -111,8 +111,9 @@ export default function Testy() {
       test={item}
       questionNumber={`${index + 1}/${activeTests.length}`}
       onAnswer={handleAnswer}
+      selectedIndex={answers[item.id] ?? null}
     />
-  ), [activeTests.length, handleAnswer])
+  ), [activeTests.length, handleAnswer, answers])
 
   return (
     <View style={styles.container}>
@@ -121,7 +122,6 @@ export default function Testy() {
           data={filteredCategories}
           renderItem={renderCategory}
           keyExtractor={item => String(item.id)}
-          estimatedItemSize={200}
           contentContainerStyle={styles.scrollContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           showsVerticalScrollIndicator={false}
@@ -192,7 +192,6 @@ export default function Testy() {
           data={activeTests}
           renderItem={renderTest}
           keyExtractor={item => item.id}
-          estimatedItemSize={280}
           contentContainerStyle={styles.scrollContent}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListFooterComponent={

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Ionicons } from '@expo/vector-icons'
@@ -14,12 +14,13 @@ export default function TestCard({
   test,
   questionNumber,
   onAnswer,
+  selectedIndex,
 }: {
   test: Test
   questionNumber: string
   onAnswer: (questionId: string, selectedIndex: number) => void
+  selectedIndex: number | null
 }) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const isDark = useColorScheme() === 'dark'
 
   const rawData: TestData | null = typeof test.data === 'string'
@@ -31,7 +32,6 @@ export default function TestCard({
   if (!answers.length) return null
 
   const handlePress = (index: number) => {
-    setActiveIndex(index)
     onAnswer(test.id, index)
   }
 
@@ -59,7 +59,7 @@ export default function TestCard({
       {/* Answers */}
       <View style={styles.answersContainer}>
         {answers.map((answer, index) => {
-          const isActive = activeIndex === index
+          const isActive = selectedIndex === index
 
           return (
             <TouchableOpacity
